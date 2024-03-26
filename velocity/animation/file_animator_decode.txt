@@ -1,0 +1,53 @@
+FILE SPEC:
+    The data is stored across one files, with one ROOT node and one or more
+    nested children (containing animator states).
+
+Sample:
+************************ FILE START ***********************
+@ANIM_ROOT;
+
+# Animation parameters and tree.
+@PARAM str dir: {
+@VALUE "up": {
+    @PARAM bool idle: {
+    @VALUE true: {
+        # Loads textures for game usage.
+        @FRAMES_PER_UPDATE 2;
+        @USE_TEX "images/player/player_back_0";
+        @USE_TEX "images/player/player_back_1";
+        @USE_TEX "images/player/player_back_2";
+    }
+    @VALUE false: {
+        # ...
+    }
+    }
+    # ... More down here.
+}
+}
+************************* FILE END ************************
+
+Commands and syntax:
+@: Indicates a directive. List of directives:
+    ANIM_ROOT: Indicates the start of the anim tree. Useful for linking other files (not used).
+    FRAMES_PER_UPDATE [int v]: Indicates how many frames must pass before the next animation frame is shown.
+    PARAM [dtype] [str name]: Animator parameter. Exported for plug-in use.
+    VALUE [dtype id]: Parameter value. Valid state. Only states accepted are valid states.
+    USE_TEX [str path]: Load a texture for animation.
+
+#: Indicates a comment. A comment may be in the same line as a directive.
+
+Syntax for defined directives:
+    NOTE: One-line directives are terminated by a semicolon. Multi-line directives are terminated
+    by a colon and then curly brackets.
+
+    @ANIM_ROOT;  # Zero parameters, single line. Terminated by a semicolon.
+
+    @FRAMES_PER_UPDATE [int v];  # 1 parameter, single line. Terminated by a semicolon.
+
+    @PARAM [dtype] [str name]: {}  # 2 parameters, multi-line. Directive ends with colon and
+        has an additional curly bracket before another directive.
+
+    @VALUE [dtype id]: {}  # 1 parameter, multi-line. Directive ends with colon and has an
+        additional curly bracket before another directive.
+
+NOTE! Eventually replace with easier-to-parse state-based version!

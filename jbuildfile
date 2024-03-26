@@ -1,0 +1,102 @@
+# Generate a redistributable binary.
+dist {
+    ARGS = "-Xlint:unchecked -Xlint:deprecation"  # Compiler flags.
+    CLASSPATH = "."  # Provided classpath
+    MAINFILE = "Main.java"  # Main file for javac code generation.
+    ENTRYPOINT = "Main"  # Code entrypoint
+    BINARY = "Velocity.jar"  # Deployment binary.
+
+    # Enable debugging extensions if necessary.
+    if ($(DEBUG)) {
+        ARGS := " -g"
+    }
+
+    # jBuilder must be asked to explicitly copy the build dir. Once done, it will automatically execute all ops on the new dir.
+    %useoutdir
+
+    %purge ".class"  # Erase all the stale class files.
+    %jcomp "-cp" $(CLASSPATH) $(ARGS) $(MAINFILE)
+    %purge ".java"  # Clean out the source files.
+
+    # Run a provided unit with cmd or a jar
+    # @jar unit args  # Provided external unit
+    # @chdir  # Cmd
+
+    # Do linking stuff. Builds the jarfile by default.
+    %link $(BINARY) $(ENTRYPOINT)
+    %purge ".class"  # Clean up the dir path.
+    # %keepreq  # Keep dist code only.
+    %linkldr "NO_WRITE_PIPE" # Copies the Java launcher into the directory and rename the current binary bin_resources
+}
+# Generate a linkable library instead of a binary.
+build_lib {
+    ARGS = "-Xlint:unchecked -Xlint:deprecation"  # Compiler flags.
+    CLASSPATH = "."  # Provided classpath
+    MAINFILE = "Main.java"  # Main file for javac code generation.
+    ENTRYPOINT = "Main"  # Code entrypoint
+    BINARY = "velocity.jar"  # Deployment binary.
+
+    # jBuilder must be asked to explicitly copy the build dir. Once done, it will automatically execute all ops on the new dir.
+    %useoutdir
+
+    %purge ".class"  # Erase all the stale class files.
+    %jcomplib "-cp" $(CLASSPATH) $(ARGS) $(MAINFILE)
+    %purge ".java"  # Clean out the source files.
+
+    # Run a provided unit with cmd or a jar
+    # @jar unit args  # Provided external unit
+    # @chdir  # Cmd
+
+    # Do linking stuff. Builds the jarfile by default.
+    %link $(BINARY) $(ENTRYPOINT)
+    %purge ".class"  # Clean up the dir path.
+    %keepreq  # Keep dist code only.
+}
+# Generate a linkable library instead of a binary.
+build_lib_src {
+    ARGS = "-Xlint:unchecked -Xlint:deprecation"  # Compiler flags.
+    CLASSPATH = "."  # Provided classpath
+    MAINFILE = "Main.java"  # Main file for javac code generation.
+    ENTRYPOINT = "Main"  # Code entrypoint
+    BINARY = "velocity-sources.jar"  # Deployment binary.
+
+    # jBuilder must be asked to explicitly copy the build dir. Once done, it will automatically execute all ops on the new dir.
+    %useoutdir
+
+    %purge ".class"  # Erase all the stale class files.
+    #%jcomp "-cp" $(CLASSPATH) $(ARGS) $(MAINFILE)
+    #%purge ".java"  # Clean out the source files.
+
+    # Run a provided unit with cmd or a jar
+    # @jar unit args  # Provided external unit
+    # @chdir  # Cmd
+
+    # Do linking stuff. Builds the jarfile by default.
+    %link $(BINARY) $(ENTRYPOINT)
+    #%purge ".class"  # Clean up the dir path.
+    %keepreq  # Keep dist code only.
+}
+# Test the application build (really only for standalone development.)
+test {
+    ARGS = ""  # Enable debug mode.
+    CLASSPATH = "."  # Provided classpath
+    MAINFILE = "Main.java"  # Main file for javac code generation.
+
+    # Allow debug extensions when requested.
+    if ($(DEBUG)) {
+        ARGS = "-g -Xlint:deprecation -Xlint:unchecked -Xdiags:verbose"
+    }
+
+    # Add in the jar binaries for the OpenGL renderer if necessary.
+    if ($(USE_LWJGL)) {
+        CLASSPATH = ".;lib/common/joml-1.10.5.jar;lib/common/lwjgl-glfw.jar;lib/common/lwjgl.jar;lib/common/lwjgl-opengl.jar;lib/common/lwjgl-stb.jar"
+    }
+
+    %purge ".class"
+    %jcomp $(ARGS) "-cp" $(CLASSPATH) $(MAINFILE)
+}
+# Purge all of the stale cached class files.
+clean {
+    # Clean all of those stupid stale .class files that make jgrasp compilation a pain in the butt.
+    %purge ".class"
+}

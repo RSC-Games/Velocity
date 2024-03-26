@@ -1,0 +1,2 @@
+"C:\Program Files (x86)\jGRASP\bundled\java\bin\java.exe" -cp ".;lib/common/lwjgl.jar;lib/win/lwjgl-natives-windows.jar;lib/common/lwjgl-glfw.jar;lib/win/lwjgl-glfw-natives-window.jar;lib/common/lwjgl-opengl.jar;lib/win/lwjgl-opengl-natives-windows.jar;lib/common/lwjgl-stb.jar;lib/windows/lwjgl-sdb-natives-windows.jar;lib/common/joml-1.10.5.jar" -Dorg.lwjgl.librarypath=lib/win -Dorg.lwjgl.util.Debug=true -Dorg.lwjgl.util.DebugLoader=true Main
+pause

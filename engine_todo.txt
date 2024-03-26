@@ -1,0 +1,78 @@
+Velocity to-do:
+
+Velocity Core:
+    DONE - Update the InputSystem API to allow renderers to submit key events externally.
+        DONE - Update LVCPU + ERP and implement LVOGL's backend.
+    - Implement the ResourceLoader API. (Essential for deployment)
+    - BUG: Avoid leaking classloaders in VXRA for failed renderer loads.
+    - Create velocity.system
+        - Add the ResourceLoader
+        - Add the SystemResourceLoader
+        - Relocate velocity.Images to velocity.system.Images
+    - Relocate primitives to velocity.primitive
+        - Move velocity.util.Point to velocity.primitive.Point
+        - Move velocity.util.Vector2 to velocity.primitive.Vector2
+    - Rewrite velocity.util.TextFile (current code sucks).
+    - UITextBox: Switch to a StringBuilder for reduced heap usage.
+    - Clean up the animator
+        - The current one works but it kind of sucks too. Eventually replace with a better one that
+            can detect initial states.
+
+DONE - Rename the engine Velocity
+    Done - Rename the package and libraries velocity.xxx.xxx
+
+Renderer Updates:
+    Renderer API:
+        DONE - Disconnect AWT-specific code from the renderer for better abstraction.
+        DONE - FrameBuffer: Implement primitive drawcalls and text rendering instead of relying solely
+            on java.awt.Graphics.
+        DONE - Implement RendererFeatures code.
+        DONE - Implement Z-sorting for drawShaded calls.
+        - InputSystem API currently cannot support varied input backends.
+
+    LV-CPU: (Advanced, supports up to FEAT_SHADING)
+        DONE - BUG: Light sources are not deallocated on scene switching and deletion.
+        - LVCPU-Shaders: Rewrite shader pipeline and deprecate FrameBuffer.getGraphics().
+        - Reimplement base shader pipeline. Lighting works but generic sprite shading doesn't.
+        - ENHANCE: Blending colored lights not currently implemented. Should improve visible graphics.
+        DONE - Implement primitives in LV-CPU.
+        DONE - Implement drawcall stashing system and z-sorting implementation.
+        DONE - Implement job-based renderer.
+        DONE - BUG: Z-sorting currently not implemented. Rendering job may cause tile alternation due to
+            concurrency.
+        - BUG: Illumination does not always light adjacent tiles.
+            - Noticed this in the renderer testing but never fixed.
+
+
+    LV-OpenGL: (Emerging, no support for FEAT_REQUIRED)
+        DONE - Implement window system and GLFW
+        DONE - Implement base render pipeline.
+        DONE - Add basic drawcall implementation.
+        - BUG: Illumination breaks when rebinding the lit shader.
+            - Seems to be related to either bad shader binding order or lost uniform data.
+            - Current workaround is expensive.
+        - Complete primitive support.
+            - Text rendering currently uses AWT. Switch to fully GL-based.
+        - Start implementing base shader pipeline.
+
+    LV-DirectX11: (Not implemented)
+        - Implement base render pipeline.
+        - BUG: WONTFIX: Start implementing base shader pipeline.
+    
+
+COMPLETED DOWN HERE!
+
+Renderer.LVCPU:
+    DONE - Clean up LumaViper CPU so the OpenGL version can be started.
+    DONE - Implement LumaViper CPU texture GC.
+    DONE - LVCPU: improve screen clear performance.
+    DONE - Lighting engine needs to be re-abstracted.
+    DONE - LVCPU: Lighting engine implementation.
+    DONE - Time how long it takes for illumination to run per texture.
+    DONE - LVCPU: Sunlight texture caching optimizations
+    DONE - Add utility functions to Pipeline for automatic renderer creation.
+    DONE - LVCPU: Add colored light support to the lighting engine.
+    DONE - LVCPU: Start up JFrame init needs to be moved to constructor as GLFW and DirectX do not
+        support JFrames.
+    DONE - Rename engine.renderer.lumaviper to engine.renderer.lvcpu
+    DONE - BUG: LVCPU: Alpha pixel data is lost in lighting calculations!

@@ -3,6 +3,7 @@ package velocity;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.io.File;
+import java.io.IOException;
 import java.net.URLClassLoader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -19,8 +20,20 @@ import velocity.util.Warnings;
  * Uses and allows the VXRA API to be used with generic renderers.
  */
 public class VXRA {
+    /**
+     * Current provided VXRA version.
+     */
     public static final String VXRA_VER = "0.5a";
+
+    /**
+     * The currently loaded render pipeline.
+     */
     public static RenderPipeline rp;
+
+    /**
+     * The render pipeline classloader to track.
+     */
+    private static URLClassLoader rpClassLoader;
 
     /**
      * Create a new render pipeline with the provided renderer and backend first. 
@@ -32,6 +45,7 @@ public class VXRA {
      * @param cfg Window configuration parameters for the renderer.
      * @param d Driver code {@code Main} that formerly was used by the extension
      *   renderer. May be deprecated.
+     * @return The newly created render pipeline.
      */
     public static RenderPipeline newRenderPipeline(String renderer, String backend, 
                                                    WindowConfig cfg, Driver d) {
@@ -49,6 +63,17 @@ public class VXRA {
         return rp;
     }
 
+    /**
+     * Simulate the fallback chain. Try to get the best of the supported renderers.
+     * Get the main renderer first and fall back down the chain if the main renderer
+     * is not supported on this hardware.
+     * 
+     * @param renderer The default renderer.
+     * @param backend The default backend.
+     * @param cfg The window configuration data.
+     * @param d The game driver.
+     * @return The most suitable render pipeline.
+     */
     private static RenderPipeline doFallbackChain(String renderer, String backend,
                                                   WindowConfig cfg, Driver d) {
         // Initially search for the ERP if requested. The ERP is built into Velocity.
@@ -81,10 +106,10 @@ public class VXRA {
     /**
      * Attempt to load a renderer Jarfile from disk.
      * 
-     * @param renderer
-     * @param backend
-     * @param cfg
-     * @param d
+     * @param renderer The current renderer to load.
+     * @param backend The current backend to load.
+     * @param cfg The window configuration data.
+     * @param d The game loop code.
      * @return The instantiated render pipeline.
      */
     private static RenderPipeline tryLoadRenderer(String renderer, String backend, 
@@ -135,14 +160,14 @@ public class VXRA {
      */
     private static RenderPipeline instantiatePipeline(File rf, WindowConfig cfg, Driver d) {
         try {
-            URLClassLoader rendererLoader = new URLClassLoader(
+            rpClassLoader = new URLClassLoader(
                 new URL[] {rf.toURI().toURL()},
                 VXRA.class.getClassLoader()
             );
 
             // Attempt to load the pipeline class. Requires a class name of
             // "<renderer>RP_<backend>_Backend"
-            Class<?> cls = rendererLoader.loadClass("RPInfo");
+            Class<?> cls = rpClassLoader.loadClass("RPInfo");
             Field frp = cls.getField("PIPELINE_CLASS");
             Class<?> rpClass = (Class<?>)frp.get(null);
 
@@ -172,6 +197,7 @@ public class VXRA {
             Warnings.warn("vxra", "Failed to create the main renderer!");
         }
 
+        deInitPipeline();
         return null;
     }
 
@@ -188,6 +214,24 @@ public class VXRA {
                 "Renderer \"" + rp.getRendererName() + 
                 "\" does not support required feature set!\nContinue anyway?"
             );
+        }
+    }
+
+    /**
+     * De-initialize the render pipeline.
+     */
+    // TODO: Current VXRA version does not support renderer .deinit functions.
+    public static void deInitPipeline() {
+        // Deinit the render pipeline.
+        // rp.deinit();
+        // rp = null;
+
+        // Free the currently loaded resources.
+        if (rpClassLoader != null) {
+            try { rpClassLoader.close(); }
+            catch (IOException ie) {}
+
+            rpClassLoader = null;
         }
     }
 }

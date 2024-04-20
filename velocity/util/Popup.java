@@ -3,8 +3,17 @@ package velocity.util;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
+/**
+ * Show popups on screen for warnings and errors. Generally used more for
+ * Velocity error cases than anything else.
+ */
 public class Popup {
-    // Never returns.
+    /**
+     * Show an error message on screen.
+     * 
+     * @param title The window title.
+     * @param message The error message to show.
+     */
     public static void showError(String title, String message) {
         JOptionPane diag = new JOptionPane(
             message,
@@ -17,6 +26,12 @@ public class Popup {
         System.exit(0);
     }
 
+    /**
+     * Show a warning on screen.
+     * 
+     * @param title The window title.
+     * @param message The warning message to display.
+     */
     public static void showWarning(String title, String message) {
         JOptionPane diag = new JOptionPane(
                 message,

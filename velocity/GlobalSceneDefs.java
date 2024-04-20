@@ -38,7 +38,7 @@ public abstract class GlobalSceneDefs {
 
     /**
      * Internal facing API. Print all of the defined scenes into the console for
-     * debugging purposes.
+     * load failure debugging.
      */
     public final void printDefinedScenes() {
         System.out.println("Currently defined Scenes: ");

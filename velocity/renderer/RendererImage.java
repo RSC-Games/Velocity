@@ -15,18 +15,20 @@ public abstract class RendererImage {
 
     /**
      * Image width. Doing a renderer lookup every time we want width is going to
-     * be very slow.
+     * be slightly slower than caching these values.
      */
     protected int w;
 
     /**
-     * Image height. See {@code w}
+     * Image height.
+     * 
+     * @see w
      */
     protected int h;
 
     /**
      * Internally create an image reference. Not for use outside of the renderer
-     * due to potentially detrimental effects to rendering.
+     * due to potentially detrimental effects to portability and rendering.
      * 
      * @param imguid Image texture identifier.
      * @param w Referenced image width
@@ -59,11 +61,14 @@ public abstract class RendererImage {
 
 
     /**
-     * DEPRECATED! Copy this image reference. This does not seem to be useful
-     * and could cause reference counting issues if not implemented correctly
+     * Copy this image reference. 
+     * 
+     * @deprecated This does not seem to be useful and could cause reference counting issues
+     * if not implemented correctly.
      * 
      * @return A new copy of this image reference.
      */
+    @Deprecated(since="v0.5.2.3", forRemoval=true)
     public abstract RendererImage copy();
 
     /**

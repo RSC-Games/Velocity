@@ -11,27 +11,66 @@ import velocity.sprite.ImageSprite;
 import velocity.sprite.Sprite;
 import velocity.util.*;
 
+/**
+ * Velocity's standard implementation of the DynamicEntity system. Handles collision
+ * events and enforces collision constraints.
+ */
 public class DynamicSprite extends ImageSprite implements DynamicEntity, Collidable {
+    /**
+     * Maximum range (in pixels) of collision testing. This current testing system
+     * is inherently buggy due to how test ranges are handled.
+     */
     private static final int TEST_RANGE = 5;
+
+    /**
+     * Collider rectangle representation.
+     */
     public final Rect col;
+
+    /**
+     * Offset for the collider rect.
+     */
     protected Point coffset = Point.zero;
+
+    /**
+     * Move directions as specified by DynamicEntity.
+     * @see velocity.sprite.collision.DynamicEntity DynamicEntity
+     */
     public boolean[] moveDir = new boolean[4];
 
+    /**
+     * Create a Dynamic Sprite.
+     * 
+     * @param pos Initial position.
+     * @param rot Rotation angle.
+     * @param name Sprite name.
+     * @param image The sprite image path.
+     */
     public DynamicSprite(Point pos, float rot, String name, String image) {
         super(pos, rot, name, image);
         this.col = this.pos.copy();
     }
 
+    /**
+     * Set the collider rect offset.
+     * 
+     * @param offset Rect offset.
+     */
     protected void setOffset(Point offset) {
         this.coffset = offset;
     }
 
-    // Just allows detecting collisions and trigger hits.
-    // Also enables physics.
-    // NOTE: A true value in the movement array means MOVEMENT IS LOCKED!
+    /**
+     * Simulate collision with nearby collidables and note directions in which some
+     * are hit.
+     * 
+     * @param others Collidables for simulation.
+     */
+    @Override
     public void simCollide(ArrayList<Sprite> others) {
         this.col.setPos(this.pos.getPos().add(coffset));
         
+        // NOTE: A true value in the movement array means MOVEMENT IS LOCKED!
         for (int i = 0; i < 4; i++) {
             moveDir[i] = false;
         }
@@ -72,6 +111,15 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
         }
     }
 
+    /**
+     * Attempt to hit a provided collider rect in maximum steps.
+     * 
+     * @param r The collider rect.
+     * @param other The other sprite to simulate.
+     * @param step The size of each simulated step.
+     * @param steps Maximum step count.
+     * @return Whether the collidable was hit or not.
+     */
     private boolean hitN(Rect r, Sprite other, Point step, int steps) {
         CPredicate p;
         Rect tr = r.copy();
@@ -96,8 +144,12 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
         return false;
     }
 
-    // Allows simulation of hitting trigger colliders. Since they are not
-    // collidable objects, no movement locking will occur.
+    /**
+     * Allows simulation of hitting trigger colliders. Since they are not
+     * collidable objects, no movement locking will occur.
+     * 
+     * @param others Other triggerables to simulate.
+     */
     public void simTrigger(ArrayList<Sprite> others) {
         for (Sprite other : others) {
             if (this == other)
@@ -126,10 +178,15 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
      *
      * @param other Trigger collider that was hit this frame.
      */
-    public void onTrigger(Sprite other) {
-        //System.out.println("[DynamicSprite]: Trigger collider hit; action not overridden!");
-    } 
+    public void onTrigger(Sprite other) {} 
 
+    /**
+     * Render this on the debug renderer. (Pink box showing the collider rect).
+     * 
+     * @param fb Input framebuffer for rendering.
+     * @param info Draw transform.
+     */
+    @Override
     public void DEBUG_render(FrameBuffer fb, DrawInfo info) {
         super.DEBUG_render(fb, info);
         Point pos = info.drawRect.getPos();
@@ -157,11 +214,22 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
     }
 }
 
-// Collision abstraction tree.
+/**
+ * Collision abstraction tree for testing between different collider types.
+ */
 interface CPredicate {
+    /**
+     * Test if a given collider overlaps with a given rect.
+     * 
+     * @param r Other rectangle.
+     * @return Whether they overlap.
+     */
     public boolean overlaps(Rect r);
 }
 
+/**
+ * Rect to rect version of the collision tree.
+ */
 class RectPredicate implements CPredicate {
     final Rect ir;
 
@@ -174,6 +242,9 @@ class RectPredicate implements CPredicate {
     }
 }
 
+/**
+ * Dynamic body predicate (changes collision geometry)
+ */
 class DynamicPredicate implements CPredicate {
     final Rect dr;
 
@@ -186,6 +257,9 @@ class DynamicPredicate implements CPredicate {
     }
 }
 
+/**
+ * Line to rect version of the collision tree.
+ */
 class LinePredicate implements CPredicate {
     final Line il;
 

@@ -6,9 +6,24 @@ package velocity.util;
  * util.Counter.
  */
 public class Timer {
+    /**
+     * Unit for nanoseconds. No conversion required.
+     */
     public static final int DUR_NS = 0;
+
+    /**
+     * Unit for microseconds. Convert from ns.
+     */
     public static final int DUR_US = 1_000;
+
+    /**
+     * Unit for milliseconds. Convert from ns.
+     */
     public static final int DUR_MS = 1_000_000;
+
+    /**
+     * Unit for seconds. Convert from ns.
+     */
     public static final int DUR_S = 1_000_000_000;
 
     /**

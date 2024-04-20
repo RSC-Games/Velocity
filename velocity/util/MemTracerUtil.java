@@ -1,10 +1,10 @@
 package velocity.util;
 
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Field;
+//import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-import sun.misc.Unsafe;
+//import sun.misc.Unsafe;
 import velocity.sprite.Sprite;
 
 /**
@@ -16,7 +16,7 @@ public class MemTracerUtil {
      * Unsafe reference required for obtaining memory addresses of leaked
      * objects.
      */
-    private final Unsafe unsafe;
+    //private final Unsafe unsafe;
 
     /**
      * Current quantity of tracked sprites.
@@ -41,7 +41,7 @@ public class MemTracerUtil {
             throw new IllegalStateException("Cannot create multiple MemTracers!");
 
         theMemTracer = this;
-        unsafe = getUnsafeRef();
+        //unsafe = getUnsafeRef();
         this.spriteRefs = new ArrayList<WeakReference<Sprite>>();
     }
 
@@ -51,6 +51,7 @@ public class MemTracerUtil {
      * 
      * @return The Java stdlib Unsafe.
      */
+    /*
     private Unsafe getUnsafeRef() {
         try {
             Class<Unsafe> target = Unsafe.class;
@@ -63,7 +64,7 @@ public class MemTracerUtil {
         catch (NoSuchFieldException ie) {}
 
         return null;
-    }
+    }*/
 
     /**
      * Add a new sprite to be tracked.

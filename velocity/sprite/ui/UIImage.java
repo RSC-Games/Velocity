@@ -1,28 +1,42 @@
 package velocity.sprite.ui;
 
-import velocity.Images;
 import velocity.renderer.DrawInfo;
 import velocity.renderer.FrameBuffer;
 import velocity.renderer.RendererImage;
+import velocity.system.Images;
 import velocity.util.*;
 
+/**
+ * Basic image rendered on a UI panel.
+ */
 public abstract class UIImage extends UIRenderable {
+    /**
+     * The image to render.
+     */
     public RendererImage img;
 
+    /**
+     * Create a UIImage.
+     * 
+     * @param pos The offset transform for the image.
+     * @param rot The image rotation angle.
+     * @param name The name of the sprite.
+     * @param imagename The image filepath.
+     */
     public UIImage(Point pos, float rot, String name, String imagename) {
         super(pos, rot, name);
         this.img = Images.loadImage(imagename);
         this.pos.setWH(img.getWidth(), img.getHeight());
     }
 
+    /**
+     * Draw the image on screen.
+     * 
+     * @param d Draw transform.
+     * @param fb Rendering framebuffer.
+     */
     @Override
     public void renderUI(DrawInfo d, FrameBuffer fb) {
         fb.blit(this.img, d);
-    }
-
-    public void finalize() {
-        super.finalize();
-        System.out.println("[Scene.GC{UIImage}]: Unlinking image " + img);
-        this.img = null;  // Completely unneccessary since the image unlinks itself anyway.
     }
 }

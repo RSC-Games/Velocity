@@ -3,47 +3,90 @@ package velocity;
 import velocity.util.*;
 
 /** 
- * Configure Velocity to how it best suits your game.
+ * Configure Velocity to how it best suits your game. For game development,
+ * subclass this and assign new values to every field in this file to change the defaults.
+ * Then, create an instance of that class and pass it into {@code VelocityMain.app_main}
  */
 public class GlobalAppConfig {
     /**
-     * Velocity configuration. Visible across the Velocity stack (like VXRA and appcode).
+     * Currently loaded Velocity configuration. Visible across the Velocity stack 
+     * (like VXRA and appcode).
      */
     public static GlobalAppConfig bcfg;
 
     /*********************** WINDOW CONFIG **************************/
-    public String APP_NAME;                   // Name shown on the window.
-    public String ICON_PATH;                  // Window icon.
-    public Point APP_RES_DEFAULT;             // Sets default window resolution.
-    public boolean WINDOW_RESIZABLE;          // Allows dynamic rescaling of the window and game.
-    public boolean WINDOW_FULLSCREEN;         // Auto-starts the application in fullscreen.
+    /** Name shown on the window title bar. */
+    public String APP_NAME;
+
+    /** Icon drawn in the window title bar. */
+    public String ICON_PATH;
+
+    /** Set the default window resolution on game start. */
+    public Point APP_RES_DEFAULT;
+
+    /** Allow dynamic window resizing of the game view and camera. */
+    public boolean WINDOW_RESIZABLE;
+
+    /** Start the application in fullscreen (or fake fullscreen depending on the renderer). */
+    public boolean WINDOW_FULLSCREEN;
 
     /********************** RENDERER CONFIG *************************/
-    public String DEFAULT_RENDERER;           // Renderer to use when available.
-    public String RENDER_BACKEND;             // Supported: CPU, OpenGL, DirectX11 (stubbed).
-    public boolean ENABLE_ERP_FALLBACK;       // Allow the default ERP fallback.
-    public boolean WARN_RENDERER_INIT_FAIL;   // Warn the user when a renderer cannot initialize.
-    public boolean EN_DEBUG_RENDERER;         // Don't ship a build this way.
-    public int REND_WORKER_COUNT;             // Default how many CPUs are allowed to be used.
+    /** 
+     * Preferred renderer to use (if available and supported). The name of the renderer. LumaViper
+     * and the ERP are supplied by default.
+     */
+    public String DEFAULT_RENDERER;
+
+    /** One of the supported backends for the provided renderer. Generally CPU, OpenGL, or DirectX11. */
+    public String RENDER_BACKEND;
+
+    /** Allow or disable the automatic ERP fallback on failure to load others on the fallback chain. */
+    public boolean ENABLE_ERP_FALLBACK;
+
+    /** Warn the user when the default renderer could not initialize. */
+    public boolean WARN_RENDERER_INIT_FAIL;
+
+    /** Enable the debug renderer for easier debugging and viewing of objects. */
+    public boolean EN_DEBUG_RENDERER;
+
+    /** Worker core count for renderers that use worker threads (like LVCPU). */
+    public int REND_WORKER_COUNT;
 
     /********************* SCENE LOAD CONFIG ************************/
-    public String START_SCENE;                // Initial scene loaded by Velocity.
-    public String LOAD_FAILURE_SCENE;         // Scene loaded when the requested scene can't be found.
-    public boolean SCENE_LOAD_FAILURE_FATAL;  // By default failed scene loads will warn.
+    /** The scene first loaded when Velocity starts. */
+    public String START_SCENE;
+
+    /** Scene loaded when the requested scene could not be found. */
+    public String LOAD_FAILURE_SCENE;
+
+    /** A failed scene load crashes the game instead of loading the error scene. */
+    public boolean SCENE_LOAD_FAILURE_FATAL;
 
     /******************** WARNINGS AND ERRORS ***********************/
-    public boolean MISSING_IMAGE_FATAL;       // Force missing image warnings to errors.
-    public boolean WARNINGS_FATAL;            // Trigger crash handler on any warning.
+    /** Missing images, instead of returning no image, crash the game. */
+    public boolean MISSING_IMAGE_FATAL;
 
-    /************************ DEBUGGING *****************************/
-    public boolean LOG_GC;                    // Enable GC logging messages.
-    public boolean LOG_MEMORY;                // Log memory allocation/deallocations for sprites.
+    /** Any warnings are increased in severity to an exception. Useful for debugging. */
+    public boolean WARNINGS_FATAL;
+
+    /************************* DEBUGGING ****************************/
+    /** Log all GC events (like scene destruction and deletion of sprites.) */
+    public boolean LOG_GC;
+
+    /** Enable the memory allocation/deallocation profiler for sprites. */
+    public boolean LOG_MEMORY;
 
     /********************* RENDERER DEBUGGING ***********************/
-    public boolean EN_RENDERER_LOGS;          // Enable renderer swapchain and draw messages.
-    public boolean EN_RENDERER_PROFILER;      // Track drawtime.
-    public boolean PROFILE_SHADERTIME;        // Track shading drawtime. Not supported on OGL/DX11.
+    /** Enable the swapchain and draw profiling. */
+    public boolean EN_RENDERER_LOGS;
 
+    /** Track frame by frame drawtime. */
+    public boolean EN_RENDERER_PROFILER;
+
+    /** Track shader time. Not supported on OGL/DX11 */
+    public boolean PROFILE_SHADERTIME;
+
+    /************************ CONFIGURATION *************************/
     /**
      * Configure this application. Takes a list of supplied config data and
      * starts Velocity and the application with that data.
@@ -60,8 +103,8 @@ public class GlobalAppConfig {
         this.WINDOW_FULLSCREEN = false; // By default will be a windowed application.
 
         // Renderer config.
-        this.DEFAULT_RENDERER = "LumaViper";  // Velocity will force usage of the ERP generally.
-        this.RENDER_BACKEND = "CPU";  // The ERP does not support different backends.
+        this.DEFAULT_RENDERER = "ERP";  // Velocity will force usage of the ERP generally.
+        this.RENDER_BACKEND = "DEFAULT";  // The ERP does not support different backends.
         this.ENABLE_ERP_FALLBACK = true;  // When no renderers are available use the ERP.
         this.WARN_RENDERER_INIT_FAIL = true;  // Warn the dev when the renderer cannot start.
         this.EN_DEBUG_RENDERER = false;  // The Debug Renderer is a finicky thing and takes time.

@@ -6,16 +6,21 @@ import velocity.Scene;
 import velocity.sprite.ui.FPSCounter;
 import velocity.util.Point;
 
+/**
+ * Scene loaded by default when no other scenes could be found.
+ * Default scene loads are disabled when {@code GlobalAppConfig.SCENE_LOAD_FAILURE_FATAL}
+ * is enabled.
+ */
 public class DefaultScene extends Scene {
+    /**
+     * Create the scene object.
+     * 
+     * @param name The name of the scene.
+     * @param uuid The scene's unique identifier.
+     */
     public DefaultScene(String name, int uuid) {
         super(name, uuid);
-        
-        /* UI Panel here */
         sprites.add(new FPSCounter(new Point(3, 12), 0, "FPS", Color.yellow));
-
-        /* End UI Panel */
-
-        // Camera required for rendering. DO NOT FORGET!
         // Using default camera in base scene.
     }
 }

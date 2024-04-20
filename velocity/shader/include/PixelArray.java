@@ -3,13 +3,42 @@ package velocity.shader.include;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
+/**
+ * Legacy image operating class. Functions faster than AWT direct pixel writing functions,
+ * but significantly slower than OpenGL.
+ */
 public class PixelArray {
+    /**
+     * The pixel data of the provided raster.
+     */
     private byte[] px;
+
+    /**
+     * How many bytes must be stepped per pixel.
+     */
     private int step;
+
+    /**
+     * The image width.
+     */
     private int w;
+
+    /**
+     * The image height.
+     */
     private int h;
+
+    /**
+     * Dynamically generated luminance calculation.
+     */
     public byte[] lum;
 
+    /**
+     * Create the pixel array. Must be of type {@code BufferedImage.TYPE_3BYTE_BGR} or
+     * {@code BufferedImage.TYPE_4BYTE_ABGR}.
+     * 
+     * @param img The image to expose the raster for.
+     */
     public PixelArray(BufferedImage img) {
         if (img.getType() == BufferedImage.TYPE_3BYTE_BGR)
             this.step = 3;
@@ -23,7 +52,9 @@ public class PixelArray {
         this.h = img.getHeight();
     }
 
-    // Calculate luminance of all pixels.
+    /**
+     * Generate the luminance data for this raster.
+     */
     public void buildLumData() {
         this.lum = new byte[w * h];
 
@@ -34,12 +65,12 @@ public class PixelArray {
                 // OLD CODE: lum[(y * w) + x] = (byte)((image.getRGB(x, y) & 0x0000FF00) >> 8);
 
                 // Optimization: inline.
-                int offset = (y * w + x) * 3;        
-                int col =  ((px[offset + 2] & 0xFF) << 16) | ((px[offset + 1] & 0xFF) << 8) | (px[offset] & 0xFF);
+                // Optimization: Reduce wasteful operations.
+                int offset = (y * w + x) * step;        
                 float out = 
-                    ((col & 0x00FF0000) >>> 16) * 0.2126729f + 
-                    ((col & 0x0000FF00) >>> 8) * 0.7151522f + 
-                    ((col & 0x000000FF) * 0.0721750f);
+                    (px[offset + 2] & 0xFF) * 0.2126729f + 
+                    (px[offset + 1] & 0xFF) * 0.7151522f + 
+                    (px[offset] & 0xFF) * 0.0721750f;
 
                 lum[(y * w) + x] = (byte)(out + 0.5f); // Round the pixel luminance for best effect.
             }
@@ -63,6 +94,13 @@ public class PixelArray {
         b[3] = px[offset]; // Blue pixel.
     }
 
+    /**
+     * Get a pixel's values in an integer.
+     * 
+     * @param x X location.
+     * @param y Y location.
+     * @return The pixel data merged into an int23.
+     */
     public int getPixel(int x, int y) {
         int offset = (y * w + x) * step;
         int alpha = 128;
@@ -79,9 +117,16 @@ public class PixelArray {
         );
     }
 
-    // Pixel passed in looks like this:
-    //   Alpha   Red     Green   Blue
-    // 0b00010001000100010001000100010001
+    /**
+     * Set a pixel from a passed in integer.
+     * Pixel passed in looks like this:
+     *   Alpha   Red     Green   Blue
+     * 0b00010001000100010001000100010001
+     * 
+     * @param x X location on screen.
+     * @param y Y location on screen.
+     * @param col The color data.
+     */
     public void setPixel(int x, int y, int col) {
         int offset = (y * w + x) * step;
 
@@ -108,6 +153,11 @@ public class PixelArray {
         px[offset] = col[3]; // Blue
     }
 
+    /**
+     * Get the internal raster data buffer.
+     * 
+     * @return The data buffer (px data).
+     */
     public byte[] getDataBuffer() {
         return this.px;
     }

@@ -15,39 +15,51 @@ import velocity.renderer.FrameBuffer;
 import velocity.renderer.RendererImage;
 import velocity.util.Point;
 
+/**
+ * Frame Buffer implementation for the debug renderer.
+ */
 public class DebugFrameBuffer implements FrameBuffer {
-    private boolean useAlpha;
     private BufferedImage b;
     private Rect r;
     private Graphics2D g;
-    //private byte[] imgD;
 
-    public DebugFrameBuffer(int w, int h) {
-        this(w, h, false);
-    }
-
+    /**
+     * Create a debug frame buffer.
+     * 
+     * @param w Debug FB width.
+     * @param h Debug FB height.
+     */
     @SuppressWarnings("deprecation")
-    public DebugFrameBuffer(int w, int h, boolean useAlpha) {
+    public DebugFrameBuffer(int w, int h) {
         if (w <= 0) w = 1;
         if (h <= 0) h = 1;
 
-        this.b = new BufferedImage(w, h, 
-            useAlpha ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR);
-        //this.imgD = ((DataBufferByte)b.getRaster().getDataBuffer()).getData();
+        this.b = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR);
         this.g = (Graphics2D)b.getGraphics();
-        this.g.setBackground(useAlpha ? new Color(0, 0, 0, 0) : Color.BLACK);
+        this.g.setBackground(Color.BLACK);
 
         int[] sRect = {0, 0, w, h};
         this.r = new Rect(sRect, true);
-        this.useAlpha = useAlpha;
     }
 
+    /**
+     * Blit another framebuffer to this one.
+     * 
+     * @param other The other framebuffer to write.
+     * @param p The offset to draw it at.
+     */
     public void blit(DebugFrameBuffer other, Point p) {
         this.blit0(other.b, p);
     }
 
-    // Raw buffered images are no longer allowed to be blitted as-is due to potential
-    // cross-renderer compatibility issues.
+    /**
+     * Raw buffered images are no longer allowed to be blitted as-is due to potential
+     * cross-renderer compatibility issues, but are still required for frame buffer
+     * blits. 
+     * 
+     * @param other Other image to write.
+     * @param p The offset to draw it at.
+     */
     private void blit0(BufferedImage other, Point p) {
         this.g.drawImage(other, p.x, p.y, null);
     }
@@ -56,7 +68,11 @@ public class DebugFrameBuffer implements FrameBuffer {
      * Standard issue blit. Clips pixel copy to framebuffer bounds and vastly
      * speeds up blit times with an optimized copy. Only supports TYPE_3BYTE_BGR
      * or TYPE_4BYTE_ABGR.
+     * 
+     * @param other A renderer image to draw on screen.
+     * @param d The location info for drawing.
      */
+    @Override
     public void blit(RendererImage other, DrawInfo d) {
         if (other == null) return;
 
@@ -65,18 +81,24 @@ public class DebugFrameBuffer implements FrameBuffer {
         this.g.drawImage(img, p.x, p.y, null);
     }
 
-    /**
+    /** 
      * Standard issue blit. Clips pixel copy to framebuffer bounds and vastly
      * speeds up blit times with an optimized copy. Only supports TYPE_3BYTE_BGR
      * or TYPE_4BYTE_ABGR.
+     * 
+     * @param other A renderer image to draw on screen.
+     * @param d The location info for drawing.
      */
+    @Override
     public void drawShaded(RendererImage other, DrawInfo d) {
         // ERP doesn't support lighting. Just bounce the call to blit.
         blit(other, d);
     }
 
-    // Unimplemented. Requires an array of generated images and uses z-buffering
-    // to render them.
+    /**
+     * Unimplemented. Requires an array of generated images and uses z-buffering
+     * to render them.
+     */
     void blitz() {}
 
     /**
@@ -263,14 +285,20 @@ public class DebugFrameBuffer implements FrameBuffer {
         this.g.drawString(text, pos.x, pos.y);
     }
 
+    /**
+     * @deprecated Getbufferedimage is non-flexible.
+     */
     @Deprecated()
     public BufferedImage DEBUG_getBufferedImage() {
-        //Warnings.warn("Detected DEBUG_getBufferedImage() call");
-        return this.b;
+        throw new RuntimeException("Unsupported call: DEBUG_getBufferedImage()");
     }
 
+    /**
+     * Copy this framebuffer.
+     */
+    @Override
     public DebugFrameBuffer copy() {
-        DebugFrameBuffer temp = new DebugFrameBuffer(r.getW(), r.getH(), this.useAlpha);
+        DebugFrameBuffer temp = new DebugFrameBuffer(r.getW(), r.getH());
         temp.blit(this, new Point(0, 0));
         return temp;
     }
@@ -284,11 +312,19 @@ public class DebugFrameBuffer implements FrameBuffer {
         g.drawImage(this.b, 0, 0, null);
     }
 
+    /**
+     * Get this framebuffer's graphics implementation.
+     * 
+     * @return The graphics pointer.
+     */
     @Deprecated
     public Graphics getGraphics() {
         return this.b.getGraphics();
     }
     
+    /**
+     * Erase this framebuffer.
+     */
     public void clear() {
         this.g.clearRect(0, 0, this.r.getW(), this.r.getH());
     }

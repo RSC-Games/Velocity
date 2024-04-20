@@ -16,9 +16,25 @@ import velocity.util.Point;
  * text.
  */
 public class UITextBox extends UIText {
+    /**
+     * Internal graphics helper for determining font sizes and metrics.
+     */
     static BufferedImage gHelper = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+
+    /**
+     * Font measurement metrics for rendering.
+     */
     protected FontMetrics metrics;
 
+    /**
+     * Create a UI Text Box.
+     * 
+     * @param pos Text box position.
+     * @param wh The textbox's width and height.
+     * @param name The sprite name.
+     * @param fontPath The path of the font to use.
+     * @param c The text color.
+     */
     public UITextBox(Point pos, Point wh, String name, String fontPath, Color c) {
         super(pos, 0f, name, fontPath, c);
         this.pos.setWH(wh);
@@ -29,6 +45,8 @@ public class UITextBox extends UIText {
 
     /**
      * Set the text size and get the new metrics.
+     * 
+     * @param size New size.
      */
     @Override
     public void setSize(int size) {
@@ -63,7 +81,15 @@ public class UITextBox extends UIText {
         return new Point(this.metrics.stringWidth(this.text), this.size);
     }
 
-    // Get the lines that need to be drawn onto the screen.
+    /**
+     * Split the text into lines for displaying on screen.
+     * 
+     * @param text The string to split.
+     * @param pxGap The gap between each line.
+     * @return The formatted array of drawable strings.
+     */
+    // TODO: Current split system uses large amounts of heap and wastes a lot of alloc
+    // /dealloc cycles. Reduce the impact of this.
     private String[] separateLinesByWidth(String text, int pxGap) {
         String[] words = this.text.split("[ ]");
         ArrayList<String> outWords = new ArrayList<String>();
@@ -81,7 +107,14 @@ public class UITextBox extends UIText {
         return outWords.toArray(new String[0]);
     }
 
-    // Parse a line from a list of words. The output is modified in place.
+    /**
+     * Parse a line from a list of words. The output is modified in place.
+     * 
+     * @param start The start index.
+     * @param words All provided words.
+     * @param out The list of output words. Modified in-place.
+     * @return The next index to read a character from.
+     */
     private int parseLine0(int start, String[] words, ArrayList<String> out) {
         String lastString = "";
         int i;
@@ -102,7 +135,14 @@ public class UITextBox extends UIText {
         return i;
     }
 
-    // Build a string from two provided bounds, end exclusive
+    /**
+     * Build a string from two provided bounds, end exclusive
+     * 
+     * @param words The list of words.
+     * @param start The starting index for copies
+     * @param end The ending index.
+     * @return The built string.
+     */
     private String buildString(String[] words, int start, int end) {
         String[] subWords = Arrays.copyOfRange(words, start, end);
         return String.join(" ", subWords);

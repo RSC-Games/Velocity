@@ -8,15 +8,36 @@ import velocity.util.*;
 
 import java.awt.Color;
 
+/**
+ * A collidable, represented as a single 1 pixel wide line. Usable at any
+ * angle.
+ */
 public class LineCollider extends Sprite implements Collidable { // Sprite
+    /**
+     * The internal line representation.
+     */
     public final Line l;
 
-    // Since no image is associated, no length & width should be necessary.
+    /**
+     * Create a line collider.
+     * 
+     * @param pos Starting position of the line.
+     * @param rot Rotation angle (ignored)
+     * @param name Sprite name.
+     * @param end Ending position of the line.
+     */
+    // TODO: Remove rotation angle parameter.
     public LineCollider(Point pos, float rot, String name, Point end) {
         super(pos, rot, name);
         this.l = new Line(pos, end);
     }
 
+    /**
+     * Draw this line collider on the debug renderer (with a red box).
+     * 
+     * @param fb The framebuffer to draw on.
+     * @param d The draw transform.
+     */
     @Override
     public void DEBUG_render(FrameBuffer fb, DrawInfo d) {
         Point pos = d.drawRect.getDrawLoc();

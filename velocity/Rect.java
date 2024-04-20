@@ -162,7 +162,11 @@ public class Rect {
         this.setPos(this.getPos().add(p));
     }
 
-    @Deprecated
+    /**
+     * Scheduled for removal in Velocity v0.6.0.0
+     * @return
+     */
+    @Deprecated(since="v0.4.0.0", forRemoval=true)
     public int[] getPixelPos() {
         throw new UnsupportedOperationException("Function obsolete!");
     }

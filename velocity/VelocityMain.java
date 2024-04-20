@@ -2,9 +2,15 @@ package velocity;
 
 import velocity.renderer.window.WindowConfig;
 import velocity.renderer.window.WindowOption;
+import velocity.system.FileResourceLoader;
+import velocity.system.JARResourceLoader;
+import velocity.system.ResourceLoader;
 import velocity.renderer.debug.DebugRenderer;
 import velocity.renderer.RendererFeatures;
 import velocity.renderer.RenderPipeline;
+
+import java.io.IOException;
+
 import velocity.renderer.DrawTimer;
 import velocity.util.MemTracerUtil;
 import velocity.util.Version;
@@ -12,6 +18,18 @@ import velocity.util.Popup;
 
 /**
  * Core body of Velocity. Everything that Velocity does originates here.
+ * 
+ * Updates (Velocity v0.6.0.0)
+ * 
+ * Updates (Velocity v0.5.2.7)
+ *  - Created the Velocity application exception crash dumper.
+ *  - Fixed Scene loader validation rules.
+ *  - Window interface expanded to include getPointerLocation().
+ *  - Fixed classloader resource leakage in VXRA.
+ *  - Improved type enforcement in the Scene instantation code.
+ *  - The entirety of the Velocity API has been commented and documented.
+ *  - Introducing the ResourceLoader API.
+ *  - Velocity.Images now chains exceptions on failed image load.
  * 
  * Updates (As of Velocity v0.5.1.8)
  *  - Version comparison bugs patched (isOlder didn't work).
@@ -75,23 +93,50 @@ public class VelocityMain implements Driver {
      * Current Velocity version. Uses the semantic versioning system
      * VERSION.MAJOR.MINOR.PATCH.
      */
-    public static final Version ENGINE_VER = new Version(0, 5, 1, 8);
+    public static final Version VELOCITY_VER = new Version(0, 6, 0, 0);
+
+    /**
+     * Extensions to the Velocity version.
+     * "pa" stands for prealpha release. (PROMOTED, NO LONGER USED).
+     * "a" stands for alpha release.
+     * "b" stands for beta release.
+     * "dev" stands for Development Release.
+     * "rc<X>" stands for Release Candidate (X)
+     * "p" stands for Production Release.
+     */
+    public static final String VELOCITY_EXT = "a";
 
     /**
      * Initialize and run Velocity.
+     * 
+     * @param bcfg The application and Velocity configuration parameters.
+     * @param sceneDefs The scene definitions for Scene loads.
      */
     public static void app_main(GlobalAppConfig bcfg, GlobalSceneDefs sceneDefs) {
         // Initial velocity engine property provisioning.
         GlobalAppConfig.bcfg = bcfg;
         Scene.sceneLUT = sceneDefs;
 
+        // Initialize the application resource loader.
+        String mainFile = System.getProperty("sun.java.command");
+
+        try {
+            ResourceLoader appLdr = !mainFile.endsWith(".jar") ? new FileResourceLoader() 
+                                    : new JARResourceLoader("./" + mainFile);
+            ResourceLoader.registerAppResourceLoader(appLdr);
+        }
+        catch (IOException ie) {
+            ie.printStackTrace();
+            System.exit(1);
+        }
+
         // Start Velocity.
-        System.out.println("[main]: Launched Velocity version v" + ENGINE_VER);
-        System.out.println("[main]: Starting renderer and Velocity components...");
+        System.out.println("[main]: Launched Velocity version " + VELOCITY_VER + "-" + VELOCITY_EXT);
+        System.out.println("[main]: Starting Velocity system...");
         new VelocityMain();  // Start and initialize the base engine code.
 
         // Start engine tick and rendering.
-        System.out.println("[main]: Entering player loop.");
+        System.out.println("[main]: Velocity up. Entering player loop.");
         DrawTimer t = VXRA.rp.getTimer();
 
         // Prevent a full window close and process termination on error, and inform
@@ -101,9 +146,11 @@ public class VelocityMain implements Driver {
                 t.tick();
             }
         }
+        // A scene could not be loaded for some reason.
         catch (InvalidSceneException ie) {
             System.out.println("Exception in thread main " + 
                                "velocity.InvalidSceneException: " + ie.getMessage());
+            CrashHandler.writeCrashInfo(ie, "The provided scene could not be loaded.");
             Popup.showError("Velocity Application Error", 
                             "The application has crashed! Reason:\n" + ie.getMessage());
         }
@@ -111,13 +158,16 @@ public class VelocityMain implements Driver {
         catch (Exception ie) {
             System.out.print("Exception in thread main ");
             ie.printStackTrace();
+            CrashHandler.writeCrashInfo(ie, "A generic crash has occurred.");
             Popup.showError("Velocity Application Error", 
                             "The application has crashed! Reason:\n" + ie.getMessage());
         }
-        // Game crashed for some reason. Tell the user/dev.
+        // Some generic JVM error. Generally when the VSCode streaming compiler fails. 
+        // Tell the user/dev.
         catch (Error ie) {
             System.out.print("Exception in thread main ");
             ie.printStackTrace();
+            CrashHandler.writeCrashInfo(ie, "Streaming Compiler Error.");
             Popup.showError("Velocity Streaming Compiler Error", 
                             "Part of the application failed to compile! Check log for info.");
         }
@@ -138,9 +188,10 @@ public class VelocityMain implements Driver {
 
         windowConfig.setOption(WindowOption.HINT_FULLSCREEN, GlobalAppConfig.bcfg.WINDOW_FULLSCREEN);
         windowConfig.setOption(WindowOption.HINT_RESIZABLE, GlobalAppConfig.bcfg.WINDOW_RESIZABLE);
-        // The window is not always on top as per Velocity's (and my) wants.
+        // The window is hardcoded to disable always on top.
 
         // Ask VXRA to find us the LumaViper renderer implementation.
+        System.out.println("[main]: Loading renderer...");
         VXRA.newRenderPipeline(
             GlobalAppConfig.bcfg.DEFAULT_RENDERER, 
             GlobalAppConfig.bcfg.RENDER_BACKEND, 
@@ -155,9 +206,11 @@ public class VelocityMain implements Driver {
         logRendererFeatureSet();
 
         // Pre-load the first scene (usually the shader loading scene).
+        System.out.println("[main]: Starting Velocity Scene system.");
         Scene.scheduleSceneLoad(GlobalAppConfig.bcfg.START_SCENE);
         
         // Start the window event system.
+        System.out.println("[main]: Starting render pipeline.");
         VXRA.rp.init();
 
         if (GlobalAppConfig.bcfg.EN_DEBUG_RENDERER)

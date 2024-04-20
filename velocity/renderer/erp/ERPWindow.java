@@ -2,6 +2,8 @@ package velocity.renderer.erp;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.MouseInfo;
+import java.awt.PointerInfo;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -10,15 +12,39 @@ import velocity.renderer.DrawTimer;
 import velocity.renderer.window.Window;
 import velocity.renderer.window.WindowConfig;
 import velocity.renderer.window.WindowOption;
+import velocity.system.Images;
 import velocity.util.Point;
+import velocity.util.Warnings;
 import velocity.Driver;
-import velocity.Images;
 
+/**
+ * An abstract representation of a window for the ERP. Allows limited control over the window presented
+ * on the screen. Concrete implementation based on AWT.
+ */
 class ERPWindow extends JPanel implements Window {
+    /**
+     * The Embedded Render Pipeline.
+     */
     EmbeddedRenderPipeline erp;
+
+    /**
+     * The frame presented on screen.
+     */
     JFrame f;
+
+    /**
+     * The game loop code.
+     */
     Driver driver;
+
+    /**
+     * The ERP event handler (for key/mouse events and window events).
+     */
     ERPEventHandler erpEvent;
+
+    /**
+     * The frame redraw timer.
+     */
     DrawTimer drawTimer;
 
     /**
@@ -85,6 +111,28 @@ class ERPWindow extends JPanel implements Window {
     public Point getPosition() {
         java.awt.Point d = this.f.getContentPane().getComponent(0).getLocationOnScreen();
         return new Point((int)d.getX(), (int)d.getY());
+    }
+
+    /**
+     * VXRA API Method.
+     * Return the mouse pointer location on screen.
+     * 
+     * @return The mouse pointer location relative to the window origin.
+     */
+    @Override
+    public Point getPointerLocation() {
+        PointerInfo mInfo = MouseInfo.getPointerInfo();
+
+        if (mInfo == null) {
+            Warnings.warn("velocity", 
+                "Got no mouse data! Cannot determine pointer location.");
+            return Point.zero;
+        }
+
+        java.awt.Point screenMPos = mInfo.getLocation();
+        Point windowMousePos = 
+            new Point((int)screenMPos.getX(), (int)screenMPos.getY()).sub(getPosition());
+        return windowMousePos;
     }
 
     /**

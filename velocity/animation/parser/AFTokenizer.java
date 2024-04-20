@@ -3,21 +3,45 @@ package velocity.animation.parser;
 import java.io.IOException;
 import java.util.HashMap;
 
+import velocity.system.ResourceLoader;
 import velocity.util.TextFile;
 import velocity.util.Warnings;
 
-public class AFTokenizer {
+/**
+ * The first stage of parsing. Takes an input file and converts it into an
+ * input token stream.
+ */
+class AFTokenizer {
+    /**
+     * Allowed parsable tokenes.
+     */
     static HashMap<String, TokenID> tokTable = new HashMap<String, TokenID>();
-    static boolean populated = false;
 
+    /**
+     * Input file to parse.
+     */
     TextFile inputf;
+
+    /**
+     * The current token. Used for building a token that is longer than
+     * one character.
+     */
     TokenBuilder cToken;
+
+    /**
+     * Read the next character from a file.
+     */
     boolean read = true;
+
+    /**
+     * Current character read from disk.
+     */
     String c = "";
 
+    /**
+     * Populate the tokens to parse.
+     */
     static void populateTable() {
-        if (populated) return;
-
         tokTable.put("@", TokenID.TOK_DIRECTIVE);
         tokTable.put("#", TokenID.TOK_COMMENT);
         tokTable.put("\n", TokenID.TOK_NEWLINE);
@@ -29,26 +53,43 @@ public class AFTokenizer {
         tokTable.put("}", TokenID.TOK_BRACE_CLOSE);
         tokTable.put("\"", TokenID.TOK_QUOTE);
         tokTable.put("", TokenID.TOK_EOF);
+    }
 
-        populated = true;
+    /**
+     * Set up the tokenizer.
+     */
+    static {
+        populateTable();
     }
     
+    /**
+     * Try to parse an animator.
+     * 
+     * @param inputFile Animator file.
+     */
     public AFTokenizer(String inputFile) {
         try {
-            this.inputf = new TextFile(inputFile, "r");
+            this.inputf = new TextFile(ResourceLoader.getAppLoader(), inputFile, "r");
         }
         catch (IOException ie) {
             Warnings.warn("AFTokenizer", "Cannot open file " + inputFile);
         }
-        
-        populateTable();
     }
 
+    /**
+     * Is more text available in the file?
+     * 
+     * @return Whether the file has been closed (because of EOF) or not.
+     */
     public boolean available() {
         return this.inputf != null;
     }
 
-    // Relies on external global state. Not re-entrant.
+    /**
+     * Generate the next token. Relies on external global state. Not re-entrant.
+     * 
+     * @return The next token.
+     */
     public Token getNextToken() {
         Token t = null;
 
@@ -58,7 +99,7 @@ public class AFTokenizer {
 
             if (read) c = readSrc(1);
 
-            t = getToken(c);
+            t = getNextToken0(c);
             if (t != null && t.tok == TokenID.TOK_WORD)
                 read = false;
             else
@@ -68,7 +109,13 @@ public class AFTokenizer {
         return t;
     }
 
-    private Token getToken(String c) {
+    /**
+     * Parse a token from a provided character.
+     * 
+     * @param c The current character.
+     * @return The parsed token.
+     */
+    private Token getNextToken0(String c) {
         // Carriage return unsupported.
         if (c.equals("\r"))
             return null;
@@ -143,6 +190,12 @@ public class AFTokenizer {
         return null;
     }
 
+    /**
+     * Generate a token ID from a provided character.
+     * 
+     * @param c The input character.
+     * @return The token ID.
+     */
     private TokenID getTokType(String c) {
         TokenID t = tokTable.get(c);
 
@@ -157,26 +210,51 @@ public class AFTokenizer {
         return TokenID.TOK_WORD;
     }
 
+    /**
+     * Update the global state for parsing a new longer token.
+     * 
+     * @param tokType The new token type.
+     */
     private void startNewToken(TokenID tokType) {
         throwIfTokenDefined();
         this.cToken = new TokenBuilder(tokType);
     }
 
+    /**
+     * Update the global state to end tokenizing a long token.
+     * 
+     * @return The generated token.
+     */
     private Token endToken() {
         Token t = new Token(this.cToken.id, this.cToken.data);
         this.cToken = null;
         return t;
     }
 
+    /**
+     * Prevent continued tokenization on a new token before the last token is finished.
+     */
     private void throwIfTokenDefined() {
         if (this.cToken != null)
             throw new IllegalStateException("New directive found before last one terminated!");
     }
 
+    /**
+     * Compare a requested token type against the currently processing token.
+     * 
+     * @param tok The token id to compare.
+     * @return Whether the id is the current token.
+     */
     private boolean isCurrentToken(TokenID tok) {
         return (this.cToken != null && this.cToken.id == tok);
     }
 
+    /**
+     * Read data from the input fie.
+     * 
+     * @param l How many characters to read.
+     * @return The read data.
+     */
     private String readSrc(int l) {
         try {
             return inputf.read(l);
@@ -189,6 +267,9 @@ public class AFTokenizer {
     }
 }
 
+/**
+ * Can't parse a token properly or an unrecognized token.
+ */
 class BadParserTokenException extends RuntimeException {
     public BadParserTokenException(String message) {
         super(message);

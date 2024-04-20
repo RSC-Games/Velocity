@@ -1,5 +1,9 @@
 package velocity.animation.parser;
 
+/**
+ * Represents many different token types and opcodes.
+ * Written badly; should be split into multiple ENUMs.
+ */
 public enum TokenID {
     // Syntax tokens.
     TOK_DIRECTIVE,

@@ -25,6 +25,14 @@ public interface Window {
     public Point getPosition();
 
     /**
+     * Return the mouse pointer location on the frame, with the origin transformed to the
+     * top left corner of the render surface.
+     * 
+     * @return The mouse pointer location on screen relative to the screen.
+     */
+    public Point getPointerLocation();
+
+    /**
      * Set the window's visibility on screen. Initially is not visible.
      * 
      * @param state Show window (if {@code true}) or hide it (if {@code false}).

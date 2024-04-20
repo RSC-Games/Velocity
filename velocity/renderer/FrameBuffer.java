@@ -32,7 +32,7 @@ public interface FrameBuffer {
      * 
      * @return framebuffer BufferedImage pixel storage.
     */
-    @Deprecated()
+    @Deprecated(since="v0.2.0.0", forRemoval=true)
     public BufferedImage DEBUG_getBufferedImage();
     
 

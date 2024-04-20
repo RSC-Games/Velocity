@@ -2,27 +2,41 @@ package velocity.animation.parser;
 
 import java.util.ArrayList;
 
-// Takes direct lexer output and builds a concrete syntax tree.
-// It's not quite a tree yet, as that is the ASTParser's job.
-// This just does type detection and converts some word tokens
-// to type codes.
-public class AFParserCST {
-    AFTokenizer lexer;
+/**
+ * Takes direct lexer output and builds a concrete syntax tree. It's not quite a 
+ * tree yet, as that is the ASTParser's job. This just does type detection and 
+ * converts some word tokens to type codes.
+ */
+class AFParserCST {
+    /**
+     * Whitespace characters. These are all ignored.
+     */
     static ArrayList<TokenID> whitespace = new ArrayList<TokenID>();
-    static ArrayList<String> typeCodes = new ArrayList<String>();
-    static ArrayList<String> directives = new ArrayList<String>();
-    static boolean populated = false;
 
+    /**
+     * The type codes used for parsing.
+     */
+    static ArrayList<String> typeCodes = new ArrayList<String>();
+
+    /**
+     * Allowed directives.
+     */
+    static ArrayList<String> directives = new ArrayList<String>();
+
+    /**
+     * The previous stage tokenizer.
+     */
+    AFTokenizer lexer;
+    
+    /**
+     * Detected EOF. Stop parsing when this is hit.
+     */
     boolean endOfFile = false;
 
-    public AFParserCST(AFTokenizer lexer) {
-        this.lexer = lexer;
-        populate();
-    }
-
+    /**
+     * Populate all of the parsing fields.
+     */
     static void populate() {
-        if (populated) return;
-
         whitespace.add(TokenID.TOK_COMMENT);
         whitespace.add(TokenID.TOK_NEWLINE);
         whitespace.add(TokenID.TOK_SPACE);
@@ -37,22 +51,52 @@ public class AFParserCST {
         directives.add("PARAM");
         directives.add("VALUE");
         directives.add("USE_TEX");
-
-        populated = true;
     }
 
+    /**
+     * Init the CST.
+     */
+    static {
+        populate();
+    }
+
+    /**
+     * Create the CST Parser.
+     * 
+     * @param lexer The previous stage Lexer.
+     */
+    public AFParserCST(AFTokenizer lexer) {
+        this.lexer = lexer;
+    }
+
+    /**
+     * Is data still available in this parser?
+     * 
+     * @return Whether EOF has been hit yet or not.
+     */
     public boolean available() {
         return !endOfFile;
     }
 
+    /**
+     * Parse the next token from this file.
+     * 
+     * @return The parsed token.
+     */
     public Token parseNextToken() {
         if (this.endOfFile) return null;
 
-        Token tToProcess = nextLexerToken();
+        Token tToProcess = parseNextToken0();
         return parseToken(tToProcess);
     }
 
-    private Token nextLexerToken() {
+    /**
+     * Get the next lexer token. A mess of a function that parses out a token
+     * from a stream of user-provided content.
+     * 
+     * @return The token.
+     */
+    private Token parseNextToken0() {
         if (!lexer.available())
             return null;
 
@@ -71,8 +115,12 @@ public class AFParserCST {
         return it;
     }
 
-    // Some tokens will be whitespace and can be trimmed.
-    // The whitespace is important mainly for the tokenizer.
+    /**
+     * Some tokens will be whitespace and can be trimmed. The whitespace is important 
+     * mainly for the tokenizer. Parse this whitespace out of the token stream.
+     * 
+     * @return A token without whitespace that could interfere with parsing.
+     */
     private Token parseToken(Token t) {
         Token outT = null;
 
@@ -90,10 +138,24 @@ public class AFParserCST {
         return outT;
     }
 
+    /**
+     * Create a token from a provided TokenID. Useful for renaming
+     * an already generated token.
+     * 
+     * @param t The token id.
+     * @param tok A previously generated token.
+     * @return A new token.
+     */
     private Token tokenFromID(TokenID t, Token tok) {
         return new Token(t, tok.data);
     }
 
+    /**
+     * Get a token's data type, if applicable.
+     * 
+     * @param data The parsed data.
+     * @return The datatype.
+     */
     private TokenID getType(String data) {
         // Trim numeric entries first.
         if (isInt(data))
@@ -118,6 +180,12 @@ public class AFParserCST {
         throw new BadParserTokenException("Found undefined symbol: " + data);
     }
 
+    /**
+     * Identify if a provided string is an integer.
+     * 
+     * @param d The string.
+     * @return Whether it is an integer.
+     */
     private boolean isInt(String d) {
         try {
             Integer.parseInt(d);
@@ -128,6 +196,12 @@ public class AFParserCST {
         }
     }
 
+    /**
+     * Identify if a provided string is a float.
+     * 
+     * @param d The string.
+     * @return Whether it is a float.
+     */
     private boolean isFloat(String d) {
         try {
             Float.parseFloat(d);

@@ -1,7 +1,6 @@
 package velocity.renderer.erp;
 
 import java.awt.image.BufferedImage;
-//import java.awt.image.DataBufferByte;
 import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.Graphics;
@@ -9,24 +8,54 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.Arrays;
 
-//import util.Counter;
 import velocity.Rect;
 import velocity.renderer.DrawInfo;
 import velocity.renderer.FrameBuffer;
 import velocity.renderer.RendererImage;
 import velocity.util.Point;
 
+/**
+ * The Embedded Render Pipeline's framebuffer representation.
+ */
 public class ERPFrameBuffer implements FrameBuffer {
+    /**
+     * Enable the alpha channel on the framebuffer (for UI).
+     */
     private boolean useAlpha;
-    private BufferedImage b;
-    private Rect r;
-    private Graphics2D g;
-    //private byte[] imgD;
 
+    /**
+     * The internal framebuffer data structure.
+     */
+    private BufferedImage b;
+
+    /**
+     * The framebuffer rectangle.
+     */
+    private Rect r;
+
+    /**
+     * The graphics system for operating on the framebuffer.
+     */
+    private Graphics2D g;
+
+    /**
+     * Create a framebuffer with the specified width and height.
+     * 
+     * @param w Width (in pixels).
+     * @param h Height (in pixels).
+     */
     public ERPFrameBuffer(int w, int h) {
         this(w, h, false);
     }
 
+    /**
+     * Create a framebuffer with the specified width and height. The alpha
+     * channel may be enabled as well. 
+     * 
+     * @param w Width (in pixels).
+     * @param h Height (in pixels).
+     * @param useAlpha Enable the alpha channel in the frame buffer.
+     */
     @SuppressWarnings("deprecation")
     public ERPFrameBuffer(int w, int h, boolean useAlpha) {
         if (w <= 0) w = 1;
@@ -34,7 +63,6 @@ public class ERPFrameBuffer implements FrameBuffer {
 
         this.b = new BufferedImage(w, h, 
             useAlpha ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR);
-        //this.imgD = ((DataBufferByte)b.getRaster().getDataBuffer()).getData();
         this.g = (Graphics2D)b.getGraphics();
         this.g.setBackground(useAlpha ? new Color(0, 0, 0, 0) : Color.BLACK);
 
@@ -43,12 +71,23 @@ public class ERPFrameBuffer implements FrameBuffer {
         this.useAlpha = useAlpha;
     }
 
+    /**
+     * Copy another framebuffer's data to this one.
+     * 
+     * @param other The other framebuffer to blit.
+     * @param p The point to start blitting from.
+     */
     public void blit(ERPFrameBuffer other, Point p) {
         this.blit0(other.b, p);
     }
 
-    // Raw buffered images are no longer allowed to be blitted as-is due to potential
-    // cross-renderer compatibility issues.
+    /**
+     * Raw buffered images are no longer allowed to be blitted as-is due to potential
+     * cross-renderer compatibility issues.
+     * 
+     * @param other The other raster to blit to this framebuffer.
+     * @param p The location to draw it at.
+     */
     private void blit0(BufferedImage other, Point p) {
         this.g.drawImage(other, p.x, p.y, null);
     }
@@ -57,7 +96,11 @@ public class ERPFrameBuffer implements FrameBuffer {
      * Standard issue blit. Clips pixel copy to framebuffer bounds and vastly
      * speeds up blit times with an optimized copy. Only supports TYPE_3BYTE_BGR
      * or TYPE_4BYTE_ABGR.
+     * 
+     * @param other The image to draw on this framebuffer.
+     * @param d The drawing location and transform.
      */
+    @Override
     public void blit(RendererImage other, DrawInfo d) {
         if (cullable(other, d)) return;
 
@@ -70,6 +113,9 @@ public class ERPFrameBuffer implements FrameBuffer {
      * Standard issue blit. Clips pixel copy to framebuffer bounds and vastly
      * speeds up blit times with an optimized copy. Only supports TYPE_3BYTE_BGR
      * or TYPE_4BYTE_ABGR.
+     * 
+     * @param other The image to draw on this framebuffer.
+     * @param d The drawing location and transform.
      */
     public void drawShaded(RendererImage other, DrawInfo d) {
         // ERP doesn't support lighting. Just bounce the call to blit.
@@ -112,6 +158,7 @@ public class ERPFrameBuffer implements FrameBuffer {
      * @param weight Line width.
      * @param c Line draw color
      */
+    @Override
     public void drawLine(Point p1, Point p2, int weight, Color c) {
         drawLine(p1, p2, weight, c, 0);
     }
@@ -125,6 +172,7 @@ public class ERPFrameBuffer implements FrameBuffer {
      * @param c Line draw color
      * @param layer Sort layer.
      */
+    @Override
     public void drawLine(Point p1, Point p2, int weight, Color c, int layer) {
         this.g.setColor(c);
         this.g.setStroke(new BasicStroke(weight));
@@ -139,6 +187,7 @@ public class ERPFrameBuffer implements FrameBuffer {
      * @param c Line color
      * @param closed Whether or not to join the last and first points to complete the shape.
      */
+    @Override
     public void drawLines(Point[] points, int weight, Color c, boolean closed) {
         drawLines(points, weight, c, closed, 0);
     }
@@ -152,6 +201,7 @@ public class ERPFrameBuffer implements FrameBuffer {
      * @param closed Whether or not to join the last and first points to complete the shape.
      * @param layer Sorting layer.
      */
+    @Override
     public void drawLines(Point[] points, int weight, Color c, boolean closed, int layer) {
         this.g.setColor(c);
         this.g.setStroke(new BasicStroke(weight));
@@ -175,6 +225,7 @@ public class ERPFrameBuffer implements FrameBuffer {
      * @param c Rectangle color
      * @param filled Whether or not to fill the rectangle after drawing it.
      */
+    @Override
     public void drawRect(Rect r, int weight, Color c, boolean filled) {
         drawRect(r, weight, c, filled, 0);
     }
@@ -188,6 +239,7 @@ public class ERPFrameBuffer implements FrameBuffer {
      * @param filled Whether or not to fill the rectangle after drawing it.
      * @param layer Sorting layer.
      */
+    @Override
     public void drawRect(Rect r, int weight, Color c, boolean filled, int layer) {
         this.g.setColor(c);
         this.g.setStroke(new BasicStroke(weight));
@@ -208,6 +260,7 @@ public class ERPFrameBuffer implements FrameBuffer {
      * @param weight Line width
      * @param c Color of lines to draw.
      */
+    @Override
     public void drawTriangle(Point p1, Point p2, Point p3, int weight, Color c) {
         drawTriangle(p1, p2, p3, weight, c, 0);
     }
@@ -222,6 +275,7 @@ public class ERPFrameBuffer implements FrameBuffer {
      * @param c Color of lines to draw.
      * @param layer Sorting layer.
      */
+    @Override
     public void drawTriangle(Point p1, Point p2, Point p3, int weight, Color c, int layer) {
         this.g.setColor(c);
         this.g.setStroke(new BasicStroke(weight));
@@ -237,6 +291,7 @@ public class ERPFrameBuffer implements FrameBuffer {
      * @param c Circle color
      * @param filled Whether to fill the circle or not.
      */
+    @Override
     public void drawCircle(Point center, int r, int weight, Color c, boolean filled) {
         drawCircle(center, r, weight, c, filled, 0);
     }
@@ -251,6 +306,7 @@ public class ERPFrameBuffer implements FrameBuffer {
      * @param filled Whether to fill the circle or not.
      * @param layer Sorting layer.
      */
+    @Override
     public void drawCircle(Point center, int r, int weight, Color c, boolean filled, int layer) {
         this.g.setColor(c);
         this.g.setStroke(new BasicStroke(weight));
@@ -269,6 +325,7 @@ public class ERPFrameBuffer implements FrameBuffer {
      * @param font Font to draw with.
      * @param c Text color.
      */
+    @Override
     public void drawText(Point pos, String text, Font font, Color c) {
         drawText(pos, text, font, c, 0);
     }
@@ -282,18 +339,24 @@ public class ERPFrameBuffer implements FrameBuffer {
      * @param c Text color.
      * @param layer Sorting layer.
      */
+    @Override
     public void drawText(Point pos, String text, Font font, Color c, int layer) {
         this.g.setFont(font);
         this.g.setColor(c);
         this.g.drawString(text, pos.x, pos.y);
     }
 
-    @Deprecated()
+    @Deprecated(forRemoval=true)
     public BufferedImage DEBUG_getBufferedImage() {
         //Warnings.warn("Detected DEBUG_getBufferedImage() call");
         return this.b;
     }
 
+    /**
+     * Make a copy of this framebuffer.
+     * 
+     * @return A full copy of this buffer.
+     */
     public ERPFrameBuffer copy() {
         ERPFrameBuffer temp = new ERPFrameBuffer(r.getW(), r.getH(), this.useAlpha);
         temp.blit(this, new Point(0, 0));
@@ -309,6 +372,11 @@ public class ERPFrameBuffer implements FrameBuffer {
         g.drawImage(this.b, 0, 0, null);
     }
 
+    /**
+     * Return the graphics subsystem for this framebuffer.
+     * 
+     * @return The graphics pointer.
+     */
     @Deprecated
     public Graphics getGraphics() {
         return this.b.getGraphics();

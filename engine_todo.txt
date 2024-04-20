@@ -1,66 +1,75 @@
 Velocity to-do:
 
 Velocity Core:
+    VELOCITY v0.5:
     DONE - Update the InputSystem API to allow renderers to submit key events externally.
         DONE - Update LVCPU + ERP and implement LVOGL's backend.
-    - Implement the ResourceLoader API. (Essential for deployment)
-    - BUG: Avoid leaking classloaders in VXRA for failed renderer loads.
-    - Create velocity.system
-        - Add the ResourceLoader
-        - Add the SystemResourceLoader
-        - Relocate velocity.Images to velocity.system.Images
+    DONE - Implement the ResourceLoader API. (Essential for deployment)
+    DONE - Create velocity.system
+        DONE - Add the ResourceLoader
+        DONE - Add the SystemResourceLoader
+        DONE - Relocate velocity.Images to velocity.system.Images
+    DONE - Javadoc the whole engine.
+    FIXED - BUG: Avoid leaking classloaders in VXRA for failed renderer loads.
+    FIXED - BUG: Scaled screens and mouse data doesn't match up. Fix that in the InputSystem.
+    DONE - Add crash dumps, reports and dialogs to the existing Velocity exception handler.
+
+    VELOCITY v0.6 (preparing for Velocity v1.0):
+    - Add a logging system.
+    - Change image loading mechanics. They're clunky and waste valuable time + memory.
+    - Update VXRA as per the current TODOs in VXRA.java.
+        - Change the current InputSystem VXRA hookup implementation.
+        - Change how Images.loadImage works. Currently weird and clunky.
+        - Remove deprecated code.
     - Relocate primitives to velocity.primitive
         - Move velocity.util.Point to velocity.primitive.Point
         - Move velocity.util.Vector2 to velocity.primitive.Vector2
+    - Update the current collision system (velocity.sprite.collision.DynamicSprite)
+    - Change UI code to always support AnchorPoints at the base level (most ui scripts).
     - Rewrite velocity.util.TextFile (current code sucks).
     - UITextBox: Switch to a StringBuilder for reduced heap usage.
+    - Improve AudioClip / MusicClip memory usage and deallocation.
+    - Implement rotation and scaling support across all currently available renderers.
     - Clean up the animator
         - The current one works but it kind of sucks too. Eventually replace with a better one that
             can detect initial states.
 
-DONE - Rename the engine Velocity
-    Done - Rename the package and libraries velocity.xxx.xxx
+    VELOCITY v1.0:
+    - Replace the DEBUG_render system with a normal rendering canvas on a normal, shaded window.
 
 Renderer Updates:
-    Renderer API:
-        DONE - Disconnect AWT-specific code from the renderer for better abstraction.
-        DONE - FrameBuffer: Implement primitive drawcalls and text rendering instead of relying solely
-            on java.awt.Graphics.
-        DONE - Implement RendererFeatures code.
-        DONE - Implement Z-sorting for drawShaded calls.
-        - InputSystem API currently cannot support varied input backends.
-
     LV-CPU: (Advanced, supports up to FEAT_SHADING)
         DONE - BUG: Light sources are not deallocated on scene switching and deletion.
         - LVCPU-Shaders: Rewrite shader pipeline and deprecate FrameBuffer.getGraphics().
         - Reimplement base shader pipeline. Lighting works but generic sprite shading doesn't.
         - ENHANCE: Blending colored lights not currently implemented. Should improve visible graphics.
-        DONE - Implement primitives in LV-CPU.
-        DONE - Implement drawcall stashing system and z-sorting implementation.
-        DONE - Implement job-based renderer.
-        DONE - BUG: Z-sorting currently not implemented. Rendering job may cause tile alternation due to
-            concurrency.
         - BUG: Illumination does not always light adjacent tiles.
             - Noticed this in the renderer testing but never fixed.
 
-
-    LV-OpenGL: (Emerging, no support for FEAT_REQUIRED)
+    LV-OpenGL: (Emerging, does not fully support FEAT_REQUIRED)
         DONE - Implement window system and GLFW
         DONE - Implement base render pipeline.
         DONE - Add basic drawcall implementation.
-        - BUG: Illumination breaks when rebinding the lit shader.
-            - Seems to be related to either bad shader binding order or lost uniform data.
-            - Current workaround is expensive.
+        FIXED - BUG: Illumination breaks when rebinding the lit shader.
+            DONE- Seems to be related to either bad shader binding order or lost uniform data.
+            - Current workaround is less expensive but does waste a shader bind.
         - Complete primitive support.
             - Text rendering currently uses AWT. Switch to fully GL-based.
         - Start implementing base shader pipeline.
-
-    LV-DirectX11: (Not implemented)
-        - Implement base render pipeline.
-        - BUG: WONTFIX: Start implementing base shader pipeline.
     
 
 COMPLETED DOWN HERE!
+
+DONE - Rename the engine Velocity
+    Done - Rename the package and libraries velocity.xxx.xxx
+
+Renderer.VXRA
+    DONE - Disconnect AWT-specific code from the renderer for better abstraction.
+    DONE - FrameBuffer: Implement primitive drawcalls and text rendering instead of relying solely
+        on java.awt.Graphics.
+    DONE - Implement RendererFeatures code.
+    DONE - Implement Z-sorting for drawShaded calls.
+    DONE - InputSystem API currently cannot support varied input backends.
 
 Renderer.LVCPU:
     DONE - Clean up LumaViper CPU so the OpenGL version can be started.
@@ -76,3 +85,12 @@ Renderer.LVCPU:
         support JFrames.
     DONE - Rename engine.renderer.lumaviper to engine.renderer.lvcpu
     DONE - BUG: LVCPU: Alpha pixel data is lost in lighting calculations!
+    DONE - Implement primitives in LV-CPU.
+    DONE - Implement drawcall stashing system and z-sorting implementation.
+    DONE - Implement job-based renderer.
+    DONE - BUG: Z-sorting currently not implemented. Rendering job may cause tile alternation due to
+        concurrency.
+
+Renderer.LV-DirectX11: (Cannot implement) CANCELLED
+    WONTFIX - Implement base render pipeline.
+    WONTFIX - BUG: Start implementing base shader pipeline.

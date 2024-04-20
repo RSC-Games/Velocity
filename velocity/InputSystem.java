@@ -2,27 +2,54 @@ package velocity;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.MouseInfo;
-import java.awt.PointerInfo;
 import java.util.ArrayList;
 
 import velocity.renderer.window.Window;
 import velocity.util.Point;
-import velocity.util.Warnings;
 
-// Useful for trapping keyboard and mouse inputs.
+/**
+ * Velocity's input system and HID event handler. Allows access to HID events
+ * cleanly and effectively.
+ */
 public class InputSystem {
+    /**
+     * The current input system backend.
+     */
     public static InputSystem inputSystemBackend;
 
+    /** 
+     * List of all keys pressed this frame.
+     */
     private ArrayList<Integer> keysDown = new ArrayList<Integer>();
+
+    /**
+     * List of all keys released this frame.
+     */
     private ArrayList<Integer> keysUp = new ArrayList<Integer>();
+
+    /**
+     * List of all currently pressed keys.
+     */
     private ArrayList<Integer> keysActive = new ArrayList<Integer>();
 
+    /**
+     * List of all mouse buttons pressed this frame.
+     */
     private ArrayList<Integer> mouseDown = new ArrayList<Integer>();
+
+    /**
+     * List of all mouse buttons released this frame.
+     */
     private ArrayList<Integer> mouseUp = new ArrayList<Integer>();
+
+    /**
+     * List of all mouse buttons currently pressed.
+     */
     private ArrayList<Integer> mouseActive = new ArrayList<Integer>();
 
-    // Called once per frame by the FrameRedrawListener.
+    /**
+     * Refresh all key data. Called by the renderer redraw event handler.
+     */
     public void clearKeyBuffers() {
         keysDown.clear();
         keysUp.clear();
@@ -41,7 +68,12 @@ public class InputSystem {
         return inputSystemBackend;
     }
 
-    // Meant to be called externally.
+    /**
+     * Get whether a key is currently pressed.
+     * 
+     * @param keyCode The key scan code.
+     * @return Whether the key was pressed.
+     */
     public boolean getKey0(int keyCode) {
         return keysActive.contains(keyCode);
     }
@@ -69,6 +101,12 @@ public class InputSystem {
                 - (inputSystemBackend.getKey0(neg) ? 1 : 0);
     }
 
+    /**
+     * Get whether a key was released this frame.
+     * 
+     * @param keyCode The key id.
+     * @return Whether it's been pressed or not.
+     */
     public boolean getKeyUp0(int keyCode) {
         return keysUp.contains(keyCode);
     }
@@ -88,22 +126,18 @@ public class InputSystem {
      * 
      * @return Mouse location in the window.
      */
+    // TODO: Fix incorrect mouse scaling detection.
     public static Point getMousePos() {
         Window window = VXRA.rp.getWindow();
-        PointerInfo mInfo = MouseInfo.getPointerInfo();
-
-        if (mInfo == null) {
-            Warnings.warn("velocity", 
-                "Got null mouse information! Cannot determine pointer location.");
-            return Point.zero;
-        }
-
-        java.awt.Point screenMPos = mInfo.getLocation();
-        Point windowMousePos = 
-            new Point((int)screenMPos.getX(), (int)screenMPos.getY()).sub(window.getPosition());
-        return windowMousePos;
+        return window.getPointerLocation();
     }
 
+    /**
+     * Test for a button press.
+     * 
+     * @param buttonID The mouse button id.
+     * @return Whether it's been pressed.
+     */
     public boolean clicked0(int buttonID) {
         return mouseActive.contains(buttonID);
     }

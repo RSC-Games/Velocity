@@ -11,13 +11,42 @@ import velocity.GlobalAppConfig;
  * and returns small, deduplicated pointers to the images.
  */
 class ERPTextureContextManager {
-    static final int GC_THRESHOLD = 64; // Image entries;
+    /**
+     * Minimum amount of textures that must be allocated before the texture GC begins running
+     * automatically. Generally 64 but can be modified.
+     */
+    static final int GC_THRESHOLD = 64;
+
+    /**
+     * Image ID to tracker lookup. Powers most of the deduplication system.
+     */
     HashMap<Long, ERPImageContext> imgs = new HashMap<Long, ERPImageContext>();
+
+    /**
+     * File path to image bytes lookup. Allows deduplication to occur even if
+     * multiple of the same image are loaded into memory.
+     */
     HashMap<String, ERPImageContext> imgLUT = new HashMap<String, ERPImageContext>();
+
+    /**
+     * The current available UID. Increases forever. Image UIDs are not reused within
+     * a single session.
+     */
     long imguid = 0;
 
+    /**
+     * Doesn't do anything.
+     */
     public ERPTextureContextManager() {}
 
+    /**
+     * Hooked by {@code Images.loadImage()}. Allows the context manager to load the
+     * images and deduplicate them.
+     * 
+     * @param img The image raster.
+     * @param path The image path.
+     * @return A handle to the image.
+     */
     public ERPRendererImage INTERNAL_loadNewImage(BufferedImage img, String path) {
         ERPImageContext ic = imgLUT.get(path);
         
@@ -36,16 +65,34 @@ class ERPTextureContextManager {
         return ref;  
     }
     
+    /**
+     * Get a texture from a provided UID. Trampolined from an ERPRendererImage.
+     * 
+     * @param uid The UID for lookup.
+     * @return The image raster.
+     */
     public BufferedImage getTexture(long uid) {
         ERPImageContext ic = imgs.get(uid);
         return ic.getTexture();
     }
 
+    /**
+     * Create a new reference for a provided UID. Trampolined from an ERPRendererImage.
+     * 
+     * @param uid The UID for lookup.
+     * @return A new reference.
+     */
     public ERPRendererImage newReference(long uid) {
         ERPImageContext ic = imgs.get(uid);
         return ic.getNewHandle(this);
     }
 
+    /**
+     * Delete a created reference.
+     * 
+     * @param uid The UID for lookup.
+     * @param ref The reference to delete.
+     */
     public void removeReference(long uid, ERPRendererImage ref) {
         ERPImageContext ic = imgs.get(uid);
         ic.removeReference(ref);

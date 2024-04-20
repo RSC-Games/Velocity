@@ -6,7 +6,7 @@ package velocity.renderer;
  */
 public interface EventHandler {
     /**
-     * Run the game tick.
+     * Execute the game tick and associated code.
      */
     public void onTimerTick();
 }

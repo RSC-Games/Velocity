@@ -23,10 +23,29 @@ import velocity.util.Timer;
  * cost alternative to the feature-rich LumaViper Rendering Pipeline.
  */
 public class EmbeddedRenderPipeline extends RenderPipeline {
+    /**
+     * ERP's window interface.
+     */
     ERPWindow window;
+    
+    /**
+     * Texture deduplicator and manager.
+     */
     ERPTextureContextManager texContextMgr;
+
+    /**
+     * Main framebuffer.
+     */
     ERPFrameBuffer fb;
+
+    /**
+     * Main ui framebuffer.
+     */
     ERPFrameBuffer uifb;
+
+    /**
+     * Track the current rendering state for thread sync.
+     */
     private volatile boolean rendered = false;
 
     /**
@@ -124,7 +143,6 @@ public class EmbeddedRenderPipeline extends RenderPipeline {
     /**
      * Non VXRA compliant function. Called on window resizing to update the
      * render buffers.
-     * 
      */
     public void regenFrameBuffers() {
         this.fb = new ERPFrameBuffer(Camera.res.x, Camera.res.y);
@@ -138,6 +156,9 @@ public class EmbeddedRenderPipeline extends RenderPipeline {
         this.rendered = false;
     }
 
+    /**
+     * Non-VXRA function! Get the draw event timer.
+     */
     @Override
     public DrawTimer getTimer() {
         return this.window.getTimer();        
@@ -146,33 +167,55 @@ public class EmbeddedRenderPipeline extends RenderPipeline {
     /**
      * Get this renderer's name.
      * 
-     * @return internal renderer name.
+     * @return Internal renderer name.
      */
     @Override
     public String getRendererName() {
         return "Embedded Render Pipeline";
     }
 
+    /**
+     * Get the window's handle.
+     */
     @Override
     public Window getWindow() {
         return this.window;
     }
 
+    /**
+     * Generate a new framebuffer for use outside of the renderer.
+     * @deprecated This function is a relic from early Velocity and is marked for removal.
+     */
     @Override
     public FrameBuffer newFrameBuffer() {
         throw new UnsupportedOperationException("Unimplemented method 'newFrameBuffer'");
     }
 
+    /**
+     * Generate a new framebuffer for use outside of the renderer.
+     * @deprecated This function is a relic from early Velocity and is marked for removal.
+     */
     @Override
     public FrameBuffer newFrameBuffer(int x, int y) {
         throw new UnsupportedOperationException("Unimplemented method 'newFrameBuffer'");
     }
 
+    /**
+     * Force the texture manager to load an image.
+     * 
+     * @param b The image bytes to intern if necessary.
+     * @param path The image loading path.
+     * @return The loaded image and a handle.
+     */
     @Override
     public ERPRendererImage INTERNAL_loadImage(BufferedImage b, String path) {
         return this.texContextMgr.INTERNAL_loadNewImage(b, path);
     }
 
+    /**
+     * Force a garbage collector run in the texture manager. Generally
+     * run during a scene load event.
+     */
     @Override
     public void forceGCRun() {
         this.texContextMgr.gcRun();

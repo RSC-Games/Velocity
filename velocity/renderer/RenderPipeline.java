@@ -117,19 +117,25 @@ public abstract class RenderPipeline {
     /**
      * Create a new framebuffer for use in the renderer. Mostly used internally but occasionally
      * used in other parts of Velocity.
+     * @deprecated The utility of this function is doubted and there's no current reason to create
+     * a new framebuffer. Actual removal time has not been determined.
      * 
      * @return New zeroed framebuffer.
      */
+    @Deprecated(since="v0.5.2.4", forRemoval=true)
     public abstract FrameBuffer newFrameBuffer();
 
     /**
      * Create a new framebuffer of variable size for use in the renderer. Mostly used 
      * internally but occasionally used in other parts of Velocity.
+     * @deprecated The utility of this function is doubted and there's no current reason to create
+     * a new framebuffer. Actual removal time has not been determined.
      * 
      * @param x Framebuffer width
      * @param y Framebuffer height
      * @return New zeroed framebuffer.
      */
+    @Deprecated(since="v0.5.2.4", forRemoval=true)
     public abstract FrameBuffer newFrameBuffer(int x, int y);
 
     /**

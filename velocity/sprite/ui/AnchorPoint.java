@@ -3,6 +3,9 @@ package velocity.sprite.ui;
 import velocity.sprite.Camera;
 import velocity.util.Point;
 
+/**
+ * Anchor points for UI and HUD rendering.
+ */
 public class AnchorPoint {
     /**
      * Calculate a base offset to transform an image from. The offset will change

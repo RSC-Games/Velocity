@@ -7,39 +7,67 @@ import velocity.animation.parser.ops.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-// The AST builds a true syntax tree as well as reads
-// the provided syntax. By far it has the most powerful
-// error detection.
-public class AFParserAST {
+/**
+ * The AST builds a true syntax tree as well as reads the provided syntax. By far 
+ * it has the most powerful error detection.
+ */
+class AFParserAST {
+    /**
+     * Parsable operations.
+     */
     static HashMap<String, TokenID> ops = new HashMap<String, TokenID>();
-    static boolean populated = false;
 
+    /**
+     * The previous cst parser.
+     */
     AFParserCST pp;
+
+    /**
+     * The current stack of directives.
+     */
     Stack<Directive> wstack = new Stack<Directive>();
+
+    /**
+     * The root directive.
+     */
     AnimRoot root;
 
-    public static void populate() {
-        if (populated) return;
-
+    /**
+     * Populate the tokens for parsing the grammar.
+     */
+    static void populate() {
         ops.put("ANIM_ROOT", TokenID.TOK_OP_ANIM_ROOT);
         ops.put("FRAMES_PER_UPDATE", TokenID.TOK_OP_FRAMES_PER_UPDATE);
         ops.put("PARAM", TokenID.TOK_OP_PARAM);
         ops.put("VALUE", TokenID.TOK_OP_VALUE);
         ops.put("USE_TEX", TokenID.TOK_OP_USE_TEX);
-
-        populated = true;
     }
 
-    public AFParserAST(AFParserCST preparser) {
-        this.pp = preparser;
+    /**
+     * Initialize the parser.
+     */
+    static {
         populate();
     }
 
+    /**
+     * Create a new AST parser.
+     * 
+     * @param preparser The previous CST parser.
+     */
+    public AFParserAST(AFParserCST preparser) {
+        this.pp = preparser;
+    }
+
+    /**
+     * Parse the AST from the previous CST.
+     * 
+     * @return The parsed CST.
+     */
     public AnimRoot buildTree() {
         AnimRoot base = null;
 
         // Build the stack and accumulate the AST as we get nodes.
-        // NOT YET IMPLEMENTED!
         while (pp.available()) {
             Directive d = getLogicalLine();
 
@@ -75,7 +103,11 @@ public class AFParserAST {
         return base;
     }
 
-    // Assumes beginning of line.
+    /**
+     * Assumes the beginning of a line. Parses out an entire line.
+     * 
+     * @return The logical line.
+     */
     private Directive getLogicalLine() {
         ArrayList<Token> line = new ArrayList<Token>();
 
@@ -124,6 +156,14 @@ public class AFParserAST {
         return d;
     }
 
+    /**
+     * Generate a directive corresponding to the parsed data.
+     * 
+     * @param op The opcode.
+     * @param term The line terminator.
+     * @param args Arguments of the directive.
+     * @return The generated directive.
+     */
     private Directive getDirectiveObject(Token op, Token term, ArrayList<Token> args) {
         switch (op.tok) {
             // This is all before a new node is pushed on the stack so
@@ -139,7 +179,7 @@ public class AFParserAST {
             case TOK_OP_USE_TEX:
                 return new UseTex(op, term, args, wstack.size());
 
-            // Need to refactor at some point so this isn't necessary for linting.
+            // Bad code: Linter got mad about this. Create a different ENUM at some point.
             case TOK_BOOL: {}
             case TOK_BRACE_CLOSE: {}
             case TOK_BRACE_OPEN: {}
@@ -162,6 +202,12 @@ public class AFParserAST {
         return null;
     }
 
+    /**
+     * Validate a line and ensure it's not incorrectly parsed or incorrectly
+     * written.
+     * 
+     * @return Whether the line is valid or is a closer.
+     */
     private boolean lineIsValidOrCloser() {
         Token t = pp.parseNextToken();
 
@@ -174,6 +220,11 @@ public class AFParserAST {
         return false;
     }
 
+    /**
+     * Try to parse a directive out of the file.
+     * 
+     * @return A directive, if any.
+     */
     private Token getDirective() {
         Token t = pp.parseNextToken();
 
@@ -183,6 +234,12 @@ public class AFParserAST {
         return new Token(ops.get(t.data), t.data);
     }
 
+    /**
+     * Attempt to parse a curly bracket out of the line for a multi-line statement.
+     * 
+     * @param type Token type.
+     * @return The parsed token.
+     */
     private Token getBrace(TokenID type) {
         Token t = pp.parseNextToken();
 
@@ -193,7 +250,15 @@ public class AFParserAST {
     }
 }
 
+/**
+ * Bad line representation.
+ */
 class InvalidLineException extends RuntimeException {
+    /**
+     * Cannot parse a line.
+     * 
+     * @param message The error message.
+     */
     public InvalidLineException(String message) {
         super(message);
     }

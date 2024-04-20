@@ -6,9 +6,24 @@ import velocity.renderer.DrawInfo;
 import velocity.renderer.FrameBuffer;
 import velocity.util.*;
 
+/**
+ * Sample FPS counter. Easily usable and flexible. Always shows the time between
+ * this frame drawing and the last drawing.
+ */
 public class FPSCounter extends UIText {
+    /**
+     * The last observed counter value.
+     */
     long counter = 0;
 
+    /**
+     * Create an FPS counter.
+     * 
+     * @param pos The screen position.
+     * @param rot The rotation angle of the text.
+     * @param name The name of the sprite.
+     * @param c The text color.
+     */
     public FPSCounter(Point pos, float rot, String name, Color c) {
         super(pos, rot, name, "Serif", c);
         this.sortOrder = 1;
@@ -16,7 +31,13 @@ public class FPSCounter extends UIText {
         this.color = c;
     }
 
-    // FPS tracking works as is.
+    /**
+     * Draw during the UI compositing stage.
+     * Counter values updated during this stage.
+     * 
+     * @param d Draw info.
+     * @param fb Rendering framebuffer.
+     */
     @Override
     public void renderUI(DrawInfo d, FrameBuffer fb) {    
         long cur = System.nanoTime();

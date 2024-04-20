@@ -19,13 +19,40 @@ import velocity.renderer.EventHandler;
 import velocity.sprite.Camera;
 import velocity.util.Point;
 
+/**
+ * Internal ERP event handler. Handles key events, resize, and other generic render
+ * pipeline events that are too abstract to handle elsewhere in Velocity.
+ */
 class ERPEventHandler extends ComponentAdapter implements ActionListener, EventHandler, 
                                                           KeyListener, MouseListener {
+    /**
+     * ERP window frame.
+     */
     private JFrame f;
+
+    /**
+     * Driver code. Used for running the game loop when the game loop timer fires.
+     */
     private Driver main;
+
+    /**
+     * The embedded render pipeline. Essential for forcing framebuffer regen.
+     */
     private EmbeddedRenderPipeline erp;
+
+    /**
+     * Handle key and mouse events and forward them to the application in a portable
+     * way.
+     */
     private InputSystem inputSystem;
 
+    /**
+     * Create an event handler for this renderer.
+     * 
+     * @param f The frame to track.
+     * @param main The player loop.
+     * @param erp The render pipeline.
+     */
     public ERPEventHandler(JFrame f, Driver main, EmbeddedRenderPipeline erp) {
         this.main = main;
         this.f = f;
@@ -70,24 +97,44 @@ class ERPEventHandler extends ComponentAdapter implements ActionListener, EventH
     public void mouseExited(MouseEvent e) {}
     public void keyTyped(KeyEvent e) {}
 
+    /**
+     * Mouse Pressed event. Fires when a mouse button is pressed.
+     * 
+     * @param e Mouse Event.
+     */
     @Override
     public void mousePressed(MouseEvent e) {
         int code = e.getButton();
         inputSystem.mousePressed(code);
     }
 
+    /**
+     * Mouse Released event. Fires when a mouse button is released.
+     * 
+     * @param e Mouse Event.
+     */
     @Override
     public void mouseReleased(MouseEvent e) {
         int code = e.getButton();
         inputSystem.mouseReleased(code);
     }
 
+    /**
+     * Key Pressed event. Fires when a key is pressed.
+     * 
+     * @param e Key Event.
+     */
     @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
         inputSystem.keyPressed(code);
     }
 
+    /**
+     * Key released event. Fires when a key is released.
+     * 
+     * @param e Key Event.
+     */
     @Override
     public void keyReleased(KeyEvent e) {
         int code = e.getKeyCode();

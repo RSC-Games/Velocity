@@ -14,19 +14,51 @@ import velocity.util.*;
  * scenes as well as how to define a scene itself.
  */
 public class Scene {
-    protected ArrayList<Sprite> sprites;
-    protected Camera camera;
-    public final String name;
-    public final int uuid;
+    /**
+     * The currently loaded scene. Allows fast access to scene data.
+     */
     public static Scene currentScene;
 
+    /**
+     * The scene loading lookup table. Allows user defined scenes to be loaded
+     * seamlessly.
+     */
+    // TODO: Make this private and write a function to set this value.
     public static GlobalSceneDefs sceneLUT = null;
+
+    /**
+     * A list of requested scenes. Only the last scene in the queue is loaded.
+     */
     public static final ArrayList<String> sceneQueue = new ArrayList<String>();
+
+
+    /**
+     * Stored sprites. These are what tick, init, and delete calls are dispatched
+     * to.
+     */
+    protected ArrayList<Sprite> sprites;
+
+    /**
+     * The main scene camera. Also stored in sprites but cached here for faster
+     * lookups.
+     */
+    protected Camera camera;
+
+    /**
+     * The scene's name. Not guaranteed to be unique but is the same across game
+     * executions.
+     */
+    public final String name;
+
+    /**
+     * The scene UUID. Guaranteed to be unique but may vary across game executions.
+     */
+    public final int uuid;
 
     /**
      * Schedule a scene to load on the next available tick.
      * 
-     * @param name The name of the scene as listed in {@SceneDefs}.
+     * @param name The name of the scene as listed in {@code SceneDefs}.
      */
     public static void scheduleSceneLoad(String name) {
         sceneQueue.add(name);
@@ -90,9 +122,8 @@ public class Scene {
     static final Scene loadScene0(String name) {
         // Loading scene files from disk not supported.
         // NOTE: Assuming previous scene was unloaded prior.
-        if (currentScene != null) {
+        if (currentScene != null)
             throw new IllegalStateException("[SceneMgr]: (INTERNAL) Previous scene was never unloaded!");
-        }
     
         // Find and load the class reference for the provided scene name.
         Class<?> idClass = sceneLUT.getSceneClass(name);
@@ -118,40 +149,42 @@ public class Scene {
         // however, to make a scene constructor with 2 parameters that aren't (String, int).
         // TODO: Scene class type verification.
         try {
-            Constructor<?>[] constructors = idClass.getConstructors();
-        
-            for (Constructor<?> c : constructors) {
-                if (c.getParameterCount() == 2) {
-                    Scene s = (Scene)c.newInstance(name, 0);
-                    System.out.println("[SceneMgr]: Loaded scene " + name);
-                    return s;
-                }
-            }
-            
-            // If there is no valid constructor (like if a given constructor doesn't have the
-            // 2 required parameters), then assist the developer in trying to fix it.
-            Warnings.warn("Scene.loadScene()", name + " missing constructor: (String, int).\n" +
-                          "Is there a constructor in " + name + ".java with the signature public " +
-                          name + "(String name, int uuid)?");
-                
-            if (GlobalAppConfig.bcfg.SCENE_LOAD_FAILURE_FATAL) 
-                throw new InvalidSceneException("Scene load failure.");
+            // Ensure the requested scene is a subclass of the Scene class.
+            if (!Scene.class.isAssignableFrom(idClass))
+                throw new InstantiationException("Provided scene class " + idClass.getName()
+                                                 + "is not a subclass of velocity.Scene!");
+
+            // Get the constructor required by the Scene contract.
+            Constructor<?> c = idClass.getConstructor(String.class, int.class);
+            Scene s = (Scene)c.newInstance(name, name.hashCode());
+            System.out.println("[SceneMgr]: Loaded scene " + name);
+            return s;
         }
         // {@code InstantiationException} has not been encountered thus far in generating scenes.
         // When it does happen, opening an issue online will assist greatly in debugging.
         catch (InstantiationException ie) {
-            Warnings.warn("Scene.loadScene()", "Failed to construct scene " + name + ". Unknown reason.");
+            Warnings.warn("Scene.loadScene()", "Failed to construct scene " + name 
+                          + ". Unknown reason.");
             ie.printStackTrace();
         }
         // {@code InvocationTargetException} is generally thrown when there's some error in the
         // scene code provided for loading, which can happen a lot. Generally happens when a class field
         // init fails or some precondition is violated... etc.
         catch (InvocationTargetException ie) { 
-            Warnings.warn("Scene.loadScene()", "An exception occurred while instantiating scene " + name);
+            Warnings.warn("Scene.loadScene()", "An exception occurred while instantiating scene "
+                         + name);
             ie.getCause().printStackTrace();
         }
+        catch (NoSuchMethodException ie) {
+            // If there is no valid constructor (like if a given constructor doesn't have the
+            // 2 required parameters), then assist the developer in trying to fix it.
+            Warnings.warn("Scene.loadScene()", name + " missing constructor: (String, int).\n" +
+                          "Is there a constructor in " + name + ".java with the signature public " +
+                          name + "(String name, int uuid)?");
+            ie.printStackTrace();
+        }
         // Likely security manager related. Have not gotten it yet.
-        catch (IllegalAccessException ie) {}
+        catch (IllegalAccessException ie) { ie.printStackTrace(); }
     
         if (GlobalAppConfig.bcfg.SCENE_LOAD_FAILURE_FATAL) 
             throw new InvalidSceneException("Scene load failure.");
@@ -162,6 +195,9 @@ public class Scene {
 
     /**
      * Basic scene instantiation. Can and should be overridden by a subclass.
+     * 
+     * @param name The name of this scene.
+     * @param uuid This scene's UUID (based on the hash of the name.)
      */
     public Scene(String name, int uuid) {
         this.name = name;
@@ -188,7 +224,7 @@ public class Scene {
 
     /**
      * Get a sprite of type T from the current scene context.
-     * Example usage: {@code s.<Camera>getSprite(Camera.class);}
+     * Example usage: {@code s.getSprite(Camera.class);}
      * 
      * @param clazz Sprite class to search for.
      * @return An instance of the requested class or a subclass, or null if not found.
@@ -235,6 +271,7 @@ public class Scene {
      * 
      * @param s Sprite to add.
      */
+    // TODO: Only allow init to occur once.
     public void addSprite(Sprite s) {
         this.sprites.add(s);
         s.init();
@@ -245,6 +282,8 @@ public class Scene {
      * 
      * @param s Sprite to add.
      */
+    // TODO: Only allow deletion to occur once, and forbid usage of a sprite
+    // post-deletion.
     public void removeSprite(Sprite s) {
         this.sprites.remove(s);
         s.delete();
@@ -343,15 +382,14 @@ public class Scene {
      * Velocity scene game tick. Simulates collision and executes all sprite ticks.
      * Entity tick is final since no derivative scene should implement a different
      * tick.
-     * 
      */
     public final void tick() {
         ArrayList<Sprite> collidables = new ArrayList<Sprite>();
         ArrayList<Sprite> triggerables = new ArrayList<Sprite>();
 
         // BUGFIX: Since the sprites array can be modified at any time by the internal
-        // sprite, the array is cloned and that is operated on instead. Updates to the
-        // scene context are deferred until the next tick.
+        // sprite, the array is cloned and that is operated on instead. Updates to new
+        // sprites introduced into the scene context are deferred until the next tick.
         @SuppressWarnings("unchecked")
         ArrayList<Sprite> simObjects = (ArrayList<Sprite>)this.sprites.clone();
         for (Sprite s : simObjects) {
@@ -421,6 +459,10 @@ public class Scene {
     }
 
     /**
+     * #deprecated This function was originally meant for debug hooks, but its very
+     * inflexible and outdated. A new function will be written that will do a full render
+     * pass.
+     * 
      * Only meant for debug hooks or {@code DebugRenderer}. Doesn't run any shading code.
      * It's a hell of a function that needs to be cleaned up. Cleanup performed 2/15/2024.
      * When an individual sprite's DEBUG_render is called, only the camera transform is
@@ -430,6 +472,8 @@ public class Scene {
      * @param cp Debug camera position.
      * @param sf Scale factor (not implemented).
      */
+    //@Deprecated(since="v5.2.0.0", forRemoval=true)
+    // TODO: Deprecate this function and rewrite the debug renderer system.
     public void DEBUG_render(FrameBuffer fb, Point cp, float[] sf) {    
         // Since this runs in parallel with the main thread we'll operate on a duplicate.
         @SuppressWarnings("unchecked")
@@ -469,6 +513,7 @@ public class Scene {
      * Replace with java.lang.ref.Cleaner or something eventually.
      * 
      * Currently used for logging purposes.
+     * @throws Throwable Any exception may occur in a finalizer.
      */
     @SuppressWarnings("deprecation")
     protected void finalize() throws Throwable {

@@ -59,7 +59,7 @@ public abstract class UIButton extends UIImage {
         if (this.pos.overlaps(mRect)) {
             this.hovered = true;
 
-            if (InputSystem.clicked(MouseEvent.BUTTON1))
+            if (InputSystem.released(MouseEvent.BUTTON1))
                 this.clicked();
         }
         else

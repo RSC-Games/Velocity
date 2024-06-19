@@ -15,6 +15,11 @@ Velocity Core:
     DONE - Add crash dumps, reports and dialogs to the existing Velocity exception handler.
 
     VELOCITY v0.6 (preparing for Velocity v1.0):
+    - BUG: (ResourceLoader) Full crash when loading application with an absolute file path.
+	FIXED - Strip the path provided to a relative path. Absolute paths cannot be used for JARFile lookups.
+    DONE - InputSystem: Fix getKeyUp() and implement getKeyDown().
+    - Allow text renderer colors to be changed.
+    FIXED - Version system is still broken (isNewer).
     - Add a logging system.
     - Change image loading mechanics. They're clunky and waste valuable time + memory.
     - Update VXRA as per the current TODOs in VXRA.java.

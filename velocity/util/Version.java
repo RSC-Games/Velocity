@@ -72,17 +72,17 @@ public class Version {
     }
 
     /**
-     * Check if the other version provided is newer than this current version.
+     * Check if this current version is newer than the provided one.
      * 
      * @param other The other version.
-     * @return If the version is newer.
+     * @return If this version is newer.
      */
     public boolean isNewer(Version other) {
-        if (this.v < other.v) { return false; }
-        else if (this.major < other.major) { return false; }
-        else if (this.minor < other.minor) { return false; }
-        else if (this.patch < other.patch) { return false; }
-        return true;
+        if (this.v > other.v) { return true; }
+        else if (this.major > other.major) { return true; }
+        else if (this.minor > other.minor) { return true; }
+        else if (this.patch > other.patch) { return true; }
+        return false;
     }
 
     /**

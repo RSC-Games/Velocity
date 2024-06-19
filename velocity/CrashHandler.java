@@ -25,11 +25,8 @@ class CrashHandler {
             f.write("A fatal exception has been detected in the Velocity Player.\n");
             f.write("Generated message: " + message + "\n");
             f.write("Exception Details:\n");
-            f.write("Exception in thread main " + ie.getClass().getName() + ": " + ie.getMessage() + "\n");
 
-            for (StackTraceElement e : ie.getStackTrace()) {
-                f.write("\tat " + e.toString() + "\n");
-            }
+            writeStackTrace(ie, f);
 
             f.write("\n\nEnd of stack trace.\n");
             f.write("Please contact the application developer and provide them this file.\n");
@@ -43,6 +40,25 @@ class CrashHandler {
             System.err.println("[crash_handler]: Unable to create crash log!");
             e.printStackTrace();
             System.exit(-512);
+        }
+    }
+
+    /**
+     * Print an exception backtrace to the Velocity dump file.
+     * 
+     * @param exc The exception to read.
+     * @param outFile The file to write the data to.
+     */
+    private static void writeStackTrace(Throwable exc, TextFile outFile) throws IOException {
+        outFile.write("Exception in thread main " + exc.getClass().getName() + ": " + exc.getMessage() + "\n");
+
+        for (StackTraceElement e : exc.getStackTrace()) {
+            outFile.write("\tat " + e.toString() + "\n");
+        }
+
+        if (exc.getCause() != null) {
+            outFile.write("\nWas caused by:\n\n");
+            writeStackTrace(exc.getCause(), outFile);
         }
     }
 }

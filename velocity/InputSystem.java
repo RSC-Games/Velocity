@@ -22,10 +22,20 @@ public class InputSystem {
      */
     private ArrayList<Integer> keysDown = new ArrayList<Integer>();
 
+    /** 
+     * List of all keys pressed this frame.
+     */
+    private ArrayList<Integer> keysDownBuffer = new ArrayList<Integer>();
+
     /**
      * List of all keys released this frame.
      */
     private ArrayList<Integer> keysUp = new ArrayList<Integer>();
+
+    /**
+     * Internal list of all keys released this frame.
+     */
+    private ArrayList<Integer> keysUpBuffer = new ArrayList<Integer>();
 
     /**
      * List of all currently pressed keys.
@@ -38,9 +48,19 @@ public class InputSystem {
     private ArrayList<Integer> mouseDown = new ArrayList<Integer>();
 
     /**
+     * Internal list of newly pressed mouse buttons.
+     */
+    private ArrayList<Integer> mouseDownBuffer = new ArrayList<Integer>();
+
+    /**
      * List of all mouse buttons released this frame.
      */
     private ArrayList<Integer> mouseUp = new ArrayList<Integer>();
+
+    /**
+     * Internal list of all mouse buttons released this frame.
+     */
+    private ArrayList<Integer> mouseUpBuffer = new ArrayList<Integer>();
 
     /**
      * List of all mouse buttons currently pressed.
@@ -55,6 +75,23 @@ public class InputSystem {
         keysUp.clear();
         mouseDown.clear();
         mouseUp.clear();
+
+        publishKeyPresses();
+    }
+
+    /**
+     * Update the currently visible keypresses/mouse presses with the cached ones.
+     */
+    private void publishKeyPresses() {
+        keysDown.addAll(keysDownBuffer);
+        keysDownBuffer.clear();
+        keysUp.addAll(keysUpBuffer);
+        keysUpBuffer.clear();
+
+        mouseDown.addAll(mouseDownBuffer);
+        mouseDownBuffer.clear();
+        mouseUp.addAll(mouseUpBuffer);
+        mouseUpBuffer.clear();
     }
 
     /**
@@ -78,7 +115,6 @@ public class InputSystem {
         return keysActive.contains(keyCode);
     }
 
-    
     /**
      * Get a key state from a key code.
      * 
@@ -87,6 +123,26 @@ public class InputSystem {
      */
     public static boolean getKey(int keyCode) {
         return inputSystemBackend.getKey0(keyCode);
+    }
+
+    /**
+     * Get whether a key was just pressed.
+     * 
+     * @param keyCode The key scan code.
+     * @return Whether the key was just pressed.
+     */
+    public boolean getKeyDown0(int keyCode) {
+        return keysDown.contains(keyCode);
+    }
+
+    /**
+     * Get a key state from a key code.
+     * 
+     * @param keyCode Key Code.
+     * @return The key state (if its pressed).
+     */
+    public static boolean getKeyDown(int keyCode) {
+        return inputSystemBackend.getKeyDown0(keyCode);
     }
 
     /**
@@ -126,7 +182,6 @@ public class InputSystem {
      * 
      * @return Mouse location in the window.
      */
-    // TODO: Fix incorrect mouse scaling detection.
     public static Point getMousePos() {
         Window window = VXRA.rp.getWindow();
         return window.getPointerLocation();
@@ -143,7 +198,7 @@ public class InputSystem {
     }
 
     /**
-     * Get a button id.
+     * Get a mouse button pressed state.
      * 
      * @param buttonID Button id.
      * @return Whether it's pressed or not.
@@ -153,11 +208,32 @@ public class InputSystem {
     }
 
     /**
+     * Test for a button release.
+     * 
+     * @param buttonID The mouse button id.
+     * @return Whether it's been pressed.
+     */
+    public boolean released0(int buttonID) {
+        return mouseUp.contains(buttonID);
+    }
+
+    /**
+     * Was a mouse button released this frame?
+     * 
+     * @param buttonID Button id.
+     * @return Whether it's released this frame or not.
+     */
+    public static boolean released(int buttonID) {
+        return inputSystemBackend.released0(buttonID);
+    }
+
+    /**
      * Submit a key down request.
+     * 
      * @param keyCode Input key code.
      */
     public void keyPressed(int keyCode) {
-        keysDown.add(keyCode);
+        keysDownBuffer.add(keyCode);
 
         if (!keysActive.contains(keyCode))
             keysActive.add(keyCode);
@@ -169,7 +245,7 @@ public class InputSystem {
      * @param keyCode Code.
      */
     public void keyReleased(int keyCode) {
-        keysUp.add(keyCode);
+        keysUpBuffer.add(keyCode);
         keysActive.remove((Integer)keyCode); // Remove the object, not the index.
     }
 
@@ -184,7 +260,7 @@ public class InputSystem {
      * @param mouseButton
      */
     public void mousePressed(int mouseButton) {
-        mouseDown.add(mouseButton);
+        mouseDownBuffer.add(mouseButton);
 
         if (!mouseActive.contains(mouseButton))
             mouseActive.add(mouseButton);
@@ -196,7 +272,7 @@ public class InputSystem {
      * @param mouseButton
      */
     public void mouseReleased(int mouseButton) {
-        mouseUp.add(mouseButton);
+        mouseUpBuffer.add(mouseButton);
         mouseActive.remove((Integer)mouseButton); // Remove the object, not the index.
     }
 }

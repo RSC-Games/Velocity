@@ -19,7 +19,12 @@ import velocity.util.Popup;
 /**
  * Core body of Velocity. Everything that Velocity does originates here.
  * 
- * Updates (Velocity v0.6.0.0)
+ * Updates (Velocity v0.6.1.2)
+ *  - Fixed transient keypresses in the InputSystem (via a Publish mechanism).
+ *  - Reached Beta release.
+ *  - Fixed the version class... again.
+ *  - Updated InputSystem API and introduced getKeyDown() + released()
+ *  - Enhanced crash dump system.
  * 
  * Updates (Velocity v0.5.2.7)
  *  - Created the Velocity application exception crash dumper.
@@ -93,7 +98,7 @@ public class VelocityMain implements Driver {
      * Current Velocity version. Uses the semantic versioning system
      * VERSION.MAJOR.MINOR.PATCH.
      */
-    public static final Version VELOCITY_VER = new Version(0, 6, 0, 0);
+    public static final Version VELOCITY_VER = new Version(0, 6, 1, 1);
 
     /**
      * Extensions to the Velocity version.
@@ -104,7 +109,7 @@ public class VelocityMain implements Driver {
      * "rc<X>" stands for Release Candidate (X)
      * "p" stands for Production Release.
      */
-    public static final String VELOCITY_EXT = "a";
+    public static final String VELOCITY_EXT = "b";
 
     /**
      * Initialize and run Velocity.
@@ -122,7 +127,7 @@ public class VelocityMain implements Driver {
 
         try {
             ResourceLoader appLdr = !mainFile.endsWith(".jar") ? new FileResourceLoader() 
-                                    : new JARResourceLoader("./" + mainFile);
+                                    : new JARResourceLoader(mainFile);
             ResourceLoader.registerAppResourceLoader(appLdr);
         }
         catch (IOException ie) {

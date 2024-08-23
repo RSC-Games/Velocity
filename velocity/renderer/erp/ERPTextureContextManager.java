@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import velocity.GlobalAppConfig;
+import velocity.config.GlobalAppConfig;
 
 /**
  * Reference counting texture context manager for LVCPU. Tracks texture references

@@ -63,11 +63,8 @@ public class AudioClip {
             return line;
         }
         catch (Exception ie) {
-            ie.printStackTrace();
-            System.exit(0);
+            throw new RuntimeException(ie);
         }
-
-        return null;
     }
 
     /**

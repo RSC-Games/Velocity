@@ -13,8 +13,8 @@ import java.awt.event.MouseListener;
 import javax.swing.JFrame;
 
 import velocity.Driver;
-import velocity.GlobalAppConfig;
 import velocity.InputSystem;
+import velocity.config.GlobalAppConfig;
 import velocity.renderer.EventHandler;
 import velocity.sprite.Camera;
 import velocity.util.Point;

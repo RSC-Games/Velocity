@@ -1,10 +1,10 @@
-package velocity;
+package velocity.config;
 
 import velocity.util.*;
 
 /** 
  * Configure Velocity to how it best suits your game. For game development,
- * subclass this and assign new values to every field in this file to change the defaults.
+ * extend this and assign new values to every field in this file to change the defaults.
  * Then, create an instance of that class and pass it into {@code VelocityMain.app_main}
  */
 public class GlobalAppConfig {
@@ -77,6 +77,12 @@ public class GlobalAppConfig {
     public boolean LOG_MEMORY;
 
     /********************* RENDERER DEBUGGING ***********************/
+    /** 
+     * Disable the pop-up warning for incomplete renderers. With this option enabled,
+     * a warning will instead be injected into the start scene.
+     */
+    public boolean SUPPRESS_UNSTABLE_RENDERER_WARNING;
+
     /** Enable the swapchain and draw profiling. */
     public boolean EN_RENDERER_LOGS;
 
@@ -107,7 +113,7 @@ public class GlobalAppConfig {
         this.RENDER_BACKEND = "DEFAULT";  // The ERP does not support different backends.
         this.ENABLE_ERP_FALLBACK = true;  // When no renderers are available use the ERP.
         this.WARN_RENDERER_INIT_FAIL = true;  // Warn the dev when the renderer cannot start.
-        this.EN_DEBUG_RENDERER = false;  // The Debug Renderer is a finicky thing and takes time.
+        this.EN_DEBUG_RENDERER = false;  // The Debug Renderer is a finicky thing and doesn't really work.
         this.REND_WORKER_COUNT = Runtime.getRuntime().availableProcessors() - 1; // Default CPU count.
 
         // Scene loader config.
@@ -121,9 +127,10 @@ public class GlobalAppConfig {
 
         // Velocity/application debugging system.
         this.LOG_GC = false;  // By default do not log any GC/Warning messages.
-        this.LOG_MEMORY = false;  // Disable the memory profiling system.
+        this.LOG_MEMORY = false;  // Disable the memory tracing and profiling system.
 
         // Renderer debugging/profiling system.
+        this.SUPPRESS_UNSTABLE_RENDERER_WARNING = true;  // Renderer warning can be lost by DWM.
         this.EN_RENDERER_LOGS = false;  // Takes critical rendering time to log.
         this.EN_RENDERER_PROFILER = false;  // Profiles at a deeper level. Disabled.
         this.PROFILE_SHADERTIME = false;  // Do not track shader execution time.

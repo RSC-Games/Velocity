@@ -4,8 +4,8 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 import velocity.Driver;
-import velocity.GlobalAppConfig;
 import velocity.Scene;
+import velocity.config.GlobalAppConfig;
 import velocity.renderer.DrawTimer;
 import velocity.renderer.FrameBuffer;
 import velocity.renderer.RenderPipeline;
@@ -172,6 +172,16 @@ public class EmbeddedRenderPipeline extends RenderPipeline {
     @Override
     public String getRendererName() {
         return "Embedded Render Pipeline";
+    }
+
+    /**
+     * Get the VXRA compliance version. Must match the Velocity VXRA version.
+     * 
+     * @return VXRA compliance version.
+     */
+    @Override
+    public String getVXRATargetVersion() {
+        return "0.6a";
     }
 
     /**

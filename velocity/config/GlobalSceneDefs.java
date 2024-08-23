@@ -1,7 +1,8 @@
-package velocity;
+package velocity.config;
 
 import java.util.HashMap;
 
+import velocity.Scene;
 import velocity.scene.DefaultScene;
 import velocity.scene.ErrorScene;
 

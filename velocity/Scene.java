@@ -2,11 +2,15 @@ package velocity;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
+
+import velocity.config.GlobalAppConfig;
+import velocity.config.GlobalSceneDefs;
 import velocity.renderer.DrawInfo;
 import velocity.renderer.FrameBuffer;
 import velocity.sprite.*;
 import velocity.sprite.collision.*;
 import velocity.sprite.ui.*;
+import velocity.sprite.ui.internal.UnstableRendererWarning;
 import velocity.util.*;
 
 /**
@@ -101,6 +105,11 @@ public class Scene {
         // Start the last scene in the queue on this pass.
         currentScene.init();
         sceneQueue.clear();
+
+        // Inject the unstable renderer warning if the pop-up warning is suppressed.
+        if (!VXRA.rp.getFeatureSet().FEAT_required && GlobalAppConfig.bcfg.SUPPRESS_UNSTABLE_RENDERER_WARNING)
+            currentScene.addSprite(new UnstableRendererWarning("Unstable Renderer Warning", 
+                                                       "./velocity/resources/bad_renderer.png"));
 
         // Scene loading memory diagnostics.
         if (GlobalAppConfig.bcfg.LOG_MEMORY) {

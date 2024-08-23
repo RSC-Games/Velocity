@@ -35,7 +35,7 @@ public class SystemResourceLoader {
      * @throws SecurityException If a non-velocity class tries to access this.
      */
     public static ResourceLoader getSystemResourceLoader() {
-        // Permission checks here... eventually.
+        // TODO: Permission checks here... eventually.
         return sysLdr;
     }
 }

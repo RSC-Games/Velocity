@@ -77,10 +77,8 @@ class ERPWindow extends JPanel implements Window {
         this.f.setResizable(cfg.getOption(WindowOption.HINT_RESIZABLE));
         
         // Set fullscreen.
-        if (cfg.getOption(WindowOption.HINT_FULLSCREEN)) {
-            this.f.setExtendedState(JFrame.MAXIMIZED_BOTH);
-            this.f.setUndecorated(true);
-        }
+        if (cfg.getOption(WindowOption.HINT_FULLSCREEN))
+            enterFullScreen();
 
         // Set up input handlers
         this.f.addMouseListener(erpEvent);
@@ -184,5 +182,23 @@ class ERPWindow extends JPanel implements Window {
         fb.blitTo(g);
         uifb.blitTo(g);
         this.erp.clearRenderFlag();
+    }
+
+    /**
+     * Put this window in fullscreen mode.
+     */
+    @Override
+    public void enterFullScreen() {
+        this.f.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        this.f.setUndecorated(true);
+    }
+
+    /**
+     * Bring this window out of fullscreen mode.
+     */
+    @Override
+    public void exitFullScreen() {
+        this.f.setExtendedState(JFrame.NORMAL);
+        this.f.setUndecorated(false);
     }
 }

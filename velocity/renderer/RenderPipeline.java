@@ -96,6 +96,14 @@ public abstract class RenderPipeline {
     public abstract String getRendererName();
 
     /**
+     * Get the VXRA version the extension renderer was designed to target.
+     * This prevents obscure crashes from renderer function mismatches.
+     * 
+     * @return Extension renderer VXRA version string.
+     */
+    public abstract String getVXRATargetVersion();
+
+    /**
      * Returns the renderer feature set. Useful for identifying compatibility issues and performance
      * optimizations.
      * 

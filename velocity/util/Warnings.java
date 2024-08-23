@@ -1,6 +1,6 @@
 package velocity.util;
 
-import velocity.GlobalAppConfig;
+import velocity.config.GlobalAppConfig;
 
 /**
  * Velocity's print stream warning system. Prints warnings and a stack trace on the console.

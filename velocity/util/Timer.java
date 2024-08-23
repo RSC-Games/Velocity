@@ -95,7 +95,7 @@ public class Timer {
 
     /**
      * Poll the timer. This is the only way to know whether the timer has
-     * fired or not.
+     * fired or not. Will return true once the timer has finished counting.
      * 
      * @return Whether this timer has fired or not.
      */

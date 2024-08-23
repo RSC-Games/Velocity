@@ -1,11 +1,11 @@
 package velocity.sprite;
 
-import velocity.GlobalAppConfig;
 import velocity.renderer.DrawInfo;
 import velocity.renderer.FrameBuffer;
 import velocity.util.MemTracerUtil;
 import velocity.util.Point;
 import velocity.Rect;
+import velocity.config.GlobalAppConfig;
 
 /**
  * Standard sprite representation. Required for use in a Scene.

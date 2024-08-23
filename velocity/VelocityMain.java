@@ -11,6 +11,8 @@ import velocity.renderer.RenderPipeline;
 
 import java.io.IOException;
 
+import velocity.config.GlobalAppConfig;
+import velocity.config.GlobalSceneDefs;
 import velocity.renderer.DrawTimer;
 import velocity.util.MemTracerUtil;
 import velocity.util.Version;
@@ -18,6 +20,17 @@ import velocity.util.Popup;
 
 /**
  * Core body of Velocity. Everything that Velocity does originates here.
+ * 
+ * Updates (Velocity v0.6.2.0)
+ *  - VXRA now forces the window out of fullscreen when an exception occurs.
+ *  - Removed extra velocity.Images helper class.
+ *  - Moved GlobalAppConfig and GlobalSceneDefs into velocity.config
+ *  - VXRA unstable renderer error message can be suppressed and will be replaced 
+ *      with an in-game warning message.
+ *  - User can now voluntarily enter/exit fullscreen via window.enterFullScreen/exitFullScreen.
+ *  - All VXRA-compliant renderers must now be on the same version as VXRA or they 
+ *      will not be loaded.
+ *  - Updated VXRA version to v0.6a
  * 
  * Updates (Velocity v0.6.1.2)
  *  - Fixed transient keypresses in the InputSystem (via a Publish mechanism).
@@ -98,7 +111,7 @@ public class VelocityMain implements Driver {
      * Current Velocity version. Uses the semantic versioning system
      * VERSION.MAJOR.MINOR.PATCH.
      */
-    public static final Version VELOCITY_VER = new Version(0, 6, 1, 1);
+    public static final Version VELOCITY_VER = new Version(0, 6, 2, 1);
 
     /**
      * Extensions to the Velocity version.
@@ -109,7 +122,7 @@ public class VelocityMain implements Driver {
      * "rc<X>" stands for Release Candidate (X)
      * "p" stands for Production Release.
      */
-    public static final String VELOCITY_EXT = "b";
+    public static final String VELOCITY_EXT = "dev";
 
     /**
      * Initialize and run Velocity.
@@ -145,7 +158,7 @@ public class VelocityMain implements Driver {
         DrawTimer t = VXRA.rp.getTimer();
 
         // Prevent a full window close and process termination on error, and inform
-        // the user.
+        // the user. In the event of a fatal error, force the window out of fullscreen.
         try {
             while (true) {
                 t.tick();
@@ -153,6 +166,7 @@ public class VelocityMain implements Driver {
         }
         // A scene could not be loaded for some reason.
         catch (InvalidSceneException ie) {
+            VXRA.rp.getWindow().exitFullScreen();
             System.out.println("Exception in thread main " + 
                                "velocity.InvalidSceneException: " + ie.getMessage());
             CrashHandler.writeCrashInfo(ie, "The provided scene could not be loaded.");
@@ -161,6 +175,7 @@ public class VelocityMain implements Driver {
         }
         // Game crashed for some reason. Tell the user/dev.
         catch (Exception ie) {
+            VXRA.rp.getWindow().exitFullScreen();
             System.out.print("Exception in thread main ");
             ie.printStackTrace();
             CrashHandler.writeCrashInfo(ie, "A generic crash has occurred.");
@@ -170,6 +185,7 @@ public class VelocityMain implements Driver {
         // Some generic JVM error. Generally when the VSCode streaming compiler fails. 
         // Tell the user/dev.
         catch (Error ie) {
+            VXRA.rp.getWindow().exitFullScreen();
             System.out.print("Exception in thread main ");
             ie.printStackTrace();
             CrashHandler.writeCrashInfo(ie, "Streaming Compiler Error.");

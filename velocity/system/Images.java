@@ -6,8 +6,8 @@ import java.awt.Transparency;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-import velocity.GlobalAppConfig;
 import velocity.VXRA;
+import velocity.config.GlobalAppConfig;
 import velocity.renderer.RendererImage;
 import velocity.util.Warnings;
 
@@ -47,6 +47,7 @@ public class Images {
      * the provided path, send it to the renderer, and provide a wrapped handle
      * to that image.
      * 
+     * @param ldr Specific resource loader to grab this resource from.
      * @param path Image path on disk.
      * @return A handle to that image.
      */

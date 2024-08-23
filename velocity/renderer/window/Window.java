@@ -33,6 +33,18 @@ public interface Window {
     public Point getPointerLocation();
 
     /**
+     * Enter fullscreen in the current window.
+     * @since Velocity v0.6.2.0
+     */
+    public void enterFullScreen();
+
+    /**
+     * Exit fullscreen in this window.
+     * @since Velocity v0.6.2.0
+     */
+    public void exitFullScreen();
+
+    /**
      * Set the window's visibility on screen. Initially is not visible.
      * 
      * @param state Show window (if {@code true}) or hide it (if {@code false}).

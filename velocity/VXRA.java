@@ -9,6 +9,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
+import velocity.config.GlobalAppConfig;
 import velocity.renderer.*;
 import velocity.renderer.erp.EmbeddedRenderPipeline;
 import velocity.renderer.window.WindowConfig;
@@ -23,7 +24,7 @@ public class VXRA {
     /**
      * Current provided VXRA version.
      */
-    public static final String VXRA_VER = "0.5a";
+    public static final String VXRA_VER = "0.6a";
 
     /**
      * The currently loaded render pipeline.
@@ -50,7 +51,7 @@ public class VXRA {
     public static RenderPipeline newRenderPipeline(String renderer, String backend, 
                                                    WindowConfig cfg, Driver d) {
         
-        // Implement fallback chain eventually.
+        // TODO: Implement fallback chain eventually.
         System.out.println("[vxra]: Velocity eXtensible Renderer Architecture (VXRA "
                            + VXRA_VER + ") found.");
 
@@ -100,6 +101,17 @@ public class VXRA {
                             "No renderers available!");
         }
 
+        // We found a renderer. Ensure it's compatible with the current Velocity subsystem.
+        if (!pipeline.getVXRATargetVersion().equals(VXRA_VER)) {
+            // No renderer, provide the ERP.
+            if (GlobalAppConfig.bcfg.ENABLE_ERP_FALLBACK)
+                return new EmbeddedRenderPipeline(cfg, d);
+
+            // Cannot run the game without a good renderer!
+            Popup.showError("Velocity Error (VXRA " + VXRA_VER + ")", 
+                            "Found renderer does not support the current VXRA version!");
+        }
+
         return pipeline;
     }
 
@@ -125,6 +137,8 @@ public class VXRA {
             return null;
         }
 
+        // NOTE: Why am I searching the directory instead of just directly looking up the file?
+        // Fallback chain?
         for (final File rendererF : rendererPath.listFiles()) {
             if (rendererF.isDirectory()) continue;
 
@@ -208,7 +222,7 @@ public class VXRA {
      * @param rp Newly instantiated render pipeline.
      */
     private static void warnIfMissing(RenderPipeline rp) {
-        if (!rp.getFeatureSet().FEAT_required) {
+        if (!rp.getFeatureSet().FEAT_required && !GlobalAppConfig.bcfg.SUPPRESS_UNSTABLE_RENDERER_WARNING) {
             Popup.showWarning(
                 "Velocity Warning (" + VXRA_VER + ")",
                 "Renderer \"" + rp.getRendererName() + 

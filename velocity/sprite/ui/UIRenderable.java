@@ -8,6 +8,8 @@ import velocity.util.Point;
 /**
  * A generic renderable that can be drawn on a UI Canvas.
  */
+// TODO: Allow specifying an anchor point in the base constructor so all UIObjects know how to handle
+// scaling and anchoring.
 public abstract class UIRenderable extends Sprite {
     /**
      * Create a UI Renderable object.

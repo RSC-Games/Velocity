@@ -56,14 +56,24 @@ public abstract class UIButton extends UIImage {
         Point mouseInWorldSpace = InputSystem.getMousePos();
         Rect mRect = new Rect(mouseInWorldSpace, 1, 1);
 
+        // Mouse is hovering over this object.
         if (this.pos.overlaps(mRect)) {
+            // Trigger hover event only once.
+            if (!this.hovered)
+                onHover();
+
             this.hovered = true;
 
             if (InputSystem.released(MouseEvent.BUTTON1))
                 this.clicked();
         }
-        else
+        else {
+            // Trigger mouse leave event only once.
+            if (this.hovered)
+                onMouseLeave();
+
             this.hovered = false;
+        }
     }
     
     /**
@@ -71,6 +81,18 @@ public abstract class UIButton extends UIImage {
      * Must be implemented by a subclass.
      */
     public abstract void clicked();
+
+    /**
+     * Event callback when this button is hovered over.
+     * Must be implemented by a subclass.
+     */
+    public abstract void onHover();
+
+    /**
+     * Event callback when this button is no longer hovered over.
+     * Must be implemented by a subclass.
+     */
+    public abstract void onMouseLeave();
 
     /**
      * Draw this button during the UI compositing stage.

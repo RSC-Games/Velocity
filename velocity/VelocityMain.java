@@ -21,7 +21,8 @@ import velocity.util.Popup;
 /**
  * Core body of Velocity. Everything that Velocity does originates here.
  * 
- * Updates (Velocity v0.6.2.0)
+ * Updates (Velocity v0.6.2.2)
+ *  - UIButton now has hover and not hovering events (for animating buttons).
  *  - VXRA now forces the window out of fullscreen when an exception occurs.
  *  - Removed extra velocity.Images helper class.
  *  - Moved GlobalAppConfig and GlobalSceneDefs into velocity.config
@@ -111,7 +112,7 @@ public class VelocityMain implements Driver {
      * Current Velocity version. Uses the semantic versioning system
      * VERSION.MAJOR.MINOR.PATCH.
      */
-    public static final Version VELOCITY_VER = new Version(0, 6, 2, 1);
+    public static final Version VELOCITY_VER = new Version(0, 6, 2, 2);
 
     /**
      * Extensions to the Velocity version.

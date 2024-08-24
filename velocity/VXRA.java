@@ -13,6 +13,7 @@ import velocity.config.GlobalAppConfig;
 import velocity.renderer.*;
 import velocity.renderer.erp.EmbeddedRenderPipeline;
 import velocity.renderer.window.WindowConfig;
+import velocity.util.Logger;
 import velocity.util.Popup;
 import velocity.util.Warnings;
 
@@ -52,7 +53,7 @@ public class VXRA {
                                                    WindowConfig cfg, Driver d) {
         
         // TODO: Implement fallback chain eventually.
-        System.out.println("[vxra]: Velocity eXtensible Renderer Architecture (VXRA "
+        Logger.log("vxra", "Velocity eXtensible Renderer Architecture (VXRA "
                            + VXRA_VER + ") found.");
 
         if (rp != null)
@@ -127,13 +128,13 @@ public class VXRA {
     private static RenderPipeline tryLoadRenderer(String renderer, String backend, 
                                                   WindowConfig cfg, Driver d) {
         String searchName = renderer + "_" + backend + ".jar";
-        System.out.println("[vxra]: Searching for renderer " + searchName);
+        Logger.log("vxra", "Searching for renderer " + searchName);
 
         // Enumerate all renderers currently available.
         File rendererPath = new File("./lib/vxra");
 
         if (rendererPath.listFiles() == null) {
-            System.out.println("[vxra]: No ./lib/vxra directory found. Skipping renderer linkage.");
+            Logger.warn("vxra", "No ./lib/vxra directory found. Skipping renderer linkage.");
             return null;
         }
 

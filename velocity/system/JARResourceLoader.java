@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
+import velocity.util.Logger;
+
 /**
  * The deployment resource loader. Loads provided resources from a local 
  * JAR file.
@@ -27,7 +29,7 @@ public class JARResourceLoader extends ResourceLoader {
      * @throws IOException If the file cannot be opened.
      */
     public JARResourceLoader(String resourcePath) throws IOException {
-        System.out.println("[resldr]: Creating resource loader with path " + resourcePath);
+        Logger.log("velocity.system", "Creating resource loader with path " + resourcePath);
         this.resPath = resourcePath;
         this.bundle = new JarFile(resourcePath);
     }

@@ -19,7 +19,7 @@ public class Warnings {
             throw new WarningException(msg);
         }
         catch (WarningException ie) {
-            System.out.print("Warning in thread " + Thread.currentThread().getName() + " ");
+            Logger.warn("velocity.system", "Warning in thread " + Thread.currentThread().getName() + " ");
             ie.printStackTrace();
         }
 

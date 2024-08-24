@@ -62,7 +62,7 @@ public class Version {
     @Deprecated(since="v0.5.2.0", forRemoval=true)
     public Version(String all) {
         if (all.length() != 7) {
-            System.out.println("[util.Version]: Invalid version code (length != 7)!");
+            Logger.error("velocity.util", "Invalid version code (length != 7)!");
             return;
         }
         this.v = Integer.parseInt(all.substring(0, 1));

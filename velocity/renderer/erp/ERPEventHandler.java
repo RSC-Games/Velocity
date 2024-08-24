@@ -17,6 +17,7 @@ import velocity.InputSystem;
 import velocity.config.GlobalAppConfig;
 import velocity.renderer.EventHandler;
 import velocity.sprite.Camera;
+import velocity.util.Logger;
 import velocity.util.Point;
 
 /**
@@ -83,7 +84,7 @@ class ERPEventHandler extends ComponentAdapter implements ActionListener, EventH
         Camera.res = new Point((int)d.getWidth(), (int)d.getHeight());
 
         if (GlobalAppConfig.bcfg.EN_RENDERER_LOGS)
-            System.out.println("[erp.event]: Window resized to " + Camera.res);
+            Logger.log("erp.event", "Window resized to " + Camera.res);
 
         this.erp.regenFrameBuffers();
     }

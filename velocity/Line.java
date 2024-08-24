@@ -209,7 +209,7 @@ public class Line {
 
         // Really only for debugging.
         if (ir == 1)
-            System.out.println("Warning! Cannot determine collision geometry from 1 point!");
+            Logger.warn("velocity.Line","Cannot determine collision geometry from 1 point!");
 
         for (int i = 1; i < ir; i++) {
             if (getSign(distances[i]) != reqSign) {

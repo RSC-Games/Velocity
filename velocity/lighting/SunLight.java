@@ -26,10 +26,8 @@ public class SunLight extends LightSource {
      */
     public SunLight(float intensity, Color color) {
         super();
-        if (!lePresent()) {
-            System.out.println("[velocity.lighting]: No Lighting Engine present. Skipping.");
+        if (!lePresent())
             return;
-        }
 
         this.lightid = this.le.newSunLight(intensity, color);
     }

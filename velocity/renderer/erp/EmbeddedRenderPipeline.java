@@ -14,6 +14,7 @@ import velocity.renderer.window.Window;
 import velocity.renderer.window.WindowConfig;
 import velocity.sprite.Camera;
 import velocity.util.Counter;
+import velocity.util.Logger;
 import velocity.util.Timer;
 
 /**
@@ -73,8 +74,8 @@ public class EmbeddedRenderPipeline extends RenderPipeline {
             new HashMap<String, String>()  // No additional features.
         );
 
-        System.out.println("[ERP]: Starting the Velocity Embedded Render Pipeline (ERP)");
-        System.out.println("[ERP.WARN]: Lighting features unsupported!");
+        Logger.log("erp","Starting the Velocity Embedded Render Pipeline (ERP)");
+        Logger.warn("erp", "Lighting features unsupported!");
         this.regenFrameBuffers();
     }
 
@@ -114,7 +115,7 @@ public class EmbeddedRenderPipeline extends RenderPipeline {
         }
         
         if (GlobalAppConfig.bcfg.EN_RENDERER_PROFILER)
-            System.out.println("[ERP.wait]: Spent " + c.tick() + " ns waiting for event thread.");
+            Logger.log("erp", "Spent " + c.tick() + " ns waiting for event thread.");
         
         // Prepare for rendering.
         this.fb.clear();
@@ -126,7 +127,7 @@ public class EmbeddedRenderPipeline extends RenderPipeline {
 
         if (GlobalAppConfig.bcfg.EN_RENDERER_PROFILER) {
             long time = c.tick();
-            System.out.println("[ERP]: Debug: Render time was " + time + " ns ("
+            Logger.log("erp", "Debug: Render time was " + time + " ns ("
                                + (time / 1000000) + " ms)");
         }
     }

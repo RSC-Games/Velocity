@@ -14,6 +14,7 @@ import java.io.IOException;
 import velocity.config.GlobalAppConfig;
 import velocity.config.GlobalSceneDefs;
 import velocity.renderer.DrawTimer;
+import velocity.util.Logger;
 import velocity.util.MemTracerUtil;
 import velocity.util.Version;
 import velocity.util.Popup;
@@ -21,7 +22,8 @@ import velocity.util.Popup;
 /**
  * Core body of Velocity. Everything that Velocity does originates here.
  * 
- * Updates (Velocity v0.6.2.2)
+ * Updates (Velocity v0.6.2.3)
+ *  - Added in a logger system.
  *  - UIButton now has hover and not hovering events (for animating buttons).
  *  - VXRA now forces the window out of fullscreen when an exception occurs.
  *  - Removed extra velocity.Images helper class.
@@ -112,7 +114,7 @@ public class VelocityMain implements Driver {
      * Current Velocity version. Uses the semantic versioning system
      * VERSION.MAJOR.MINOR.PATCH.
      */
-    public static final Version VELOCITY_VER = new Version(0, 6, 2, 2);
+    public static final Version VELOCITY_VER = new Version(0, 6, 2, 3);
 
     /**
      * Extensions to the Velocity version.
@@ -150,12 +152,12 @@ public class VelocityMain implements Driver {
         }
 
         // Start Velocity.
-        System.out.println("[main]: Launched Velocity version " + VELOCITY_VER + "-" + VELOCITY_EXT);
-        System.out.println("[main]: Starting Velocity system...");
+        Logger.log("main", "Launched Velocity version " + VELOCITY_VER + "-" + VELOCITY_EXT);
+        Logger.log("main", "Starting Velocity system...");
         new VelocityMain();  // Start and initialize the base engine code.
 
         // Start engine tick and rendering.
-        System.out.println("[main]: Velocity up. Entering player loop.");
+        Logger.log("main", "Velocity up. Entering player loop.");
         DrawTimer t = VXRA.rp.getTimer();
 
         // Prevent a full window close and process termination on error, and inform
@@ -168,7 +170,7 @@ public class VelocityMain implements Driver {
         // A scene could not be loaded for some reason.
         catch (InvalidSceneException ie) {
             VXRA.rp.getWindow().exitFullScreen();
-            System.out.println("Exception in thread main " + 
+            Logger.error("main", "Exception in thread main " + 
                                "velocity.InvalidSceneException: " + ie.getMessage());
             CrashHandler.writeCrashInfo(ie, "The provided scene could not be loaded.");
             Popup.showError("Velocity Application Error", 
@@ -177,7 +179,7 @@ public class VelocityMain implements Driver {
         // Game crashed for some reason. Tell the user/dev.
         catch (Exception ie) {
             VXRA.rp.getWindow().exitFullScreen();
-            System.out.print("Exception in thread main ");
+            Logger.error("main", "Exception in thread main ");
             ie.printStackTrace();
             CrashHandler.writeCrashInfo(ie, "A generic crash has occurred.");
             Popup.showError("Velocity Application Error", 
@@ -187,7 +189,7 @@ public class VelocityMain implements Driver {
         // Tell the user/dev.
         catch (Error ie) {
             VXRA.rp.getWindow().exitFullScreen();
-            System.out.print("Exception in thread main ");
+            Logger.error("main", "Exception in thread main ");
             ie.printStackTrace();
             CrashHandler.writeCrashInfo(ie, "Streaming Compiler Error.");
             Popup.showError("Velocity Streaming Compiler Error", 
@@ -213,7 +215,7 @@ public class VelocityMain implements Driver {
         // The window is hardcoded to disable always on top.
 
         // Ask VXRA to find us the LumaViper renderer implementation.
-        System.out.println("[main]: Loading renderer...");
+        Logger.log("main", "Loading renderer...");
         VXRA.newRenderPipeline(
             GlobalAppConfig.bcfg.DEFAULT_RENDERER, 
             GlobalAppConfig.bcfg.RENDER_BACKEND, 
@@ -228,11 +230,11 @@ public class VelocityMain implements Driver {
         logRendererFeatureSet();
 
         // Pre-load the first scene (usually the shader loading scene).
-        System.out.println("[main]: Starting Velocity Scene system.");
+        Logger.log("main", "Starting Velocity Scene subsystem.");
         Scene.scheduleSceneLoad(GlobalAppConfig.bcfg.START_SCENE);
         
         // Start the window event system.
-        System.out.println("[main]: Starting render pipeline.");
+        Logger.log("main", "Starting render pipeline.");
         VXRA.rp.init();
 
         if (GlobalAppConfig.bcfg.EN_DEBUG_RENDERER)
@@ -271,17 +273,17 @@ public class VelocityMain implements Driver {
         RenderPipeline rp = VXRA.rp;
         RendererFeatures featureSet = rp.getFeatureSet();
 
-        System.out.println("[main]: VXRA returned renderer (" + rp.getRendererName() + ")");
-        System.out.println("[main]: Got core feature set: ");
-        System.out.println("[main]:\t FEAT_required: " + isAvail(featureSet.FEAT_required));
-        System.out.println("[main]:\t FEAT_doubleBuffered: " + isAvail(featureSet.FEAT_doubleBuffered));
-        System.out.println("[main]:\t FEAT_extended: " + isAvail(featureSet.FEAT_extended));
-        System.out.println("[main]:\t FEAT_lighting: " + isAvail(featureSet.FEAT_lighting));
-        System.out.println("[main]:\t FEAT_shaders: " + isAvail(featureSet.FEAT_shaders));
-        System.out.println("[main]:\t FEAT_spriteShaders: " + isAvail(featureSet.FEAT_spriteShaders));
-        System.out.println("[main]:\t FEAT_screenShaders: " + isAvail(featureSet.FEAT_screenShaders));
-        System.out.println("[main]:\t FEAT_extensions: ...");
-        System.out.println("[main]: End of renderer feature reporting.");
+        Logger.log("main", "VXRA returned renderer (" + rp.getRendererName() + ")");
+        Logger.log("main", "Got core feature set: ");
+        Logger.log("main", "\t FEAT_required: " + isAvail(featureSet.FEAT_required));
+        Logger.log("main", "\t FEAT_doubleBuffered: " + isAvail(featureSet.FEAT_doubleBuffered));
+        Logger.log("main", "\t FEAT_extended: " + isAvail(featureSet.FEAT_extended));
+        Logger.log("main", "\t FEAT_lighting: " + isAvail(featureSet.FEAT_lighting));
+        Logger.log("main", "\t FEAT_shaders: " + isAvail(featureSet.FEAT_shaders));
+        Logger.log("main", "\t FEAT_spriteShaders: " + isAvail(featureSet.FEAT_spriteShaders));
+        Logger.log("main", "\t FEAT_screenShaders: " + isAvail(featureSet.FEAT_screenShaders));
+        Logger.log("main", "\t FEAT_extensions: ...");
+        Logger.log("main", " End of renderer feature reporting.");
     }
 
 

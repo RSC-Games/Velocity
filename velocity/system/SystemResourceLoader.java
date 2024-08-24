@@ -2,6 +2,8 @@ package velocity.system;
 
 import java.io.IOException;
 
+import velocity.util.Logger;
+
 /**
  * Allow explicit resource loading from the Velocity bundle.
  */
@@ -23,7 +25,7 @@ public class SystemResourceLoader {
             sysLdr = new JARResourceLoader("./lib/velocity.jar");
         }
         catch (IOException ie) {
-            System.err.println("[sysldr]: Could not create velocity system resource loader!");
+            Logger.error("velocity.system.SysLdr", "Could not create velocity system resource loader!");
             throw new RuntimeException("Failed to create resource loader!");
         }
     }

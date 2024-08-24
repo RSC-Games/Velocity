@@ -5,6 +5,7 @@ import java.util.HashMap;
 import velocity.Scene;
 import velocity.scene.DefaultScene;
 import velocity.scene.ErrorScene;
+import velocity.util.Logger;
 
 /**
  * Global scene defines. This class must be inherited in the application code
@@ -42,10 +43,10 @@ public abstract class GlobalSceneDefs {
      * load failure debugging.
      */
     public final void printDefinedScenes() {
-        System.out.println("Currently defined Scenes: ");
+        Logger.error("velocity.Scene", "Currently defined Scenes: ");
 
         for (String sceneName : sceneDefs.keySet()) {
-            System.out.println(sceneName + " : " + sceneDefs.get(sceneName).getSimpleName());
+            Logger.error("velocity.Scene", "\t" + sceneName + " : " + sceneDefs.get(sceneName).getSimpleName());
         }
 
         System.out.println();

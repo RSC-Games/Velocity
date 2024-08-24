@@ -6,6 +6,7 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 
 import velocity.system.ResourceLoader;
+import velocity.util.Logger;
 
 /**
  * Velocity MusicClip representation. Streams an audioclip in memory. Useful for
@@ -90,6 +91,6 @@ public class MusicClip {
     @SuppressWarnings("deprecation")
     protected void finalize() throws Throwable {
         super.finalize();
-        System.out.println("[velocity.audio]: MusicClip deallocated, freeing memory.");
+        Logger.log("velocity.audio", "MusicClip deallocated, freeing memory.");
     }
 }

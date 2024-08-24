@@ -2,6 +2,7 @@ package velocity.sprite;
 
 import velocity.renderer.DrawInfo;
 import velocity.renderer.FrameBuffer;
+import velocity.util.Logger;
 import velocity.util.MemTracerUtil;
 import velocity.util.Point;
 import velocity.Rect;
@@ -84,7 +85,7 @@ public abstract class Sprite {
     protected void finalize() throws Throwable {
         super.finalize();
         if (GlobalAppConfig.bcfg.LOG_GC)
-            System.out.println("[Scene.GC{Sprite}]: Sprite " + name + " GC'd!");
+            Logger.log("velocity.Scene.gc", "Sprite " + name + " GC'd!");
 
         if (GlobalAppConfig.bcfg.LOG_MEMORY)
             MemTracerUtil.removeTracking(this);

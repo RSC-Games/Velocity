@@ -8,6 +8,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.DataLine;
 
 import velocity.system.ResourceLoader;
+import velocity.util.Logger;
 
 /**
  * Velocity AudioClip representation. Stores a deduplicated audioclip in memory. Useful for
@@ -97,7 +98,7 @@ public class AudioClip {
     @SuppressWarnings("deprecation")
     public void finalize() throws Throwable {
         super.finalize();
-        System.out.println("[velocity.audio]: AudioClip deallocated, freeing memory.");
+        Logger.log("velocity.audio", "AudioClip deallocated, freeing memory.");
     }
 }   
  

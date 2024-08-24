@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 
 import velocity.system.ResourceLoader;
@@ -75,6 +76,27 @@ public class TextFile {
      */
     public TextFile(ResourceLoader ldr, String path, String access) throws FileNotFoundException, IOException {
         char am = access.charAt(0);
+
+        // If the passed-in path is absolute, load from the filesystem anyway.
+        File fileRef = new File(path);
+        if (fileRef.isAbsolute()) {
+            Logger.log("velocity.system.TextFile", "Got absolute path " + fileRef
+                       + "! Loading from filesystem!");
+            
+            switch (am) {
+                case 'r': 
+                    this.r = new FileReader(path);
+                    this.canRead = true;
+                    break;
+                case 'w': 
+                    this.w = new FileWriter(path);
+                    this.canWrite = true;
+                    break;
+                default: 
+                    throw new IllegalArgumentException("Bad access modifier: " + access);
+            }
+            return;
+        }
 
         switch (am) {
             case 'r': 

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import velocity.config.GlobalAppConfig;
+import velocity.util.Logger;
 
 /**
  * Reference counting texture context manager for LVCPU. Tracks texture references
@@ -113,7 +114,7 @@ class ERPTextureContextManager {
 
             if (ic.getReferenceCount() == 0) {
                 if (GlobalAppConfig.bcfg.EN_RENDERER_LOGS)
-                    System.out.println("[erp.tex]: Found unreferenced texture during texture GC (id "
+                    Logger.log("erp.tex", "Found unreferenced texture during texture GC (id "
                                        + ic.getUID() + ")");
                 
                 pathKeys.add(key);

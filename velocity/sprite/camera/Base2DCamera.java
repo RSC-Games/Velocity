@@ -27,7 +27,7 @@ public class Base2DCamera extends Camera {
      */
     public Base2DCamera(Point pos) {
         super(pos);
-        System.out.println("[velocity.sprite.Base2DCamera]: Warning: No framing target set!");
+        Logger.warn("velocity.camera.Base2DCamera", "Warning: No framing target set!");
     }
 
     /**

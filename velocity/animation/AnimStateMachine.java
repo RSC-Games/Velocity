@@ -7,6 +7,7 @@ import velocity.animation.parser.Parameter;
 import velocity.animation.parser.State;
 import velocity.animation.parser.StateParser;
 import velocity.renderer.RendererImage;
+import velocity.util.Logger;
 
 /**
  * One of multiple different PluginAnimator types. This one parses a
@@ -125,7 +126,7 @@ public class AnimStateMachine implements PluginAnimator {
         }
 
         if (findP == null) {
-            System.out.println("Cannot find parameter " + param);
+            Logger.warn("velocity.anim", "Cannot find parameter " + param);
             return;
         }
 

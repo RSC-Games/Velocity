@@ -43,10 +43,8 @@ public class PointLight extends LightSource {
      */
     public PointLight(Point center, float radius, float intensity, Color color) {
         super();
-        if (!lePresent()) {
-            System.out.println("[velocity.lighting]: No Lighting Engine present. Skipping.");
+        if (!lePresent()) 
             return;
-        }
 
         this.lightid = this.le.newPointLight(center, radius, intensity, color);
     }

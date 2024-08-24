@@ -82,7 +82,7 @@ public class Scene {
     
         // Get rid of the old scene, if any.
         if (currentScene != null) {
-            System.out.println("[SceneMgr]: Unloading previous scene " + currentScene.name);
+            Logger.log("velocity.SceneManagement", "Unloading previous scene " + currentScene.name);
             currentScene.destroyAll();
             currentScene = null;
             System.gc(); // Force object destruction on scene unload.
@@ -114,9 +114,9 @@ public class Scene {
         // Scene loading memory diagnostics.
         if (GlobalAppConfig.bcfg.LOG_MEMORY) {
             long postMemUse = (r.totalMemory() - r.freeMemory()) / 1024;
-            System.out.println("[SceneMgr]: Used memory (before: " + preMemUse + " kB, after "
+            Logger.log("velocity.SceneManagement", "Used memory (before: " + preMemUse + " kB, after "
                             + lowMem + " kB, diff " + (preMemUse - lowMem) + " kB)");
-            System.out.println("[SceneMgr]: New scene memory (total: " + postMemUse 
+            Logger.log("velocity.SceneManagement", "New scene memory (total: " + postMemUse 
                             + " kB, scenemem " + (postMemUse - lowMem) + " kB)");
         }
     }
@@ -166,7 +166,7 @@ public class Scene {
             // Get the constructor required by the Scene contract.
             Constructor<?> c = idClass.getConstructor(String.class, int.class);
             Scene s = (Scene)c.newInstance(name, name.hashCode());
-            System.out.println("[SceneMgr]: Loaded scene " + name);
+            Logger.log("velocity.SceneManagement", "Loaded scene " + name);
             return s;
         }
         // {@code InstantiationException} has not been encountered thus far in generating scenes.
@@ -481,7 +481,7 @@ public class Scene {
      * @param cp Debug camera position.
      * @param sf Scale factor (not implemented).
      */
-    //@Deprecated(since="v5.2.0.0", forRemoval=true)
+    @Deprecated(since="v0.5.0.0", forRemoval=true)
     // TODO: Deprecate this function and rewrite the debug renderer system.
     public void DEBUG_render(FrameBuffer fb, Point cp, float[] sf) {    
         // Since this runs in parallel with the main thread we'll operate on a duplicate.
@@ -489,7 +489,9 @@ public class Scene {
         ArrayList<Sprite> dups = (ArrayList<Sprite>)this.sprites.clone();
 
         for (Sprite s : dups) {
-            if (s == null) System.out.println("WARNING! Provided sprite for debug render is NULL!");
+            if (s == null) 
+                Logger.warn("renderer.debug_renderer", "Provided sprite for debug render is NULL!");
+
             Rect inRect = s.pos.copy();
             inRect.setPos(inRect.getPos().sub(cp));
 
@@ -529,11 +531,11 @@ public class Scene {
         super.finalize();
 
         if (GlobalAppConfig.bcfg.LOG_GC)
-            System.out.println("[Scene.GC]: GC'ing Scene " + this.name);
+            Logger.log("velocity.Scene.gc", "GC'ing Scene " + this.name);
          
         // Should never occur but is a good debug test case for now.
         if (this.sprites != null) {
-            System.out.println("[Scene.GC]: SCENE WARNING! Sprites list never cleared!");
+            Logger.warn("velocity.Scene.gc", "Sprites list never cleared!");
             this.destroyAll();
         }
     }

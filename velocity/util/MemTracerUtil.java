@@ -112,7 +112,7 @@ public class MemTracerUtil {
         }
         this.trackedSprites--;
 
-        System.out.println("[MemTracer]: Deleted tracked sprite " 
+        Logger.log("velocity.system.MemTracer", "Deleted tracked sprite " 
             + spr.getClass().getSimpleName() + ". Tracking " + trackedSprites
             + " sprites."
         );
@@ -139,14 +139,14 @@ public class MemTracerUtil {
 
         for (WeakReference<Sprite> ref : spriteRefs) {
             //if (ref.refersTo(null)) continue;
-            System.out.println("[MemTracer]: WARNING! FOUND LEAKED ALLOCATION!");
+            Logger.log("velocity.system.MemTracer", "FOUND LEAKED ALLOCATION!");
             printSpriteInfo(ref.get());
         }
 
         if (this.trackedSprites == 0) return;
 
         System.out.println();
-        System.out.println("[MemTracer]: WARNING! Leaked memory allocations between "
+        Logger.log("velocity.system.MemTracer", "Leaked memory allocations between "
                     + "scenes detected! Current sprite count: " + trackedSprites
                     + ".\n\tNote: This is not guaranteed to be a leaked allocation. If you have:"
                     + "\n\t - Allocated any sprites and moved them into the persistence pool."
@@ -164,7 +164,7 @@ public class MemTracerUtil {
         //Field nameField = spr.getClass().getField("name");
         //long addr = unsafe.objectFieldOffset(nameField);
 
-        System.out.println("[MemTracer]: Logging tracked sprite "
+        Logger.log("velocity.system.MemTracer", "Logging tracked sprite "
             + "<object " + spr.getClass().getSimpleName() + " @ 0x????????>\n"
             + "\tName: " + spr.name
         );

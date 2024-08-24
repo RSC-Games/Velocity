@@ -2,6 +2,7 @@ package velocity.lighting;
 
 import velocity.VXRA;
 import velocity.renderer.LightingEngine;
+import velocity.util.Logger;
 import velocity.util.Point;
 
 /**
@@ -67,11 +68,9 @@ public abstract class LightSource {
     @SuppressWarnings("deprecation")
     protected void finalize() throws Throwable {
         super.finalize();
-        System.out.println("[velocity.lighting]: Deallocated light found. Deleting.");
-        if (!lePresent()) {
-            System.out.println("[velocity.lighting]: No Lighting Engine present. Skipping.");
+        Logger.log("velocity.lighting", "Deallocated light found. Deleting.");
+        if (!lePresent())
             return;
-        }
 
         this.le.deleteLightSource(this.lightid);
     }

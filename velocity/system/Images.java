@@ -159,7 +159,6 @@ public class Images {
         boolean useAlphaExt = (src.getType() == BufferedImage.TYPE_4BYTE_ABGR);
         
         // For debugging purposes
-        if (w <= 0 || h <= 0) System.out.println("Got w " + w + " h " + h);
         BufferedImage dest = new BufferedImage(w, h, useAlphaExt ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR);
         byte[] buf = ((DataBufferByte)src.getRaster().getDataBuffer()).getData(0);
         byte[] destbuf = ((DataBufferByte)dest.getRaster().getDataBuffer()).getData(0);

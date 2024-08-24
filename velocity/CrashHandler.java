@@ -3,6 +3,7 @@ package velocity;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+import velocity.util.Logger;
 import velocity.util.TextFile;
 
 /**
@@ -37,7 +38,7 @@ class CrashHandler {
             f.close();
         }
         catch (IOException e) {
-            System.err.println("[crash_handler]: Unable to create crash log!");
+            Logger.error("velocity.crash_handler", "Unable to create crash log!");
             e.printStackTrace();
             System.exit(-512);
         }

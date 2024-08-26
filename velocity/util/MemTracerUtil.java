@@ -139,19 +139,21 @@ public class MemTracerUtil {
 
         for (WeakReference<Sprite> ref : spriteRefs) {
             //if (ref.refersTo(null)) continue;
-            Logger.log("velocity.system.MemTracer", "FOUND LEAKED ALLOCATION!");
+            Logger.warn("velocity.system.MemTracer", "FOUND LEAKED ALLOCATION!");
             printSpriteInfo(ref.get());
         }
 
-        if (this.trackedSprites == 0) return;
+        Time.sleepms(250);
+        if (this.trackedSprites <= 0) return;
 
+        Logger.warn("velocity.system.MemTracer", "Leaked allocation reporting finished.");
         System.out.println();
-        Logger.log("velocity.system.MemTracer", "Leaked memory allocations between "
+        Logger.warn("velocity.system.MemTracer", "Leaked memory allocations between "
                     + "scenes detected! Current sprite count: " + trackedSprites
                     + ".\n\tNote: This is not guaranteed to be a leaked allocation. If you have:"
                     + "\n\t - Allocated any sprites and moved them into the persistence pool."
                     + "\n\t - GC has not finished collecting when Memory Tracing is performed."
-                    + "\nThen this may not apply to you."
+                    + "\n\tThen this may not apply to you."
                     );
     }
 

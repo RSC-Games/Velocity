@@ -42,4 +42,17 @@ public class Popup {
         JDialog warning = diag.createDialog(title);
         warning.setVisible(true);
     }
+
+    /**
+     * Query the user for a yes/no question.
+     * 
+     * @param title The window title.
+     * @param message The query message to display.
+     */
+    public static boolean query(String title, String message) {
+        int result = JOptionPane.showOptionDialog(null, message, title, JOptionPane.YES_NO_OPTION, 
+                                     JOptionPane.QUESTION_MESSAGE, null, null, message);
+
+        return result == JOptionPane.YES_OPTION;
+    }
 }

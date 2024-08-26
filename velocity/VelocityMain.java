@@ -22,7 +22,14 @@ import velocity.util.Popup;
 /**
  * Core body of Velocity. Everything that Velocity does originates here.
  * 
- * Updates (Velocity v0.6.2.3)
+ * Updates (Velocity v0.6.3.2)
+ *  - Added elapsed, elapsedms, and reset to velocity.util.Counter.
+ *  - Updated the Memory Tracer subsystem.
+ *  - Added Persistence to the scene system.
+ * 
+ * Updates (Velocity v0.6.2.5)
+ *  - ERP didn't output tab events.
+ *  - Added a query option to the popup system.
  *  - Added in a logger system.
  *  - UIButton now has hover and not hovering events (for animating buttons).
  *  - VXRA now forces the window out of fullscreen when an exception occurs.
@@ -114,7 +121,7 @@ public class VelocityMain implements Driver {
      * Current Velocity version. Uses the semantic versioning system
      * VERSION.MAJOR.MINOR.PATCH.
      */
-    public static final Version VELOCITY_VER = new Version(0, 6, 2, 3);
+    public static final Version VELOCITY_VER = new Version(0, 6, 3, 2);
 
     /**
      * Extensions to the Velocity version.

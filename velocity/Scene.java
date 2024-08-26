@@ -156,7 +156,6 @@ public class Scene {
         // Attempt to instantiate the provided class. While using c.getParameterCount() is
         // not bulletproof, it mostly works for attempting to generate a scene. It is possible,
         // however, to make a scene constructor with 2 parameters that aren't (String, int).
-        // TODO: Scene class type verification.
         try {
             // Ensure the requested scene is a subclass of the Scene class.
             if (!Scene.class.isAssignableFrom(idClass))
@@ -296,6 +295,31 @@ public class Scene {
     public void removeSprite(Sprite s) {
         this.sprites.remove(s);
         s.delete();
+    }
+
+    /**
+     * Move a sprite from this scene into persistence. The sprite will no longer
+     * be simulated after this, but will not be deleted.
+     * 
+     * @param key Sprite reference key.
+     * @param s Sprite to add.
+     */
+    public void moveToPersistence(String key, Sprite s) {
+        this.sprites.remove(s);
+        Persistence.push(key, s);
+    }
+
+    /**
+     * Move a sprite from persistence into this scene. The sprite will not be
+     * reinitialized.
+     * 
+     * @param key Sprite reference key.
+     * @return The sprite popped from persistence.
+     */
+    public Sprite restoreFromPersistence(String key) {
+        Sprite s = (Sprite)Persistence.pop(key);
+        this.sprites.add(s);
+        return s;
     }
 
     /**

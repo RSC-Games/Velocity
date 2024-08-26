@@ -6,13 +6,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.channels.SeekableByteChannel;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.util.EnumSet;
 
 import velocity.system.ResourceLoader;

@@ -83,6 +83,7 @@ class ERPWindow extends JPanel implements Window {
         // Set up input handlers
         this.f.addMouseListener(erpEvent);
         this.f.addKeyListener(erpEvent);
+        this.f.setFocusTraversalKeysEnabled(false);
     }
 
     /**

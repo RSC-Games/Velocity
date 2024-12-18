@@ -22,7 +22,8 @@ import velocity.util.Popup;
 /**
  * Core body of Velocity. Everything that Velocity does originates here.
  * 
- * Updates (Velocity v0.6.3.2)
+ * Updates (Velocity v0.6.3.4)
+ *  - Fixed GraalVM crash (due to missing property; unable to start resourceloader.)
  *  - Added elapsed, elapsedms, and reset to velocity.util.Counter.
  *  - Updated the Memory Tracer subsystem.
  *  - Added Persistence to the scene system.
@@ -121,7 +122,7 @@ public class VelocityMain implements Driver {
      * Current Velocity version. Uses the semantic versioning system
      * VERSION.MAJOR.MINOR.PATCH.
      */
-    public static final Version VELOCITY_VER = new Version(0, 6, 3, 2);
+    public static final Version VELOCITY_VER = new Version(0, 6, 3, 4);
 
     /**
      * Extensions to the Velocity version.
@@ -148,14 +149,21 @@ public class VelocityMain implements Driver {
         // Initialize the application resource loader.
         String mainFile = System.getProperty("sun.java.command");
 
-        try {
-            ResourceLoader appLdr = !mainFile.endsWith(".jar") ? new FileResourceLoader() 
-                                    : new JARResourceLoader(mainFile);
-            ResourceLoader.registerAppResourceLoader(appLdr);
-        }
-        catch (IOException ie) {
-            ie.printStackTrace();
-            System.exit(1);
+        // Assume file resources (probably compiled with GraalVM).
+        if (mainFile == null)
+            ResourceLoader.registerAppResourceLoader(new FileResourceLoader());
+
+        // Try standard resourceLoader system.
+        else {
+            try {
+                ResourceLoader appLdr = !mainFile.endsWith(".jar") ? new FileResourceLoader() 
+                                        : new JARResourceLoader(mainFile);
+                ResourceLoader.registerAppResourceLoader(appLdr);
+            }
+            catch (IOException ie) {
+                ie.printStackTrace();
+                System.exit(1);
+            }
         }
 
         // Start Velocity.

@@ -209,7 +209,7 @@ public class Images {
      * @param forceAlpha Require alpha support even on images without alpha.
      * @return The converted image.
      */
-    private static BufferedImage convert(BufferedImage src, boolean forceAlpha) {
+    public static BufferedImage convert(BufferedImage src, boolean forceAlpha) {
         int sw = src.getWidth();
         int sh = src.getHeight();
 
@@ -234,7 +234,7 @@ public class Images {
      * @param src Source image in any format.
      * @return Converted image.
      */
-    private static BufferedImage convert(BufferedImage src) {
+    public static BufferedImage convert(BufferedImage src) {
         return convert(src, false);
     }
 }

@@ -22,8 +22,17 @@ import velocity.util.Popup;
 /**
  * Core body of Velocity. Everything that Velocity does originates here.
  * 
- * Updates (Velocity v0.6.3.4)
- *  - Fixed GraalVM crash (due to missing property; unable to start resourceloader.)
+ * Updates (Velocity v0.6.5.0)
+ *  - (1/19/2025) Switched all sprites to use the Transform system and fixed a long standing scene
+ *      renderer limitation.
+ * 
+ * Updates (Velocity v0.6.4.1)
+ *  - (1/19/2025) Added a basic physics engine on top of the collision support.
+ *  - (1/18/2025) Finally added virtual resolution support (for CopperheadGL).
+ * 
+ * Updates (Velocity v0.6.3.5)
+ *  - (1/18/2025) Added one shot functionality to the legacy animation engine.
+ *  - (8/20/2024) Fixed GraalVM crash (due to missing property; unable to start resourceloader.)
  *  - Added elapsed, elapsedms, and reset to velocity.util.Counter.
  *  - Updated the Memory Tracer subsystem.
  *  - Added Persistence to the scene system.
@@ -122,7 +131,7 @@ public class VelocityMain implements Driver {
      * Current Velocity version. Uses the semantic versioning system
      * VERSION.MAJOR.MINOR.PATCH.
      */
-    public static final Version VELOCITY_VER = new Version(0, 6, 3, 4);
+    public static final Version VELOCITY_VER = new Version(0, 6, 5, 0);
 
     /**
      * Extensions to the Velocity version.

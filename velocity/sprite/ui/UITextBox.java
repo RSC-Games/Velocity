@@ -10,6 +10,7 @@ import java.util.Arrays;
 import velocity.renderer.DrawInfo;
 import velocity.renderer.FrameBuffer;
 import velocity.util.Point;
+import velocity.util.Transform;
 
 /**
  * UITextBox allows additional operations that UIText doesn't, like setting bounding boxes for
@@ -35,9 +36,8 @@ public class UITextBox extends UIText {
      * @param fontPath The path of the font to use.
      * @param c The text color.
      */
-    public UITextBox(Point pos, Point wh, String name, String fontPath, Color c) {
-        super(pos, 0f, name, fontPath, c);
-        this.pos.setWH(wh);
+    public UITextBox(Transform transform, String name, String fontPath, Color c) {
+        super(transform, name, fontPath, c);
         
         Graphics g = gHelper.getGraphics();
         this.metrics = g.getFontMetrics(this.font);
@@ -99,7 +99,7 @@ public class UITextBox extends UIText {
 
         // Parse lines as long as there are remaining words.
         int rowIndex = 0;
-        while (startIndex < endIndex && rowIndex * pxGap < this.pos.getH()) {
+        while (startIndex < endIndex && rowIndex * pxGap < this.transform.location.getH()) {
             // Parse a line.
             startIndex = parseLine0(startIndex, words, outWords);
         }
@@ -123,7 +123,7 @@ public class UITextBox extends UIText {
             String testString = buildString(words, start, i);
             
             // Found the longest string for that line.
-            if (this.metrics.stringWidth(testString) > this.pos.getW()) {
+            if (this.metrics.stringWidth(testString) > this.transform.location.getW()) {
                 i -= 1; // Fix offset since it's 1 above the last word.
                 break;
             }

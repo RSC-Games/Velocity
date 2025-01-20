@@ -60,6 +60,18 @@ public class Point {
      * Create a point at the given location. Note that increased y values
      * go further down as they increase.
      * 
+     * @param x X location
+     * @param y Y location
+     */
+    public Point(Point p) {
+        this.x = p.x;
+        this.y = p.y;
+    }
+
+    /**
+     * Create a point at the given location. Note that increased y values
+     * go further down as they increase.
+     * 
      * @param p Vector 2 to convert from.
      */
     public Point(Vector2 p) {

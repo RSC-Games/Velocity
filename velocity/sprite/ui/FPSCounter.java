@@ -24,9 +24,9 @@ public class FPSCounter extends UIText {
      * @param name The name of the sprite.
      * @param c The text color.
      */
-    public FPSCounter(Point pos, float rot, String name, Color c) {
-        super(pos, rot, name, "Serif", c);
-        this.sortOrder = 1;
+    public FPSCounter(Transform transform, String name, Color c) {
+        super(transform, name, "Serif", c);
+        this.transform.sortOrder = 1;
         this.counter = System.nanoTime();
         this.color = c;
     }

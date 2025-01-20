@@ -33,8 +33,8 @@ public class Images {
             outImg = VXRA.rp.INTERNAL_loadImage(img, path);
         }
         catch (NullPointerException ie) {
-            //ie.printStackTrace();
             Warnings.warn("velocity.Images", "Could not load provided image (" + path + ")");
+            ie.printStackTrace();
 
             if (GlobalAppConfig.bcfg.MISSING_IMAGE_FATAL) 
                 throw new RuntimeException("Could not load requested image!");

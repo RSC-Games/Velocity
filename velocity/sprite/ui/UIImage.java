@@ -23,10 +23,10 @@ public abstract class UIImage extends UIRenderable {
      * @param name The name of the sprite.
      * @param imagename The image filepath.
      */
-    public UIImage(Point pos, float rot, String name, String imagename) {
-        super(pos, rot, name);
+    public UIImage(Transform transform, String name, String imagename) {
+        super(transform, name);
         this.img = Images.loadImage(imagename);
-        this.pos.setWH(img.getWidth(), img.getHeight());
+        this.transform.updateRect(new Point(img.getWidth(), img.getHeight()));
     }
 
     /**
@@ -37,10 +37,10 @@ public abstract class UIImage extends UIRenderable {
      * @param name The name of the sprite.
      * @param imageHnd The image reference.
      */
-    public UIImage(Point pos, float rot, String name, RendererImage imageHnd) {
-        super(pos, rot, name);
+    public UIImage(Transform transform, String name, RendererImage imageHnd) {
+        super(transform, name);
         this.img = imageHnd;
-        this.pos.setWH(img.getWidth(), img.getHeight());
+        this.transform.updateRect(new Point(img.getWidth(), img.getHeight()));
     }
 
     /**

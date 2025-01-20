@@ -18,9 +18,8 @@ public class RectCollider extends Sprite implements Collidable {
      * @param name The name of the sprite.
      * @param wh The width and height of the rect.
      */
-    public RectCollider(Point pos, String name, Point wh) {
-        super(pos, 0f, name);
-        this.pos.setWH(wh.x, wh.y);
+    public RectCollider(Transform transform, String name) {
+        super(transform, name);
     }
 
     /**
@@ -30,7 +29,8 @@ public class RectCollider extends Sprite implements Collidable {
      * @param pos The rendering location (camera pos - sprite transform)
      */
     public void DEBUG_render(FrameBuffer fb, Point pos) {
-        Rect drect = new Rect(this.pos.getPos().sub(pos), this.pos.getW(), this.pos.getH());
+        Point widthHeight = this.transform.location.getWH();
+        Rect drect = new Rect(this.transform.getPosition().sub(pos), widthHeight.x, widthHeight.y);
         fb.drawRect(drect, 1, new Color(255, 0, 0), false);
     }
 }

@@ -34,5 +34,6 @@ public enum TokenID {
     TOK_OP_FRAMES_PER_UPDATE,
     TOK_OP_PARAM,
     TOK_OP_VALUE,
-    TOK_OP_USE_TEX
+    TOK_OP_USE_TEX,
+    TOK_OP_ONE_SHOT
 }

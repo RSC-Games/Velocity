@@ -3,7 +3,7 @@ package velocity.sprite.ui;
 import velocity.renderer.DrawInfo;
 import velocity.renderer.FrameBuffer;
 import velocity.sprite.Sprite;
-import velocity.util.Point;
+import velocity.util.Transform;
 
 /**
  * A generic renderable that can be drawn on a UI Canvas.
@@ -18,8 +18,8 @@ public abstract class UIRenderable extends Sprite {
      * @param rot The renderable rotation angle.
      * @param name The renderable's name.
      */
-    public UIRenderable(Point pos, float rot, String name) {
-        super(pos, rot, name);
+    public UIRenderable(Transform transform, String name) {
+        super(transform, name);
     }
 
     /**

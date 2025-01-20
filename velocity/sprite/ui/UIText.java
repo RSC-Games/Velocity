@@ -6,6 +6,7 @@ import java.awt.Font;
 import velocity.renderer.DrawInfo;
 import velocity.renderer.FrameBuffer;
 import velocity.util.Point;
+import velocity.util.Transform;
 
 /**
  * Basic text renderer for the UI Canvas.
@@ -40,8 +41,8 @@ public class UIText extends UIRenderable {
      * @param fontPath The path of the font file.
      * @param c The text color 
      */
-    public UIText(Point pos, float rot, String name, String fontPath, Color c) {
-        super(pos, rot, name);
+    public UIText(Transform transform, String name, String fontPath, Color c) {
+        super(transform, name);
         this.color = c;
         this.size = 12;
         this.font = new Font(fontPath, Font.PLAIN, size);

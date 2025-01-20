@@ -4,8 +4,7 @@ import velocity.renderer.DrawInfo;
 import velocity.renderer.FrameBuffer;
 import velocity.util.Logger;
 import velocity.util.MemTracerUtil;
-import velocity.util.Point;
-import velocity.Rect;
+import velocity.util.Transform;
 import velocity.config.GlobalAppConfig;
 
 /**
@@ -15,22 +14,12 @@ public abstract class Sprite {
     /**
      * The sprite position and rect.
      */
-    public final Rect pos;
-
-    /**
-     * The sprite's rotation angle.
-     */
-    public float rot;
+    public final Transform transform;
 
     /**
      * The name of the sprite.
      */
     public final String name;
-
-    /**
-     * The z-sorting layer.
-     */
-    public int sortOrder = 0;
 
     /**
      * Create a sprite.
@@ -39,9 +28,8 @@ public abstract class Sprite {
      * @param rot The sprite's rotation angle.
      * @param name The name of the sprite.
      */
-    public Sprite(Point pos, float rot, String name) {
-        this.pos = new Rect(pos, 0, 0);
-        this.rot = rot;
+    public Sprite(Transform transform, String name) {
+        this.transform = transform;
         this.name = name;
 
         if (GlobalAppConfig.bcfg.LOG_MEMORY)

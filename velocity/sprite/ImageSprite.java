@@ -5,6 +5,7 @@ import velocity.renderer.FrameBuffer;
 import velocity.renderer.RendererImage;
 import velocity.system.Images;
 import velocity.util.Point;
+import velocity.util.Transform;
 
 /**
  * A basic sprite with an image that can be drawn on-screen.
@@ -23,13 +24,13 @@ public class ImageSprite extends Renderable {
      * @param name The name of the sprite.
      * @param image The image path.
      */
-    public ImageSprite(Point pos, float rot, String name, String image) {
-        super(pos, rot, name);
+    public ImageSprite(Transform transform, String name, String image) {
+        super(transform, name);
 
         // Only load an image if provided
         if (image != null) {
             this.img = Images.loadImage(image);
-            this.pos.setWH(img.getWidth(), img.getHeight());
+            this.transform.updateRect(new Point(img.getWidth(), img.getHeight()));
         }
     }
 
@@ -42,13 +43,13 @@ public class ImageSprite extends Renderable {
      * @param name The name of the sprite.
      * @param image The image reference.
      */
-    public ImageSprite(Point pos, float rot, String name, RendererImage image) {
-        super(pos, rot, name);
+    public ImageSprite(Transform transform, String name, RendererImage image) {
+        super(transform, name);
 
         // Only use image properties if one is provided.
         this.img = image;
         if (image != null)
-            this.pos.setWH(img.getWidth(), img.getHeight());
+            this.transform.updateRect(new Point(img.getWidth(), img.getHeight()));
     }
 
     /**

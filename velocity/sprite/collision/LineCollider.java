@@ -27,8 +27,8 @@ public class LineCollider extends Sprite implements Collidable { // Sprite
      * @param end Ending position of the line.
      */
     // TODO: Remove rotation angle parameter.
-    public LineCollider(Point pos, float rot, String name, Point end) {
-        super(pos, rot, name);
+    public LineCollider(Point pos, String name, Point end) {
+        super(new Transform(pos, 0, Point.zero, 0), name);
         this.l = new Line(pos, end);
     }
 

@@ -19,8 +19,8 @@ public class Camera extends Sprite {
      * @param pos Camera starting position.
      */
     public Camera(Point pos) {
-        super(pos, 0, "Main Camera");
-        this.pos.setWH(Camera.res.x, Camera.res.y);
+        super(new Transform(pos, 0f, Point.one, 0), "Main Camera");
+        this.transform.updateRect(new Point(Camera.res.x, Camera.res.y));
     }
 
     /**
@@ -28,6 +28,6 @@ public class Camera extends Sprite {
      */
     public void tick() {
         // BUGFIX (Velocity v0.1.0.0): Workaround for bad camera scaling.
-        this.pos.setWH(Camera.res.x, Camera.res.y);
+        this.transform.updateRect(new Point(Camera.res.x, Camera.res.y));
     }
 }

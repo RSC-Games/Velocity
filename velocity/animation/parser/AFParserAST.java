@@ -41,6 +41,7 @@ class AFParserAST {
         ops.put("PARAM", TokenID.TOK_OP_PARAM);
         ops.put("VALUE", TokenID.TOK_OP_VALUE);
         ops.put("USE_TEX", TokenID.TOK_OP_USE_TEX);
+        ops.put("ONE_SHOT", TokenID.TOK_OP_ONE_SHOT);
     }
 
     /**
@@ -178,6 +179,8 @@ class AFParserAST {
                 return new Value(op, term, args, wstack.size());
             case TOK_OP_USE_TEX:
                 return new UseTex(op, term, args, wstack.size());
+            case TOK_OP_ONE_SHOT:
+                return new OneShot(op, term, args, wstack.size());
 
             // Bad code: Linter got mad about this. Create a different ENUM at some point.
             case TOK_BOOL: {}

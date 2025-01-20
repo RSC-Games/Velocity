@@ -51,6 +51,7 @@ class AFParserCST {
         directives.add("PARAM");
         directives.add("VALUE");
         directives.add("USE_TEX");
+        directives.add("ONE_SHOT");
     }
 
     /**

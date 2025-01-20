@@ -101,6 +101,19 @@ class ERPWindow extends JPanel implements Window {
 
     /**
      * VXRA API method:
+     * Return this window's virtual resolution. May change based on previously issued
+     * resize events. Since the ERP does not support virtual resolutions, this will
+     * return the current window resolution.
+     * 
+     * @return Window resolution.
+     */
+    @Override
+    public Point getVirtualResolution() {
+        return this.getResolution();
+    }
+
+    /**
+     * VXRA API method:
      * Returns this window's current position on screen. May change if the player moves
      * the window.
      * 

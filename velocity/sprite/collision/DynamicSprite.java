@@ -46,9 +46,9 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
      * @param name Sprite name.
      * @param image The sprite image path.
      */
-    public DynamicSprite(Point pos, float rot, String name, String image) {
-        super(pos, rot, name, image);
-        this.col = this.pos.copy();
+    public DynamicSprite(Transform transform, String name, String image) {
+        super(transform, name, image);
+        this.col = this.transform.location.copy();
     }
 
     /**
@@ -68,7 +68,7 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
      */
     @Override
     public void simCollide(ArrayList<Sprite> others) {
-        this.col.setPos(this.pos.getPos().add(coffset));
+        this.col.setPos(this.transform.getPosition().add(coffset));
         
         // NOTE: A true value in the movement array means MOVEMENT IS LOCKED!
         for (int i = 0; i < 4; i++) {
@@ -234,7 +234,7 @@ class RectPredicate implements CPredicate {
     final Rect ir;
 
     public RectPredicate(Sprite o) {
-        this.ir = o.pos;
+        this.ir = o.transform.location;
     }
 
     public boolean overlaps(Rect r) {

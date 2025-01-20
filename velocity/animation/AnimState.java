@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import velocity.animation.parser.ops.*;
 import velocity.renderer.RendererImage;
 import velocity.system.Images;
+import velocity.util.Logger;
 
 /**
  * High level state abstraction.
@@ -14,6 +15,11 @@ class AnimState {
      * Frames to wait between each change in the character's drawn frame.
      */
     int framesPerUpdate;
+
+    /**
+     * Whether this animation repeats or stops playing at the end.
+     */
+    boolean oneShot = false;
 
     /**
      * The images to use to draw the character.
@@ -38,6 +44,7 @@ class AnimState {
      */
     public AnimState(Directive d) {
         this.framesPerUpdate = findFPUVal(d);
+        this.oneShot = determineOneShot(d);
         this.imgs = loadAllImages(d);
     }
 
@@ -61,6 +68,33 @@ class AnimState {
         if (fpu == null) { throw new IllegalStateException("Found no @FRAMES_PER_UPDATE value to parse in provided case!"); }
         
         return Integer.parseInt(fpu.getArgs().get(0).data);
+    }
+
+
+    /**
+     * Get the Frames Per Update value required for proper state update
+     * and drawing.
+     * 
+     * @param d The directive to parse.
+     * @return The identified Frames per Update.
+     */
+    private boolean determineOneShot(Directive d) {
+        OneShot oneShot = null;
+
+        for (Directive cd : d.getChildren()) {
+            if (cd instanceof OneShot) {
+                oneShot = (OneShot)cd;
+                break;
+            }
+        }
+
+        // Debugging info is terrible throughout this entire parser, so the user will have to guess.
+        if (oneShot == null) { 
+            Logger.log("anim", "found no @ONE_SHOT in current case. assuming looping animation.");
+            return false;
+        }
+        
+        return Boolean.parseBoolean(oneShot.getArgs().get(0).data);
     }
     
     /**
@@ -96,8 +130,15 @@ class AnimState {
         this.cntr++;
 
         if (this.cntr == this.framesPerUpdate) {
-            this.frameCounter = (this.frameCounter != imgs.size() - 1) ? 
-                frameCounter + 1 : 0;
+            if (this.frameCounter == imgs.size() - 1) {
+                if (oneShot) return;  // Don't loop the animation.
+                this.frameCounter = 0;
+            }
+            else
+                this.frameCounter++;
+
+            //this.frameCounter = (this.frameCounter != imgs.size() - 1) ? 
+            //    frameCounter + 1 : 0;
             this.cntr = 0;
         }
     }

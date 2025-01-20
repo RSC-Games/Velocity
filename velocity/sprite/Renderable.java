@@ -16,8 +16,8 @@ public abstract class Renderable extends Sprite {
      * @param rot The rotation angle.
      * @param name The name of the renderable.
      */
-    public Renderable(Point pos, float rot, String name) {
-        super(pos, rot, name);
+    public Renderable(Transform transform, String name) {
+        super(transform, name);
     }
 
     /**

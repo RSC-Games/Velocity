@@ -5,6 +5,7 @@ import java.awt.Color;
 import velocity.Scene;
 import velocity.sprite.ui.FPSCounter;
 import velocity.util.Point;
+import velocity.util.Transform;
 
 /**
  * Scene loaded by default when no other scenes could be found.
@@ -20,7 +21,7 @@ public class DefaultScene extends Scene {
      */
     public DefaultScene(String name, int uuid) {
         super(name, uuid);
-        sprites.add(new FPSCounter(new Point(3, 12), 0, "FPS", Color.yellow));
+        sprites.add(new FPSCounter(new Transform(new Point(3, 12)), "FPS", Color.yellow));
         // Using default camera in base scene.
     }
 }

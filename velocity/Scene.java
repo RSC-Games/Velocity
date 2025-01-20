@@ -329,7 +329,7 @@ public class Scene {
      * @return Position in world space.
      */
     public Point screenToWorldPoint(Point screenP) {
-        Point cameraPos = this.camera.pos.getDrawLoc();
+        Point cameraPos = this.camera.transform.location.getDrawLoc();
         return screenP.add(cameraPos);
     }
 
@@ -340,7 +340,7 @@ public class Scene {
      * @return Position in screen space.
      */
     public Point worldToScreenPoint(Point worldP) {
-        Point cameraPos = this.camera.pos.getPos();
+        Point cameraPos = this.camera.transform.location.getPos();
         return worldP.sub(cameraPos);
     }
 
@@ -461,7 +461,7 @@ public class Scene {
      * @param uifb Supplied UI framebuffer
      */
     public void render(FrameBuffer fb, FrameBuffer uifb) {
-        Point cPos = camera.pos.getDrawLoc();
+        Point cPos = camera.transform.location.getDrawLoc();
     
         for (Sprite s : this.sprites) {
             // Note: Camera position will be important later on.
@@ -469,21 +469,24 @@ public class Scene {
             if (s instanceof UIRenderable) {
                 UIRenderable uis = (UIRenderable) s;
                 DrawInfo info = new DrawInfo(
-                    new Rect(uis.pos.getPos(), uis.pos.getW(), uis.pos.getH()), 
-                    uis.rot, 
-                    Point.one, 
-                    uis.sortOrder // Sort layer default 0.
+                    uis.transform.location.copy(), 
+                    uis.transform.rotation, 
+                    new Point(uis.transform.scale), 
+                    uis.transform.sortOrder // Sort layer default 0.
                 );
 
                 uis.renderUI(info, uifb);
             }
             else if (s instanceof Renderable) {
                 Renderable is = (Renderable) s;
+                Rect renderableRect = is.transform.location.copy();
+                renderableRect.translate(cPos.mult(-1));
+
                 DrawInfo info = new DrawInfo(
-                    new Rect(is.pos.getPos().sub(cPos), is.pos.getW(), is.pos.getH()),
-                    is.rot,
-                    Point.one,
-                    is.sortOrder
+                    renderableRect,
+                    is.transform.rotation,
+                    new Point(is.transform.scale),
+                    is.transform.sortOrder
                 );
 
                 is.render(info, fb);
@@ -516,7 +519,7 @@ public class Scene {
             if (s == null) 
                 Logger.warn("renderer.debug_renderer", "Provided sprite for debug render is NULL!");
 
-            Rect inRect = s.pos.copy();
+            Rect inRect = s.transform.location.copy();
             inRect.setPos(inRect.getPos().sub(cp));
 
             DrawInfo info = new DrawInfo(

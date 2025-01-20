@@ -6,6 +6,7 @@ import velocity.Scene;
 import velocity.sprite.ui.FPSCounter;
 import velocity.util.Point;
 import velocity.util.Popup;
+import velocity.util.Transform;
 
 /**
  * Scene loaded when a requested scene could not be initialized. Disabled
@@ -21,7 +22,7 @@ public class ErrorScene extends Scene {
     public ErrorScene(String name, int uuid) {
         super(name, uuid);
 
-        sprites.add(new FPSCounter(new Point(3, 12), 0, "FPS", Color.red));
+        sprites.add(new FPSCounter(new Transform(new Point(3, 12)), "FPS", Color.red));
         // Using default camera in base scene.
 
         // An error occurred while opening the last scene. Inform the developer of the

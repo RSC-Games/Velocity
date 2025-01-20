@@ -25,7 +25,7 @@ public class VXRA {
     /**
      * Current provided VXRA version.
      */
-    public static final String VXRA_VER = "0.6a";
+    public static final String VXRA_VER = "0.6.1a";
 
     /**
      * The currently loaded render pipeline.

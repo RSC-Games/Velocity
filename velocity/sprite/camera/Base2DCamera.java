@@ -69,9 +69,9 @@ public class Base2DCamera extends Camera {
         super.tick();
         if (this.target == null) return;
 
-        Point point = target.pos.getPos();
+        Point point = target.transform.getPosition();
         Point distance = distanceTo(point);
-        this.pos.translate(distance.div(new Point(smoothDiv, smoothDiv)));
+        this.transform.translate(distance.div(new Point(smoothDiv, smoothDiv)));
 
         //float oRot = this.rot;
         //this.rot += (player.rot - this.rot) / (smoothDiv / 2);
@@ -85,7 +85,7 @@ public class Base2DCamera extends Camera {
      * @return Distance to follow target.
      */
     private Point distanceTo(Point point) {
-        Point loc = this.pos.getPos();
+        Point loc = this.transform.getPosition();
         return new Point(point.x - loc.x, point.y - loc.y);
     }
 }

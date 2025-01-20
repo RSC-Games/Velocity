@@ -9,6 +9,7 @@ import velocity.renderer.FrameBuffer;
 import velocity.renderer.RendererImage;
 import velocity.system.Images;
 import velocity.util.Point;
+import velocity.util.Transform;
 
 /**
  * UI panel button implementation. Must be extended for usage. A base UIButton
@@ -39,10 +40,10 @@ public abstract class UIButton extends UIImage {
      * @param image The normal button image.
      * @param hoverImage The image shown while hovering.
      */
-    public UIButton(Point pos, float rot, String name, String image, String hoverImage) {
-        super(pos, rot, name, image);
+    public UIButton(Transform transform, String name, String image, String hoverImage) {
+        super(transform, name, image);
         this.hoverImage = Images.loadImage(hoverImage);
-        this.offset = pos;
+        this.offset = this.transform.getPosition();
     }
 
     /**
@@ -52,12 +53,12 @@ public abstract class UIButton extends UIImage {
     // TODO: Make more flexible and don't force centering for buttons.
     @Override
     public void tick() {
-        this.pos.setPos(AnchorPoint.getAnchor("center").add(offset));
+        this.transform.setPosition(AnchorPoint.getAnchor("center").add(offset));
         Point mouseInWorldSpace = InputSystem.getMousePos();
         Rect mRect = new Rect(mouseInWorldSpace, 1, 1);
 
         // Mouse is hovering over this object.
-        if (this.pos.overlaps(mRect)) {
+        if (this.transform.location.overlaps(mRect)) {
             // Trigger hover event only once.
             if (!this.hovered)
                 onHover();

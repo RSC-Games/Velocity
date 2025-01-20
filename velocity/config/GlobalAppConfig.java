@@ -24,6 +24,15 @@ public class GlobalAppConfig {
     /** Set the default window resolution on game start. */
     public Point APP_RES_DEFAULT;
 
+    /** 
+     * Allow the use of a "Virtual Resolution," a false resolution reported to the game to maintain
+     * proper display scaling
+     */
+    public boolean USE_VIRTUAL_RESOLUTION;
+
+    /** If virtual resolutions are enabled, set the target virtual window resolution. */
+    public Point APP_VIRTUAL_RES;
+
     /** Allow dynamic window resizing of the game view and camera. */
     public boolean WINDOW_RESIZABLE;
 
@@ -105,6 +114,8 @@ public class GlobalAppConfig {
         this.APP_NAME = "Velocity Application";  // Standard application name.
         this.ICON_PATH = "./velocity/resources/rsc_games.ico";  // Path to the RSC Games logo.
         this.APP_RES_DEFAULT = new Point(640, 480);  // Default application resolution.
+        this.USE_VIRTUAL_RESOLUTION = false;  // Virtual resolution is disabled by default for compatibility.
+        this.APP_VIRTUAL_RES = new Point(640, 480);  // Mirrors the default resolution.
         this.WINDOW_RESIZABLE = true;  // Developers are encouraged to allow resizable windows.
         this.WINDOW_FULLSCREEN = false; // By default will be a windowed application.
 

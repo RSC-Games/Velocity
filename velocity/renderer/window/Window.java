@@ -17,6 +17,15 @@ public interface Window {
     public Point getResolution();
 
     /**
+     * Return the currently determined virtual resolution based off the real resolution and
+     * screen aspect ratio. Only scales on the Y axis.
+     * 
+     * @return Optimal virtual resolution.
+     */
+    // TODO: Virtual resolution may break mouse location detection?
+    public Point getVirtualResolution();
+
+    /**
      * Returns this window's current position on screen. May change if the player moves
      * the window.
      * 

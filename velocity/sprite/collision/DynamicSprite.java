@@ -84,11 +84,17 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
         // Determine the absolute direction this body is moving.
         // Required for properly displacing the body.
         Point movementDelta = this.transform.getPosition().sub(lastFramePos);
+        
+        if (movementDelta.x != 0 || movementDelta.y != 0)
+            System.out.println("movement delta " + movementDelta);
 
         // Speculative collision system -- displacement not fully implemented.
         for (Sprite other : others) {
             if (this == other)
                 continue;
+
+            // TODO: Collider distance culling -- avoid more expensive collision testing
+            // if the colliders arent even nearby.
 
             // TODO: Make the test rects 1 pixel wide for testing purposes so they
             // don't collide with an existing wall.
@@ -130,29 +136,43 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
             Point halfSz = col.getWH().div(2);
             
             // In the future should lock a movement direction.
-            Rect hitCol = new Rect(colPos.sub(new Point(0, halfSz.y)), new Point(col.getW(), 1));
-            if (hitN(hitCol, other, new Point(0, -1), movementDelta.y < 0 ? movementDelta.y : 1)) {
+            System.out.println("object " + this.name);
+            System.out.println("main collider " + col);
+            Rect hitCol = new Rect(colPos.sub(new Point(0, halfSz.y)), new Point(col.getW() - 2, 2));
+            if (hitN(hitCol, other, new Point(0, -1), movementDelta.y < 0 ? Math.abs(movementDelta.y) : 1)) {
+                System.out.println("Hit thing above");
                 hit = true;
                 moveDir[DIR_UP] = true;
             }
 
-            hitCol = new Rect(colPos.add(new Point(0, halfSz.y)), new Point(col.getW(), 1));
-            if (hitN(hitCol, other, new Point(0, 1), movementDelta.y > 0 ? movementDelta.y : 1)) {
+            System.out.println("up col " + hitCol + " range " + (movementDelta.y < 0 ? movementDelta.y : 1));
+
+            hitCol = new Rect(colPos.add(new Point(0, halfSz.y)), new Point(col.getW() - 2, 2));
+            if (hitN(hitCol, other, new Point(0, 1), movementDelta.y > 0 ? Math.abs(movementDelta.y) : 1)) {
+                //System.out.println("Hit thing below");
                 hit = true;
                 moveDir[DIR_DOWN] = true;
             }
 
-            hitCol = new Rect(colPos.sub(new Point(halfSz.x, 0)), new Point(1, col.getH()));
-            if (hitN(hitCol, other, new Point(-1, 0), movementDelta.x > 0 ? movementDelta.x : TEST_RANGE)) {
+            System.out.println("down col " + hitCol + " range " + (movementDelta.y > 0 ? movementDelta.y : 1));
+
+            hitCol = new Rect(colPos.sub(new Point(halfSz.x, 0)), new Point(2, col.getH() - 2));
+            if (hitN(hitCol, other, new Point(-1, 0), movementDelta.x < 0 ? Math.abs(movementDelta.x) : 1)) {
+                System.out.println("Hit thing left");
                 hit = true;
                 moveDir[DIR_LEFT] = true;
             }
 
-            hitCol = new Rect(colPos.add(new Point(halfSz.x, 0)), new Point(1, col.getH()));
-            if (hitN(hitCol, other, new Point(1, 0), movementDelta.x < 0 ? movementDelta.x : TEST_RANGE)) {
+            System.out.println("left col " + hitCol + " range " + (movementDelta.x > 0 ? movementDelta.x : 1));
+
+            hitCol = new Rect(colPos.add(new Point(halfSz.x, 0)), new Point(2, col.getH() - 2));
+            if (hitN(hitCol, other, new Point(1, 0), movementDelta.x > 0 ? Math.abs(movementDelta.x) : 1)) {
+                System.out.println("Hit thing right");
                 hit = true;  
                 moveDir[DIR_RIGHT] = true;
             }
+
+            System.out.println("right  col " + hitCol + " range " + (movementDelta.x < 0 ? movementDelta.x : 1));
 
             // Process a collision event if necessary.
             if (hit)

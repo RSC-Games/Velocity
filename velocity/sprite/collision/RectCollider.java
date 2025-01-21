@@ -1,6 +1,7 @@
 package velocity.sprite.collision;
 
 import velocity.*;
+import velocity.renderer.DrawInfo;
 import velocity.renderer.FrameBuffer;
 import velocity.sprite.*;
 import velocity.util.*;
@@ -28,9 +29,12 @@ public class RectCollider extends Sprite implements Collidable {
      * @param fb Framebuffer to draw on.
      * @param pos The rendering location (camera pos - sprite transform)
      */
-    public void DEBUG_render(FrameBuffer fb, Point pos) {
+    @Override
+    public void DEBUG_render(FrameBuffer fb, DrawInfo info) {
         Point widthHeight = this.transform.location.getWH();
-        Rect drect = new Rect(this.transform.getPosition().sub(pos), widthHeight.x, widthHeight.y);
+        Point pos = info.drawRect.getPos();
+
+        Rect drect = new Rect(pos, widthHeight.x, widthHeight.y);
         fb.drawRect(drect, 1, new Color(255, 0, 0), false);
     }
 }

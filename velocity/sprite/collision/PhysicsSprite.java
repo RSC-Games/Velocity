@@ -5,7 +5,6 @@ import java.awt.Color;
 import velocity.Rect;
 import velocity.renderer.DrawInfo;
 import velocity.renderer.FrameBuffer;
-import velocity.sprite.Sprite;
 import velocity.util.*;
 
 /**
@@ -13,8 +12,10 @@ import velocity.util.*;
  * one rigidbody to another.
  */
 public class PhysicsSprite extends DynamicSprite {
-    private static final int GRAVITY_PIXELS_PER_SECOND = 100;
-    //private static final float PHYSICS_PROCESS_PER_SECOND = 60;
+    private static final int GRAVITY_PIXELS_PER_SECOND = 1;
+    private static final int PHYSICS_FRAMES_DELAY = 4;
+
+    private int physics_counter = -1;
 
     /**
      * Velocity is instantaneously applied per frame.
@@ -32,6 +33,7 @@ public class PhysicsSprite extends DynamicSprite {
      */
     public PhysicsSprite(Transform transform, String name, String image, float gravityScale) {
         super(transform, name, image);
+        this.velocity = new Point(Point.zero);
         this.gravityScale = gravityScale;
     }
 
@@ -39,34 +41,23 @@ public class PhysicsSprite extends DynamicSprite {
      * Simulate physics this frame. Physics sim occurs after collision simulation.
      */
     public void simPhysics() {
-        this.velocity.y += GRAVITY_PIXELS_PER_SECOND * this.gravityScale;
+        physics_counter = (physics_counter + 1) % PHYSICS_FRAMES_DELAY;
 
-        if (!moveDir[DynamicEntity.DIR_UP] && this.velocity.y < 0 || !moveDir[DynamicEntity.DIR_DOWN] && this.velocity.y > 0)
+        // Only sim gravity a set number of times per frame.
+        if (physics_counter == 0)
+            this.velocity.y += GRAVITY_PIXELS_PER_SECOND * this.gravityScale;
+
+        // Detect environment collisions.
+        if (moveDir[DynamicEntity.DIR_UP] && this.velocity.y < 0 || moveDir[DynamicEntity.DIR_DOWN] && this.velocity.y > 0)
             // Y axis motion is inverted.
             this.velocity.y = 0;
 
-        if (!moveDir[DynamicEntity.DIR_LEFT] && this.velocity.x < 0 || !moveDir[DynamicEntity.DIR_RIGHT] && this.velocity.x > 0)
+        if (moveDir[DynamicEntity.DIR_LEFT] && this.velocity.x < 0 || moveDir[DynamicEntity.DIR_RIGHT] && this.velocity.x > 0)
             this.velocity.x = 0;
 
         // Process physics.
         this.transform.translate(this.velocity);
     }
-
-    /**
-     * Callback whenever this object hits any collider. Fires every frame
-     * that this object is within the bounding box of the other collider.
-     *
-     * @param other Collider that was hit this frame.
-     */
-    public void onCollision(Sprite other) {} 
-
-    /**
-     * Callback whenever this object hits any trigger. Fires every frame
-     * that this object is within the bounding box of the other trigger.
-     *
-     * @param other Trigger collider that was hit this frame.
-     */
-    public void onTrigger(Sprite other) {} 
 
     /**
      * Render this on the debug renderer. (Pink box showing the collider rect).
@@ -80,7 +71,7 @@ public class PhysicsSprite extends DynamicSprite {
         Point pos = info.drawRect.getPos();
 
         Rect drect = new Rect(pos, this.col.getW(), this.col.getH());
-        fb.drawRect(drect, 1, new Color(255, 0, 255), false);
+        fb.drawRect(drect, 1, new Color(80, 80, 255), false);
     }
 
     /**

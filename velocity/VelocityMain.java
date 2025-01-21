@@ -22,7 +22,10 @@ import velocity.util.Popup;
 /**
  * Core body of Velocity. Everything that Velocity does originates here.
  * 
- * Updates (Velocity v0.6.5.0)
+ * Updates (Velocity v0.6.5.2)
+ *  - (1/20/2025) Implemented modern replacements for the legacy DebugRenderer system.
+ *  - (1/20/2025) Reimplemented collision engine so it could handle faster bodies.
+ *  - (1/20/2025) Physics engine never actually was simulated. Fixed.
  *  - (1/19/2025) Switched all sprites to use the Transform system and fixed a long standing scene
  *      renderer limitation.
  * 
@@ -131,7 +134,7 @@ public class VelocityMain implements Driver {
      * Current Velocity version. Uses the semantic versioning system
      * VERSION.MAJOR.MINOR.PATCH.
      */
-    public static final Version VELOCITY_VER = new Version(0, 6, 5, 0);
+    public static final Version VELOCITY_VER = new Version(0, 6, 5, 2);
 
     /**
      * Extensions to the Velocity version.

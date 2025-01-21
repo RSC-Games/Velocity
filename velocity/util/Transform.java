@@ -77,6 +77,15 @@ public class Transform implements Cloneable {
     }
 
     /**
+     * Identity transformation..
+     * Defaults to Point.zero 0 degrees rotation, 1x scale, and Z layer 0.
+     * 
+     */
+    public Transform() {
+        this(Point.zero);
+    }
+
+    /**
      * Create a new transformation representation for a sprite.
      * Defaults to 1x scale and Z layer 0.
      * 

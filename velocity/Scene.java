@@ -450,6 +450,15 @@ public class Scene {
                 ds.simTrigger(triggerables);
             }
         }
+
+        // Physics sim runs after everything else to prevent arbitrary collisions with non-updated
+        // geometry.
+        for (Sprite s : simObjects) {
+            if (s instanceof PhysicsSprite) {
+                PhysicsSprite ps = (PhysicsSprite)s;
+                ps.simPhysics();
+            }
+        }
     }
     
     /**

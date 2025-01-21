@@ -39,6 +39,11 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
     public boolean[] moveDir = new boolean[4];
 
     /**
+     * Body location last frame.
+     */
+    private Point lastFramePos;
+
+    /**
      * Create a Dynamic Sprite.
      * 
      * @param pos Initial position.
@@ -49,6 +54,7 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
     public DynamicSprite(Transform transform, String name, String image) {
         super(transform, name, image);
         this.col = this.transform.location.copy();
+        this.lastFramePos = transform.getPosition();
     }
 
     /**
@@ -75,32 +81,75 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
             moveDir[i] = false;
         }
 
-        // Displacement or speculative, idk yet.
+        // Determine the absolute direction this body is moving.
+        // Required for properly displacing the body.
+        Point movementDelta = this.transform.getPosition().sub(lastFramePos);
+
+        // Speculative collision system -- displacement not fully implemented.
         for (Sprite other : others) {
             if (this == other)
                 continue;
 
-            // TODO: Calculate the current sprite's move vector from its delta
-            // between last and this frame. Use this information for calculating
-            // the test range in all 4 directions.
             // TODO: Make the test rects 1 pixel wide for testing purposes so they
             // don't collide with an existing wall.
             boolean hit = false;
+
+            // TODO: Switch the current collision engine to use a sweep test-based collision system,
+            // then cap movement to the point of intersection based on the movement vector.
+
+            // SECTION 5: Fast-Moving Objects
+
+            // As mentioned above, small and/or fast-moving objects can produce problems when 
+            // using a static collision test. There are several approaches that can be taken to 
+            // handle such objects -- the simplest is to constrain your game design so that such 
+            // objects aren't needed.
+
+            // If you absolutely must have them, there are two common methods to deal with small 
+            // and/or fast-moving objects: swept-collision tests, and multisampling.
+
+            // --= sweep tests =--
+
+            // Instead of testing for intersection between two static shapes, we can instead create 
+            // new shapes by sweeping the original shapes along their trajectory, and testing for 
+            // overlap between these swept shapes.
+
+            // The basic idea is described in [Gomez], for circle-circle and AABB-AABB sweep tests.
+
+            // --= multisampling =--
+
+            // A much simpler alternative to swept tests is to multisample; instead of performing a 
+            // single static test at the object's new position, perform several tests at several 
+            // positions located between the object's previous and new position. This technique was 
+            // used to collide the ragdoll in N.
+
+            // If you make sure that the samples are always spaced at distances less than the 
+            // object's radius, this will produce excellent results. In our implementation, we 
+            // limit the maximum number of samples, so very high speeds will sometimes result in 
+            // problems; this is something that can be tweaked based on your specific application.
+            Point colPos = col.getPos();
+            Point halfSz = col.getWH().div(2);
             
             // In the future should lock a movement direction.
-            if (hitN(col, other, new Point(0, -1), TEST_RANGE)) {
+            Rect hitCol = new Rect(colPos.sub(new Point(0, halfSz.y)), new Point(col.getW(), 1));
+            if (hitN(hitCol, other, new Point(0, -1), movementDelta.y < 0 ? movementDelta.y : 1)) {
                 hit = true;
                 moveDir[DIR_UP] = true;
             }
-            if (hitN(col, other, new Point(0, 1), TEST_RANGE)) {
+
+            hitCol = new Rect(colPos.add(new Point(0, halfSz.y)), new Point(col.getW(), 1));
+            if (hitN(hitCol, other, new Point(0, 1), movementDelta.y > 0 ? movementDelta.y : 1)) {
                 hit = true;
                 moveDir[DIR_DOWN] = true;
             }
-            if (hitN(col, other, new Point(-1, 0), TEST_RANGE)) {
+
+            hitCol = new Rect(colPos.sub(new Point(halfSz.x, 0)), new Point(1, col.getH()));
+            if (hitN(hitCol, other, new Point(-1, 0), movementDelta.x > 0 ? movementDelta.x : TEST_RANGE)) {
                 hit = true;
                 moveDir[DIR_LEFT] = true;
             }
-            if (hitN(col, other, new Point(1, 0), TEST_RANGE)) {
+
+            hitCol = new Rect(colPos.add(new Point(halfSz.x, 0)), new Point(1, col.getH()));
+            if (hitN(hitCol, other, new Point(1, 0), movementDelta.x < 0 ? movementDelta.x : TEST_RANGE)) {
                 hit = true;  
                 moveDir[DIR_RIGHT] = true;
             }
@@ -109,6 +158,28 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
             if (hit)
                 this.onCollision(other);
         }
+
+        this.lastFramePos = this.transform.getPosition();
+    }
+
+    /**
+     * Identify if this object can move in a provided direction.
+     * @see velocity.sprite.collision.DynamicSprite DynamicSprite.
+     * 
+     * @param direction A direction code from DynamicSprite.
+     * @return Whether this can move in that direction.
+     */
+    public boolean canMoveDirection(int direction) {
+        return !moveDir[direction];
+    }
+
+    /**
+     * Identify if this object is touching ground.
+     * 
+     * @return If this sprite cannot move downwards.
+     */
+    public boolean touchingGround() {
+        return moveDir[DIR_DOWN];
     }
 
     /**

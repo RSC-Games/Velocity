@@ -535,7 +535,7 @@ public class Scene {
                 inRect, 
                 0f, 
                 Point.zero, 
-                0
+                1000
             );
 
             // Renderable support not yet implemented.

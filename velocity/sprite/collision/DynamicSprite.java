@@ -43,6 +43,9 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
      */
     private Point lastFramePos;
 
+    // TODO: Debug information
+    private ArrayList<Rect> cachedRects;
+
     /**
      * Create a Dynamic Sprite.
      * 
@@ -55,6 +58,7 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
         super(transform, name, image);
         this.col = this.transform.location.copy();
         this.lastFramePos = transform.getPosition();
+        this.cachedRects = new ArrayList<>();
     }
 
     /**
@@ -75,6 +79,7 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
     @Override
     public void simCollide(ArrayList<Sprite> others) {
         this.col.setPos(this.transform.getPosition().add(coffset));
+        cachedRects.clear();
         
         // NOTE: A true value in the movement array means MOVEMENT IS LOCKED!
         for (int i = 0; i < 4; i++) {
@@ -85,8 +90,8 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
         // Required for properly displacing the body.
         Point movementDelta = this.transform.getPosition().sub(lastFramePos);
         
-        if (movementDelta.x != 0 || movementDelta.y != 0)
-            System.out.println("movement delta " + movementDelta);
+        //if (movementDelta.x != 0 || movementDelta.y != 0)
+        //    System.out.println("movement delta " + movementDelta);
 
         // Speculative collision system -- displacement not fully implemented.
         for (Sprite other : others) {
@@ -135,18 +140,17 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
             Point colPos = col.getPos();
             Point halfSz = col.getWH().div(2);
             
-            // In the future should lock a movement direction.
-            System.out.println("object " + this.name);
-            System.out.println("main collider " + col);
+            // Up sense (Working)
             Rect hitCol = new Rect(colPos.sub(new Point(0, halfSz.y)), new Point(col.getW() - 2, 2));
             if (hitN(hitCol, other, new Point(0, -1), movementDelta.y < 0 ? Math.abs(movementDelta.y) : 1)) {
-                System.out.println("Hit thing above");
+                //System.out.println("Hit thing above");
                 hit = true;
                 moveDir[DIR_UP] = true;
             }
 
-            System.out.println("up col " + hitCol + " range " + (movementDelta.y < 0 ? movementDelta.y : 1));
+            cachedRects.add(hitCol);
 
+            // Down sense (Working)
             hitCol = new Rect(colPos.add(new Point(0, halfSz.y)), new Point(col.getW() - 2, 2));
             if (hitN(hitCol, other, new Point(0, 1), movementDelta.y > 0 ? Math.abs(movementDelta.y) : 1)) {
                 //System.out.println("Hit thing below");
@@ -154,25 +158,27 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
                 moveDir[DIR_DOWN] = true;
             }
 
-            System.out.println("down col " + hitCol + " range " + (movementDelta.y > 0 ? movementDelta.y : 1));
+            cachedRects.add(hitCol);
 
-            hitCol = new Rect(colPos.sub(new Point(halfSz.x, 0)), new Point(2, col.getH() - 2));
-            if (hitN(hitCol, other, new Point(-1, 0), movementDelta.x < 0 ? Math.abs(movementDelta.x) : 1)) {
+            // Left sense (BROKEN)
+            hitCol = new Rect(colPos.sub(new Point(halfSz.x + 1, 0)), new Point(2, col.getH() - 2));
+            if (hitN(hitCol, other, new Point(-1, 0), movementDelta.x < 0 ? Math.abs(movementDelta.x) : 3)) {
                 System.out.println("Hit thing left");
                 hit = true;
                 moveDir[DIR_LEFT] = true;
             }
 
-            System.out.println("left col " + hitCol + " range " + (movementDelta.x > 0 ? movementDelta.x : 1));
+            cachedRects.add(hitCol);
 
-            hitCol = new Rect(colPos.add(new Point(halfSz.x, 0)), new Point(2, col.getH() - 2));
-            if (hitN(hitCol, other, new Point(1, 0), movementDelta.x > 0 ? Math.abs(movementDelta.x) : 1)) {
+            // Right sense (FIXED DO NOT TOUCH IF YOU VALUE YOUR LIFE)
+            hitCol = new Rect(colPos.add(new Point(halfSz.x + 1, 0)), new Point(2, col.getH() - 2));
+            if (hitN(hitCol, other, new Point(1, 0), movementDelta.x > 0 ? Math.abs(movementDelta.x) : 3)) {
                 System.out.println("Hit thing right");
                 hit = true;  
                 moveDir[DIR_RIGHT] = true;
             }
 
-            System.out.println("right  col " + hitCol + " range " + (movementDelta.x < 0 ? movementDelta.x : 1));
+            cachedRects.add(hitCol);
 
             // Process a collision event if necessary.
             if (hit)
@@ -213,7 +219,6 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
      */
     private boolean hitN(Rect r, Sprite other, Point step, int steps) {
         CPredicate p;
-        Rect tr = r.copy();
 
         if (other instanceof LineCollider)
             p = new LinePredicate((LineCollider)other);
@@ -223,10 +228,13 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
             p = new RectPredicate(other);
 
         for (int i = 0; i < steps; i++) {
-            tr.translate(step);
+            r.translate(step);
 
             // Hit the nearest collision target.
-            if (p.overlaps(tr)) {
+            if (p.overlaps(r)) {
+                if (step.x != 0)
+                    System.out.println("detected hit w/ vector " + step + " at i " + i);
+
                 return true;
             }
         }
@@ -284,6 +292,14 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
 
         Rect drect = new Rect(pos, this.col.getW(), this.col.getH());
         fb.drawRect(drect, 1, new Color(255, 0, 255), false);
+
+        for (Rect sweeper : cachedRects) {
+            Point delta = sweeper.getPos().sub(col.getPos());
+            Point sweeperLoc = delta.add(pos);
+            sweeper.setPos(sweeperLoc);
+
+            fb.drawRect(sweeper, 1, new Color(255, 0, 255), false);
+        }
     }
 
     /**

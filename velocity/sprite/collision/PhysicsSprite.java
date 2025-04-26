@@ -12,15 +12,12 @@ import velocity.util.*;
  * one rigidbody to another.
  */
 public class PhysicsSprite extends DynamicSprite {
-    private static final int GRAVITY_PIXELS_PER_SECOND = 1;
-    private static final int PHYSICS_FRAMES_DELAY = 4;
-
-    private int physics_counter = -1;
+    private static final float GRAVITY_UNITS_PER_SECOND = 0.5f;
 
     /**
      * Velocity is instantaneously applied per frame.
      */
-    public Point velocity;
+    public Vector2 velocity;
 
     public float gravityScale;
 
@@ -33,7 +30,7 @@ public class PhysicsSprite extends DynamicSprite {
      */
     public PhysicsSprite(Transform transform, String name, String image, float gravityScale) {
         super(transform, name, image);
-        this.velocity = new Point(Point.zero);
+        this.velocity = new Vector2(Point.zero);
         this.gravityScale = gravityScale;
     }
 
@@ -41,11 +38,8 @@ public class PhysicsSprite extends DynamicSprite {
      * Simulate physics this frame. Physics sim occurs after collision simulation.
      */
     public void simPhysics() {
-        physics_counter = (physics_counter + 1) % PHYSICS_FRAMES_DELAY;
-
-        // Only sim gravity a set number of times per frame.
-        if (physics_counter == 0)
-            this.velocity.y += GRAVITY_PIXELS_PER_SECOND * this.gravityScale;
+        // TODO: Scale based on the time between frames for consistent simulation.
+        this.velocity.y += GRAVITY_UNITS_PER_SECOND * this.gravityScale;
 
         // Detect environment collisions.
         if (moveDir[DynamicEntity.DIR_UP] && this.velocity.y < 0 || moveDir[DynamicEntity.DIR_DOWN] && this.velocity.y > 0)
@@ -55,8 +49,8 @@ public class PhysicsSprite extends DynamicSprite {
         if (moveDir[DynamicEntity.DIR_LEFT] && this.velocity.x < 0 || moveDir[DynamicEntity.DIR_RIGHT] && this.velocity.x > 0)
             this.velocity.x = 0;
 
-        // Process physics.
-        this.transform.translate(this.velocity);
+        // Move the rigidbody.
+        this.transform.translate(new Point(velocity));
     }
 
     /**

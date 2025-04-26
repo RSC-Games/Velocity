@@ -22,7 +22,9 @@ import velocity.util.Popup;
 /**
  * Core body of Velocity. Everything that Velocity does originates here.
  * 
- * Updates (Velocity v0.6.5.2)
+ * Updates (Velocity v0.6.5.4)
+ *  - (4/26/2025) Finished patching collision engine bugs.
+ *  - (4/26/2025) Began reimplementing debug renderer system.
  *  - (1/20/2025) Implemented modern replacements for the legacy DebugRenderer system.
  *  - (1/20/2025) Reimplemented collision engine so it could handle faster bodies.
  *  - (1/20/2025) Physics engine never actually was simulated. Fixed.
@@ -134,7 +136,7 @@ public class VelocityMain implements Driver {
      * Current Velocity version. Uses the semantic versioning system
      * VERSION.MAJOR.MINOR.PATCH.
      */
-    public static final Version VELOCITY_VER = new Version(0, 6, 5, 2);
+    public static final Version VELOCITY_VER = new Version(0, 6, 5, 3);
 
     /**
      * Extensions to the Velocity version.
@@ -264,8 +266,8 @@ public class VelocityMain implements Driver {
         Logger.log("main", "Starting render pipeline.");
         VXRA.rp.init();
 
-        if (GlobalAppConfig.bcfg.EN_DEBUG_RENDERER)
-            startDebugRenderer();
+        //if (GlobalAppConfig.bcfg.EN_DEBUG_RENDERER)
+        //    startDebugRenderer();
     }
 
     /**

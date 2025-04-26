@@ -71,7 +71,7 @@ public class ImageSprite extends Renderable {
      */
     @Override
     public void DEBUG_render(FrameBuffer fb, DrawInfo info) {
-        fb.blit(this.img, info);
+        //fb.blit(this.img, info);
     }
 
     /**

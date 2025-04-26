@@ -20,6 +20,11 @@ import velocity.util.Warnings;
 /**
  * Velocity's Extensible Renderer Architecture core integration implementation.
  * Uses and allows the VXRA API to be used with generic renderers.
+ * 
+ * VXRA Version Updates:
+ * 
+ * VXRA 0.6.1a:
+ *  - Cleaned up old obsolete renderer hooks code and introduced Virtual Resolution support.
  */
 public class VXRA {
     /**

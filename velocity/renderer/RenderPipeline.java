@@ -13,6 +13,9 @@ import velocity.shader.Shader;
  * allows arbitrary renderers and backends to plug into the rest of Velocity's engine
  * and rendering frontend code.
  */
+
+// TODO: Reabstract the lighting engine to reduce engine complexity.
+// TODO: Add support for multiple render targets.
 public abstract class RenderPipeline {
     /**
      * Provides illumination and lighting functions, a lot of which are not directly used.
@@ -73,19 +76,24 @@ public abstract class RenderPipeline {
     public abstract void init();
 
     /**
+     * Deinitializes the render pipeline. Should be used to clean up renderer resources
+     * and deallocate memory when velocity is shutting down.
+     */
+    public abstract void deinit();
+
+    /**
      * Draws the entire scene context to one of two framebuffers on the swapchain,
      * or if no swapchain is implemented, whatever render surface is used.
      */
     public abstract void render();
 
-
-
     /**
-     * Gets the renderer-specific draw timer created at initialization.
-     * 
-     * @return Renderer draw timer.
+     * Runs in the render thread while the render thread is idle. Guaranteed
+     * to be called at least once per loop.
      */
-    public abstract DrawTimer getTimer();
+    public abstract void renderIdle();
+
+
 
     /**
      * Generates a renderer name string. Useful for identifying the current
@@ -122,39 +130,35 @@ public abstract class RenderPipeline {
     public abstract Window getWindow();
 
 
-    /**
-     * Create a new framebuffer for use in the renderer. Mostly used internally but occasionally
-     * used in other parts of Velocity.
-     * @deprecated The utility of this function is doubted and there's no current reason to create
-     * a new framebuffer. Actual removal time has not been determined.
-     * 
-     * @return New zeroed framebuffer.
-     */
-    @Deprecated(since="v0.5.2.4", forRemoval=true)
-    public abstract FrameBuffer newFrameBuffer();
 
     /**
-     * Create a new framebuffer of variable size for use in the renderer. Mostly used 
-     * internally but occasionally used in other parts of Velocity.
-     * @deprecated The utility of this function is doubted and there's no current reason to create
-     * a new framebuffer. Actual removal time has not been determined.
+     * Internal function. Queries the renderer cache for the texture associated with
+     * the provided file path. Ideally used to reduce disk I/O time.
      * 
-     * @param x Framebuffer width
-     * @param y Framebuffer height
-     * @return New zeroed framebuffer.
+     * @param path Texture path.
+     * @return Whether the provided texture has already been loaded.
      */
-    @Deprecated(since="v0.5.2.4", forRemoval=true)
-    public abstract FrameBuffer newFrameBuffer(int x, int y);
+    public abstract boolean isTextureCached(String path);
 
     /**
-     * Internal function. Takes a provided image that has been loaded from disk and
-     * does something user defined, then returns a reference RendererImage.
+     * Send a loaded texture to the render pipeline for handling. The plugin renderer
+     * is expected to handle this intelligently (and ideally make it part of a texture
+     * cache).
      * 
-     * @param img Loaded image bytes
-     * @param path The requested path of the image.
-     * @return Reference to the image (on GPU or CPU memory)
+     * @param image The loaded image from disk.
+     * @param path The image path (for caching purposes).
+     * @return Whether the image was successfully loaded or not.
      */
-    public abstract RendererImage INTERNAL_loadImage(BufferedImage img, String path);
+    public abstract boolean registerTexture(BufferedImage image, String path);
+
+    /**
+     * Get the texture handle from the provided image path. This function should only
+     * fetch from the render cache.
+     * 
+     * @param path The image path.
+     * @return The image handle.
+     */
+    public abstract RendererImage getTextureHandleFromPath(String path);
 
     /**
      * By default in LumaViper CPU the texture GC only runs once you have 256 textures 
@@ -169,6 +173,7 @@ public abstract class RenderPipeline {
     /** 
      * Shader installation API. Not currently fully supported. 
     */
+    // TODO: Shading API is very badly implemented and should be reabstracted.
     public void applyShaderFull(Shader shader) {
         fullScreenShaders.add(shader);
     }

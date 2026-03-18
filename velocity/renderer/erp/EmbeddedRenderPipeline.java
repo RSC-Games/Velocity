@@ -6,10 +6,9 @@ import java.util.HashMap;
 import velocity.Driver;
 import velocity.Scene;
 import velocity.config.GlobalAppConfig;
-import velocity.renderer.DrawTimer;
-import velocity.renderer.FrameBuffer;
 import velocity.renderer.RenderPipeline;
 import velocity.renderer.RendererFeatures;
+import velocity.renderer.RendererImage;
 import velocity.renderer.window.Window;
 import velocity.renderer.window.WindowConfig;
 import velocity.sprite.Camera;
@@ -59,7 +58,7 @@ public class EmbeddedRenderPipeline extends RenderPipeline {
         super(m, null);
 
         // Open the window frame.
-        this.window = new ERPWindow(windowCfg, this, m);
+        this.window = new ERPWindow(windowCfg, this);
 
         // LVCPU's base renderer setup doesn't mask the GPU for features, so it has
         // a relatively constant feature set.
@@ -96,7 +95,7 @@ public class EmbeddedRenderPipeline extends RenderPipeline {
 
         // Start frame callback handler.
         this.window.setVisible(true);
-        this.window.startEventTimer(17); // 17 ms
+        //this.window.startEventTimer(17); // 17 ms
     }
 
     @Override
@@ -124,6 +123,9 @@ public class EmbeddedRenderPipeline extends RenderPipeline {
         // Draw the scene and execute drawcalls.
         Scene.currentScene.render(fb, uifb);
         this.rendered = true;
+
+        // Process window events.
+        window.erpEvent.postRenderHooks();
 
         if (GlobalAppConfig.bcfg.EN_RENDERER_PROFILER) {
             long time = c.tick();
@@ -158,14 +160,6 @@ public class EmbeddedRenderPipeline extends RenderPipeline {
     }
 
     /**
-     * Non-VXRA function! Get the draw event timer.
-     */
-    @Override
-    public DrawTimer getTimer() {
-        return this.window.getTimer();        
-    }
-
-    /**
      * Get this renderer's name.
      * 
      * @return Internal renderer name.
@@ -182,7 +176,7 @@ public class EmbeddedRenderPipeline extends RenderPipeline {
      */
     @Override
     public String getVXRATargetVersion() {
-        return "0.6a";
+        return "0.6.2a";
     }
 
     /**
@@ -194,34 +188,40 @@ public class EmbeddedRenderPipeline extends RenderPipeline {
     }
 
     /**
-     * Generate a new framebuffer for use outside of the renderer.
-     * @deprecated This function is a relic from early Velocity and is marked for removal.
-     */
-    @Override
-    public FrameBuffer newFrameBuffer() {
-        throw new UnsupportedOperationException("Unimplemented method 'newFrameBuffer'");
-    }
-
-    /**
-     * Generate a new framebuffer for use outside of the renderer.
-     * @deprecated This function is a relic from early Velocity and is marked for removal.
-     */
-    @Override
-    public FrameBuffer newFrameBuffer(int x, int y) {
-        throw new UnsupportedOperationException("Unimplemented method 'newFrameBuffer'");
-    }
-
-    /**
-     * Force the texture manager to load an image.
+     * Internal function. Queries the renderer cache for the texture associated with
+     * the provided file path. Ideally used to reduce disk I/O time.
      * 
-     * @param b The image bytes to intern if necessary.
-     * @param path The image loading path.
-     * @return The loaded image and a handle.
+     * @param path Texture path.
+     * @return Whether the provided texture has already been loaded.
      */
     @Override
-    public ERPRendererImage INTERNAL_loadImage(BufferedImage b, String path) {
-        return this.texContextMgr.INTERNAL_loadNewImage(b, path);
+    public boolean isTextureCached(String path) {
+        return this.texContextMgr.isTextureLoaded(path);
     }
+
+    /**
+     * Give the texture manager an image to load.
+     * 
+     * @param image The image bytes to intern if necessary.
+     * @param path The image loading path.
+     * @return Whether the image was successfully loaded.
+     */
+    @Override
+    public boolean registerTexture(BufferedImage image, String path) {
+        return this.texContextMgr.INTERNAL_loadNewImage(image, path) != null;
+    }
+
+    /**
+     * Get the texture handle from the provided image path. This function should only
+     * fetch from the render cache.
+     * 
+     * @param path The image path.
+     * @return The image handle.
+     */
+    @Override
+    public RendererImage getTextureHandleFromPath(String path) {
+        return this.texContextMgr.lookupTextureByPath(path);
+    } 
 
     /**
      * Force a garbage collector run in the texture manager. Generally
@@ -230,5 +230,20 @@ public class EmbeddedRenderPipeline extends RenderPipeline {
     @Override
     public void forceGCRun() {
         this.texContextMgr.gcRun();
-    } 
+    }
+
+    /**
+     * Deinitialize the pipeline. Free all resources, release hardware, etc.
+     */
+    @Override
+    public void deinit() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deinit'");
+    }
+
+    /**
+     * Stubbed; the ERP has no use for the renderIdle
+     */
+    @Override
+    public void renderIdle() {}
 }

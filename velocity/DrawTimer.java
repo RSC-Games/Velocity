@@ -1,4 +1,4 @@
-package velocity.renderer;
+package velocity;
 
 import velocity.util.Time;
 
@@ -9,7 +9,7 @@ import velocity.util.Time;
  * The Velocity DrawTimer drives the core of the redraw and simulation system.
  * It drives the script scheduler and renderer code.
  */
-public final class DrawTimer {
+final class DrawTimer {
     /**
      * Convert milliseconds to nanoseconds and back.
      */

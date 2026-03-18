@@ -1,7 +1,6 @@
 package velocity.system;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.awt.Transparency;
 import java.io.IOException;
 import javax.imageio.ImageIO;
@@ -26,20 +25,7 @@ public class Images {
      */
     public static RendererImage loadImage(String path) {
         ResourceLoader ldr = ResourceLoader.getAppLoader();
-        RendererImage outImg = null;
-
-        try {
-            BufferedImage img = loadRawImage(ldr, path);
-            outImg = VXRA.rp.INTERNAL_loadImage(img, path);
-        }
-        catch (NullPointerException ie) {
-            Warnings.warn("velocity.Images", "Could not load provided image (" + path + ")");
-            ie.printStackTrace();
-
-            if (GlobalAppConfig.bcfg.MISSING_IMAGE_FATAL) 
-                throw new RuntimeException("Could not load requested image!");
-        }
-        return outImg;
+        return loadImage(ldr, path);
     }
 
     /**
@@ -47,25 +33,29 @@ public class Images {
      * the provided path, send it to the renderer, and provide a wrapped handle
      * to that image.
      * 
+     * @implNote When configured to continue on image load failure this function will
+     *  return a default image with a path of "__XX_VELOCITY_DEFAULT_TEXTURE__". It is
+     *  the VXRA renderer's job to provide this texture.
+     * 
      * @param ldr Specific resource loader to grab this resource from.
      * @param path Image path on disk.
      * @return A handle to that image.
      */
     public static RendererImage loadImage(ResourceLoader ldr, String path) {
-        RendererImage outImg = null;
-
-        try {
+        // Determine if the requested image is already cached or if it needs to be loaded.
+        if (!VXRA.rp.isTextureCached(path)) {
             BufferedImage img = loadRawImage(ldr, path);
-            outImg = VXRA.rp.INTERNAL_loadImage(img, path);
-        }
-        catch (NullPointerException ie) {
-            //ie.printStackTrace();
-            Warnings.warn("velocity.Images", "Could not load provided image (" + path + ")");
 
-            if (GlobalAppConfig.bcfg.MISSING_IMAGE_FATAL) 
-                throw new RuntimeException("Could not load requested image!");
+            if (!VXRA.rp.registerTexture(img, path)) {
+                if (GlobalAppConfig.bcfg.MISSING_IMAGE_FATAL)
+                    throw new RuntimeException("Failed to load image at path " + path);
+    
+                Warnings.warn("velocity.system.Images", "Failed to load provided image (" + path + ")");
+                return VXRA.rp.getTextureHandleFromPath("__XX_VELOCITY_DEFAULT_TEXTURE__");
+            }
         }
-        return outImg;
+
+        return VXRA.rp.getTextureHandleFromPath(path);
     }
 
     /**
@@ -112,9 +102,11 @@ public class Images {
         }
     }
 
+    
     /**
      * DEPRECATED! Being re-added as a render pipeline feature.
      */
+    /*
     @Deprecated(since="v0.2.1.0", forRemoval=true)
     public static BufferedImage scaleFastPercent(float x, float y, BufferedImage src) {
         int width = src.getWidth();
@@ -146,11 +138,12 @@ public class Images {
         }
 
         return dest;
-    }
+    }*/
 
     /**
      * DEPRECATED! Being re-added as a render pipeline feature.
      */
+    /*
     @Deprecated(since="v0.2.1.0", forRemoval=true)
     public static BufferedImage scaleFast(int w, int h, BufferedImage src) {
         int swidth = src.getWidth();
@@ -198,7 +191,7 @@ public class Images {
         }
 
         return dest;
-    }
+    }*/
 
     /**
      * Internal. Takes a provided image of an unknown type and converts it into a 

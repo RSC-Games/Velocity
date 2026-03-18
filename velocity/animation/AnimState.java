@@ -65,7 +65,9 @@ class AnimState {
             }
         }
 
-        if (fpu == null) { throw new IllegalStateException("Found no @FRAMES_PER_UPDATE value to parse in provided case!"); }
+        if (fpu == null) { 
+            throw new IllegalStateException("Found no @FRAMES_PER_UPDATE value to parse in provided case!"); 
+        }
         
         return Integer.parseInt(fpu.getArgs().get(0).data);
     }

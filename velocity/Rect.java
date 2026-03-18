@@ -161,16 +161,7 @@ public class Rect {
     public void translate(Point p) {
         this.setPos(this.getPos().add(p));
     }
-
-    /**
-     * Scheduled for removal in Velocity v0.6.0.0
-     * @return
-     */
-    @Deprecated(since="v0.4.0.0", forRemoval=true)
-    public int[] getPixelPos() {
-        throw new UnsupportedOperationException("Function obsolete!");
-    }
-
+    
     /**
      * Replaces {@code getPixelPos()}. Provides the top left point of this
      * rect. Commonly required for drawing, hence the name {@code getDrawLoc()}.

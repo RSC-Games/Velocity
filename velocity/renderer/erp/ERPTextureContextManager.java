@@ -5,10 +5,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import velocity.config.GlobalAppConfig;
+import velocity.renderer.RendererImage;
 import velocity.util.Logger;
 
 /**
- * Reference counting texture context manager for LVCPU. Tracks texture references
+ * Reference counting texture context manager for the ERP. Tracks texture references
  * and returns small, deduplicated pointers to the images.
  */
 class ERPTextureContextManager {
@@ -63,7 +64,28 @@ class ERPTextureContextManager {
 
         if (imgs.size() > GC_THRESHOLD)
             gcRun();  // Any remaining nodes with zero references need to be trimmed.
+        
         return ref;  
+    }
+
+    /**
+     * Determine if a provided image path has already been interned into the texture system.
+     * 
+     * @param path The texture path in question.
+     * @return Whether the texture is present or not.
+     */
+    public boolean isTextureLoaded(String path) {
+        return imgLUT.get(path) != null;
+    }
+
+    /**
+     * Look up a texture by its path on disk and get a handle to it.
+     * 
+     * @param path Path to the texture on disk.
+     * @return An image handle.
+     */
+    public RendererImage lookupTextureByPath(String path) {
+        return imgLUT.get(path).getNewHandle(this);
     }
     
     /**

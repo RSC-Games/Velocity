@@ -5,7 +5,6 @@ import velocity.renderer.window.WindowOption;
 import velocity.system.FileResourceLoader;
 import velocity.system.JARResourceLoader;
 import velocity.system.ResourceLoader;
-import velocity.renderer.debug.DebugRenderer;
 import velocity.renderer.RendererFeatures;
 import velocity.renderer.RenderPipeline;
 
@@ -13,7 +12,6 @@ import java.io.IOException;
 
 import velocity.config.GlobalAppConfig;
 import velocity.config.GlobalSceneDefs;
-import velocity.renderer.DrawTimer;
 import velocity.util.Logger;
 import velocity.util.MemTracerUtil;
 import velocity.util.Version;
@@ -22,7 +20,11 @@ import velocity.util.Popup;
 /**
  * Core body of Velocity. Everything that Velocity does originates here.
  * 
- * Updates (Velocity v0.6.5.4)
+ * Updates (Velocity v0.6.5.5)
+ *  - (5/1/2025) Rewrote texture loading system and bumped VXRA minor version. Major restructuring
+ *      of the rendering API internals has occurred and the draw timer system has been moved back
+ *      into the core engine. The legacy debug renderer has been removed due to breaking API changes
+ *      and the replacement system being almost viable for production use.
  *  - (4/26/2025) Finished patching collision engine bugs.
  *  - (4/26/2025) Began reimplementing debug renderer system.
  *  - (1/20/2025) Implemented modern replacements for the legacy DebugRenderer system.
@@ -136,7 +138,7 @@ public class VelocityMain implements Driver {
      * Current Velocity version. Uses the semantic versioning system
      * VERSION.MAJOR.MINOR.PATCH.
      */
-    public static final Version VELOCITY_VER = new Version(0, 6, 5, 3);
+    public static final Version VELOCITY_VER = new Version(0, 6, 5, 6);
 
     /**
      * Extensions to the Velocity version.
@@ -148,6 +150,11 @@ public class VelocityMain implements Driver {
      * "p" stands for Production Release.
      */
     public static final String VELOCITY_EXT = "dev";
+
+    /**
+     * For internal use only. Quick access handle to the render thread.
+     */
+    private RendererDispatcher rThreadCtl;
 
     /**
      * Initialize and run Velocity.
@@ -183,11 +190,12 @@ public class VelocityMain implements Driver {
         // Start Velocity.
         Logger.log("main", "Launched Velocity version " + VELOCITY_VER + "-" + VELOCITY_EXT);
         Logger.log("main", "Starting Velocity system...");
-        new VelocityMain();  // Start and initialize the base engine code.
+        VelocityMain main = new VelocityMain();  // Start and initialize the base engine code.
 
         // Start engine tick and rendering.
         Logger.log("main", "Velocity up. Entering player loop.");
-        DrawTimer t = VXRA.rp.getTimer();
+        DrawTimer t = new DrawTimer(17, new EngineEventHandler(main));
+        main.rThreadCtl.startRenderLoop();
 
         // Prevent a full window close and process termination on error, and inform
         // the user. In the event of a fatal error, force the window out of fullscreen.
@@ -220,9 +228,10 @@ public class VelocityMain implements Driver {
             VXRA.rp.getWindow().exitFullScreen();
             Logger.error("main", "Exception in thread main ");
             ie.printStackTrace();
-            CrashHandler.writeCrashInfo(ie, "Streaming Compiler Error.");
-            Popup.showError("Velocity Streaming Compiler Error", 
-                            "Part of the application failed to compile! Check log for info.");
+            CrashHandler.writeCrashInfo(ie, "JVM Error");
+            Popup.showError("Hard JVM failure detected.", 
+                            "This can occur when part of the application failed to compile in vscode!"
+                            + " Check log for info.");
         }
     }              
 
@@ -244,38 +253,50 @@ public class VelocityMain implements Driver {
         // The window is hardcoded to disable always on top.
 
         // Ask VXRA to find us the LumaViper renderer implementation.
-        Logger.log("main", "Loading renderer...");
-        VXRA.newRenderPipeline(
-            GlobalAppConfig.bcfg.DEFAULT_RENDERER, 
-            GlobalAppConfig.bcfg.RENDER_BACKEND, 
-            windowConfig,
-            this
-        );
+        this.rThreadCtl = VXRA.createRenderer(this, windowConfig);
 
         // Enable scene allocation memory tracing.
         new MemTracerUtil();  // Stored internally in the class.
-
-        // List renderer featureset (for debugging purposes)
-        logRendererFeatureSet();
 
         // Pre-load the first scene (usually the shader loading scene).
         Logger.log("main", "Starting Velocity Scene subsystem.");
         Scene.scheduleSceneLoad(GlobalAppConfig.bcfg.START_SCENE);
         
-        // Start the window event system.
+        // Prepare render pipeline.
         Logger.log("main", "Starting render pipeline.");
-        VXRA.rp.init();
+        
+        // Init the pipeline.
+        rThreadCtl.initPipeline();
 
-        //if (GlobalAppConfig.bcfg.EN_DEBUG_RENDERER)
-        //    startDebugRenderer();
+        // List renderer featureset (for debugging purposes)
+        logRendererFeatureSet();
     }
 
     /**
-     * Internal. Starts and initializes the debug renderer system. May be removed.
+     * Stand in, replacement event handler. Replaces the legacy event handler system.
      */
-    private void startDebugRenderer() {
-        DebugRenderer dr = new DebugRenderer();
-        dr.init();
+    static class EngineEventHandler implements EventHandler {
+        /**
+         * Engine core. Contains tick logic.
+         */
+        Driver main;
+
+        /**
+         * Create the engine event handler that handles ticking.
+         * 
+         * @param main The engine driver.
+         */
+        public EngineEventHandler(Driver main) {
+            this.main = main;
+        }
+
+        /**
+         * Timer event handler. Called once per frame and kicks off frame events.
+         */
+        @Override
+        public void onTimerTick() {
+            main.gameLoop();
+        }
     }
 
     /**
@@ -290,8 +311,8 @@ public class VelocityMain implements Driver {
         // Game tick
         Scene.currentScene.tick();
 
-        // Run the LumaViper render module.
-        VXRA.rp.render();
+        // Wait for the render thread to be ready to render the next frame.
+        rThreadCtl.syncWithRenderThread();
     }
 
     /**
@@ -320,6 +341,6 @@ public class VelocityMain implements Driver {
      * Internal helper for string formatting.
      */
     private String isAvail(boolean flag) {
-        return flag ? "\033[32mAvailable\033[0m" : "\033[31mMISSING\033[0m";
+        return flag ? "\033[34mAvailable\033[0m" : "\033[31mMISSING\033[0m";
     }
 }

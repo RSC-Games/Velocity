@@ -22,9 +22,10 @@ class CrashHandler {
             TextFile f = new TextFile("./velocity_crash_info.txt", "w");
             String velocityVersionCode = VelocityMain.VELOCITY_VER + "-" + VelocityMain.VELOCITY_EXT;
 
-            f.write("VELOCITY " + velocityVersionCode + " CRASH LOG " + LocalDateTime.now() + "\n\n");
-            f.write("A fatal exception has been detected in the Velocity Player.\n");
-            f.write("Generated message: " + message + "\n");
+            f.write("VELOCITY " + velocityVersionCode + " CRASH LOG " + LocalDateTime.now() + "\n");
+            f.write("Running VXRA version " + VXRA.VXRA_VER + "; using renderer " + VXRA.rp.getRendererName() + "\n\n");
+            f.write("A fatal exception has been detected in this Velocity Application.\n");
+            f.write("Exception message: " + message + "\n");
             f.write("Exception Details:\n");
 
             writeStackTrace(ie, f);
@@ -51,14 +52,15 @@ class CrashHandler {
      * @param outFile The file to write the data to.
      */
     private static void writeStackTrace(Throwable exc, TextFile outFile) throws IOException {
-        outFile.write("Exception in thread main " + exc.getClass().getName() + ": " + exc.getMessage() + "\n");
+        outFile.write("Exception in thread " + Thread.currentThread().getName() + " " + exc.getClass().getName()
+                      + ": " + exc.getMessage() + "\n");
 
         for (StackTraceElement e : exc.getStackTrace()) {
             outFile.write("\tat " + e.toString() + "\n");
         }
 
         if (exc.getCause() != null) {
-            outFile.write("\nWas caused by:\n\n");
+            outFile.write("\nCaused by:\n\n");
             writeStackTrace(exc.getCause(), outFile);
         }
     }

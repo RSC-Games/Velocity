@@ -48,7 +48,7 @@ public class AnchorPoint {
             case "center":
                 return cres.div(new Point(2, 2));
             default:
-                throw new IllegalArgumentException("Invalid anchor point specified");
+                throw new IllegalArgumentException("Invalid anchor point specified: " + loc);
         }
     }
 }

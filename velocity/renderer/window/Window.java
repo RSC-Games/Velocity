@@ -22,7 +22,6 @@ public interface Window {
      * 
      * @return Optimal virtual resolution.
      */
-    // TODO: Virtual resolution may break mouse location detection?
     public Point getVirtualResolution();
 
     /**

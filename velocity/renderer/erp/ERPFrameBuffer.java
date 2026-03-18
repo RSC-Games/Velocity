@@ -137,7 +137,7 @@ public class ERPFrameBuffer implements FrameBuffer {
         // RendererImage is used across many renderers. To avoid issues, we require
         // the type meant for this renderer.        
         if (!(other instanceof ERPRendererImage))
-            throw new IllegalArgumentException("LV (CPU backend) cannot use generic RendererImage!");
+            throw new IllegalArgumentException("ERP cannot use other types of RendererImage!");
 
         // Attempt to cull the texture if offscreen.
         if (!this.r.overlaps(d.drawRect))

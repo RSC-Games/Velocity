@@ -147,7 +147,7 @@ public class Scene {
             sceneLUT.printDefinedScenes();
             
             if (GlobalAppConfig.bcfg.SCENE_LOAD_FAILURE_FATAL) 
-                throw new InvalidSceneException("Scene load failure.");
+                throw new InvalidSceneException("Unable to locate requested scene! (name: " + name + ")");
 
             Scene s = new Scene(GlobalAppConfig.bcfg.LOAD_FAILURE_SCENE, -9999);
             return s;
@@ -171,16 +171,17 @@ public class Scene {
         // {@code InstantiationException} has not been encountered thus far in generating scenes.
         // When it does happen, opening an issue online will assist greatly in debugging.
         catch (InstantiationException ie) {
-            Warnings.warn("Scene.loadScene()", "Failed to construct scene " + name 
-                          + ". Unknown reason.");
-            ie.printStackTrace();
+            Warnings.warn("Scene.loadScene()", "An unknown error occurred while trying to load scene " 
+                         + name + "! Please report all debugging information below!");
+
+            throw new RuntimeException("An irrecoverable unknown exception has occurred. Please send the above trace.", ie);
         }
         // {@code InvocationTargetException} is generally thrown when there's some error in the
         // scene code provided for loading, which can happen a lot. Generally happens when a class field
         // init fails or some precondition is violated... etc.
         catch (InvocationTargetException ie) { 
-            Warnings.warn("Scene.loadScene()", "An exception occurred while instantiating scene "
-                         + name);
+            Warnings.warn("Scene.loadScene()", "An exception occurred while loading scene "
+                         + name + ". Try checking the scene constructor for errors.");
             ie.getCause().printStackTrace();
         }
         catch (NoSuchMethodException ie) {
@@ -192,10 +193,13 @@ public class Scene {
             ie.printStackTrace();
         }
         // Likely security manager related. Have not gotten it yet.
-        catch (IllegalAccessException ie) { ie.printStackTrace(); }
+        catch (IllegalAccessException ie) { 
+            throw new RuntimeException("Encountered security violation trap. Unsure how to continue. Aborting.", ie);
+        }
     
         if (GlobalAppConfig.bcfg.SCENE_LOAD_FAILURE_FATAL) 
-            throw new InvalidSceneException("Scene load failure.");
+            // TODO: Add an abort function to immediately terminate execution with an error message.
+            throw new InvalidSceneException("Scene load failure. See the above error.");
 
         Scene s = new Scene(GlobalAppConfig.bcfg.LOAD_FAILURE_SCENE, -9999);
         return s;
@@ -517,8 +521,8 @@ public class Scene {
      * @param cp Debug camera position.
      * @param sf Scale factor (not implemented).
      */
-    @Deprecated(since="v0.5.0.0", forRemoval=true)
-    // TODO: Deprecate this function and rewrite the debug renderer system.
+    // TODO: make debug render function more like the standard render function to avoid
+    // unnecessary complexity.
     public void DEBUG_render(FrameBuffer fb, Point cp, float[] sf) {    
         // Since this runs in parallel with the main thread we'll operate on a duplicate.
         @SuppressWarnings("unchecked")

@@ -8,14 +8,12 @@ import java.awt.PointerInfo;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import velocity.renderer.DrawTimer;
 import velocity.renderer.window.Window;
 import velocity.renderer.window.WindowConfig;
 import velocity.renderer.window.WindowOption;
 import velocity.system.Images;
 import velocity.util.Point;
 import velocity.util.Warnings;
-import velocity.Driver;
 
 /**
  * An abstract representation of a window for the ERP. Allows limited control over the window presented
@@ -33,19 +31,9 @@ class ERPWindow extends JPanel implements Window {
     JFrame f;
 
     /**
-     * The game loop code.
-     */
-    Driver driver;
-
-    /**
      * The ERP event handler (for key/mouse events and window events).
      */
     ERPEventHandler erpEvent;
-
-    /**
-     * The frame redraw timer.
-     */
-    DrawTimer drawTimer;
 
     /**
      * Create the window context for the ERP to use.
@@ -55,9 +43,7 @@ class ERPWindow extends JPanel implements Window {
      * @param m The main class.
      */
     @SuppressWarnings("deprecation")
-    public ERPWindow(WindowConfig cfg, EmbeddedRenderPipeline erp, Driver m) {
-        this.erp = erp;
-
+    public ERPWindow(WindowConfig cfg, EmbeddedRenderPipeline erp) {
         this.f = new JFrame(cfg.getTitle() + " <ERP on AWT (CPU SC)>");
         Point windowSize = cfg.getWindowResolution();
 
@@ -66,8 +52,10 @@ class ERPWindow extends JPanel implements Window {
         this.f.setMinimumSize(new Dimension(windowSize.x, windowSize.y));
         this.f.add(this); // Install the window listener.
 
+        this.erp = erp;
+        erpEvent = new ERPEventHandler(f, erp);
+
         // Install the window event system.
-        this.erpEvent = new ERPEventHandler(f, m, erp);
         this.f.addComponentListener(erpEvent);
 
         // Remaining frame init.
@@ -157,26 +145,6 @@ class ERPWindow extends JPanel implements Window {
     public void setVisible(boolean state) {
         this.f.setVisible(state);
     }
-    
-    /**
-     * Non-standard renderer method (used only by ERP). May be implemented by
-     * other renderers if necessary.
-     * 
-     * @param msPerFrame milliseconds between each firing of the draw timer.
-     */
-    public void startEventTimer(int msPerFrame) {
-        this.drawTimer = new DrawTimer(msPerFrame, this.erpEvent);
-    }
-
-    /**
-     * Non-standard renderer method (used only by the ERP). May be implemented
-     * by other renderers if necessary.
-     * 
-     * @return The initialized drawTimer.
-     */
-    public DrawTimer getTimer() {
-        return this.drawTimer;
-    }
 
     /**
      * When a paint call is finally issued, the currently drawn buffers will need
@@ -212,7 +180,9 @@ class ERPWindow extends JPanel implements Window {
      */
     @Override
     public void exitFullScreen() {
+        this.f.dispose();;
         this.f.setExtendedState(JFrame.NORMAL);
         this.f.setUndecorated(false);
+        this.f.setVisible(true);
     }
 }

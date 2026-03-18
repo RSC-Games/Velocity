@@ -9,6 +9,9 @@ import velocity.util.Point;
  * General abstract LightSource representation in Velocity. Hides the
  * internal details of the VXRA light sources.
  */
+// TODO: Switch to a factory system and eliminate the InternalLightSource inheritance hierarchy.
+// Remove the unique id system and unify the light sources and internal light sources under one
+// system.
 public abstract class LightSource {
     /**
      * Owning LightingEngine.

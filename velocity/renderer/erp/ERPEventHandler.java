@@ -12,10 +12,8 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JFrame;
 
-import velocity.Driver;
 import velocity.InputSystem;
 import velocity.config.GlobalAppConfig;
-import velocity.renderer.EventHandler;
 import velocity.sprite.Camera;
 import velocity.util.Logger;
 import velocity.util.Point;
@@ -24,17 +22,11 @@ import velocity.util.Point;
  * Internal ERP event handler. Handles key events, resize, and other generic render
  * pipeline events that are too abstract to handle elsewhere in Velocity.
  */
-class ERPEventHandler extends ComponentAdapter implements ActionListener, EventHandler, 
-                                                          KeyListener, MouseListener {
+class ERPEventHandler extends ComponentAdapter implements ActionListener, KeyListener, MouseListener {
     /**
      * ERP window frame.
      */
     private JFrame f;
-
-    /**
-     * Driver code. Used for running the game loop when the game loop timer fires.
-     */
-    private Driver main;
 
     /**
      * The embedded render pipeline. Essential for forcing framebuffer regen.
@@ -54,19 +46,19 @@ class ERPEventHandler extends ComponentAdapter implements ActionListener, EventH
      * @param main The player loop.
      * @param erp The render pipeline.
      */
-    public ERPEventHandler(JFrame f, Driver main, EmbeddedRenderPipeline erp) {
-        this.main = main;
+    public ERPEventHandler(JFrame f, EmbeddedRenderPipeline erp) {
         this.f = f;
         this.erp = erp;
 
+        System.out.println("created input system");
         this.inputSystem = InputSystem.createInputSystem();
     }
 
     /**
      * Internal draw handler.
      */
-    public void onTimerTick() {
-        main.gameLoop();
+    public void postRenderHooks() {
+        //main.gameLoop();
         this.f.repaint();
         
         // Purge keypresses.

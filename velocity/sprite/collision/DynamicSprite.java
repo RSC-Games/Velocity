@@ -20,7 +20,7 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
      * Maximum range (in pixels) of collision testing. This current testing system
      * is inherently buggy due to how test ranges are handled.
      */
-    private static final int TEST_RANGE = 5;
+    //private static final int TEST_RANGE = 5;
 
     /**
      * Collider rectangle representation.
@@ -163,7 +163,7 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
             // Left sense (BROKEN)
             hitCol = new Rect(colPos.sub(new Point(halfSz.x + 1, 0)), new Point(2, col.getH() - 2));
             if (hitN(hitCol, other, new Point(-1, 0), movementDelta.x < 0 ? Math.abs(movementDelta.x) : 3)) {
-                System.out.println("Hit thing left");
+                //System.out.println("Hit thing left");
                 hit = true;
                 moveDir[DIR_LEFT] = true;
             }
@@ -172,8 +172,8 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
 
             // Right sense (FIXED DO NOT TOUCH IF YOU VALUE YOUR LIFE)
             hitCol = new Rect(colPos.add(new Point(halfSz.x + 1, 0)), new Point(2, col.getH() - 2));
-            if (hitN(hitCol, other, new Point(1, 0), movementDelta.x > 0 ? Math.abs(movementDelta.x) : 3)) {
-                System.out.println("Hit thing right");
+            if (hitN(hitCol, other, new Point(1, 0), movementDelta.x > 0 ? Math.abs(movementDelta.x) : 2)) {
+                //System.out.println("Hit thing right");
                 hit = true;  
                 moveDir[DIR_RIGHT] = true;
             }
@@ -232,8 +232,8 @@ public class DynamicSprite extends ImageSprite implements DynamicEntity, Collida
 
             // Hit the nearest collision target.
             if (p.overlaps(r)) {
-                if (step.x != 0)
-                    System.out.println("detected hit w/ vector " + step + " at i " + i);
+                //if (step.x != 0)
+                //    System.out.println("detected hit w/ vector " + step + " at i " + i);
 
                 return true;
             }

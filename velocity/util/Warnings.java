@@ -19,11 +19,12 @@ public class Warnings {
             throw new WarningException(msg);
         }
         catch (WarningException ie) {
+            if (GlobalAppConfig.bcfg.WARNINGS_FATAL)
+                throw ie;
+
             Logger.warn("velocity.system", "Warning in thread " + Thread.currentThread().getName() + " ");
             ie.printStackTrace();
         }
-
-        if (GlobalAppConfig.bcfg.WARNINGS_FATAL) System.exit(1);
     }
 
     /**

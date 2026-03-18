@@ -23,6 +23,11 @@ import velocity.util.Warnings;
  * 
  * VXRA Version Updates:
  * 
+ * VXRA 0.6.2a (4/30/2025): 
+ *  - Introduced cleanups to image loading code which should reduce disk bandwidth requirements 
+ *      and decrease loading times.
+ *  - Future support for multiple camera render targets.
+ * 
  * VXRA 0.6.1a:
  *  - Cleaned up old obsolete renderer hooks code and introduced Virtual Resolution support.
  */
@@ -30,7 +35,7 @@ public class VXRA {
     /**
      * Current provided VXRA version.
      */
-    public static final String VXRA_VER = "0.6.1a";
+    public static final String VXRA_VER = "0.6.2a";
 
     /**
      * The currently loaded render pipeline.
@@ -41,6 +46,10 @@ public class VXRA {
      * The render pipeline classloader to track.
      */
     private static URLClassLoader rpClassLoader;
+
+    public static RendererDispatcher createRenderer(Driver driver, WindowConfig config) {
+        return new RenderThread(driver, config);
+    }
 
     /**
      * Create a new render pipeline with the provided renderer and backend first. 
@@ -58,8 +67,7 @@ public class VXRA {
                                                    WindowConfig cfg, Driver d) {
         
         // TODO: Implement fallback chain eventually.
-        Logger.log("vxra", "Velocity eXtensible Renderer Architecture (VXRA "
-                           + VXRA_VER + ") found.");
+        Logger.log("vxra", "Velocity eXtensible Renderer Architecture (VXRA " + VXRA_VER + ") loaded.");
 
         if (rp != null)
             throw new IllegalStateException("Cannot create new render pipeline: a renderer already exists!");
@@ -81,15 +89,17 @@ public class VXRA {
      * @param d The game driver.
      * @return The most suitable render pipeline.
      */
+    // TODO: Fallback chain system is badly implemented. Reimplement with an array
+    // of renderers in AppConfig.
     private static RenderPipeline doFallbackChain(String renderer, String backend,
                                                   WindowConfig cfg, Driver d) {
         // Initially search for the ERP if requested. The ERP is built into Velocity.
-        if (renderer.equals("ERP")) {
+        if (renderer.equals("ERP"))
             return new EmbeddedRenderPipeline(cfg, d);
-        }
 
         // Otherwise load a provided renderer JAR from disk.
         RenderPipeline pipeline;
+
         //do {
         pipeline = tryLoadRenderer(renderer, backend, cfg, d);
             //if (pipeline == null) 
@@ -155,7 +165,12 @@ public class VXRA {
 
             // Only create a pipeline that matches the requested name.
             if (name.equals(searchName)) {
-                RenderPipeline p = instantiatePipeline(rendererF, cfg, d);
+                URLClassLoader rpLoader = getRendererClassLoader(rendererF);
+
+                boolean forceSC = getRequiresSingleThread(rpLoader);
+
+                // TODO: Redesign renderer instantiation (move it to the dispatcher?)
+                RenderPipeline p = instantiatePipeline(rpLoader, cfg, d);
 
                 if (p == null && GlobalAppConfig.bcfg.WARN_RENDERER_INIT_FAIL)
                     Popup.showWarning("Velocity Warning (VXRA " + VXRA_VER + ")", 
@@ -169,25 +184,69 @@ public class VXRA {
     }
 
     /**
+     * 
+     * @param rpLoader
+     * @return
+     */
+    private static boolean getRequiresSingleThread(URLClassLoader rpLoader) {
+        try {
+            Class<?> cls = rpLoader.loadClass("RPInfo");
+            Field forceSingleThreaded = cls.getField("FORCE_SINGLE_THREADED");
+            return (Boolean)forceSingleThreaded.get(null);
+        }
+        catch (ClassNotFoundException ie) {
+            ie.printStackTrace();
+        } 
+        catch (IllegalArgumentException ie) {
+            ie.printStackTrace();
+        } 
+        catch (IllegalAccessException ie) {
+            ie.printStackTrace();
+        } 
+        catch (NoSuchFieldException ie) {
+            ie.printStackTrace();
+        }
+
+        return false;
+    }
+
+    /**
+     * Load the jarfile containing the render pipeline code.
+     * @implNote The provided pipelines must NOT be provided on the CLASSPATH!
+     *   Otherwise the loading mechanism breaks!
+     * 
+     * @param rf The render pipeline jarfile.
+     * @return The classloader for this jarfile.
+     */
+    private static URLClassLoader getRendererClassLoader(File rf) {
+        try {
+            return new URLClassLoader(
+                new URL[] {rf.toURI().toURL()},
+                VXRA.class.getClassLoader()
+            );
+        }
+        catch (MalformedURLException ie) {
+            ie.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
      * Create a pipeline from a provided JARFile.
      * @implNote The provided pipelines must NOT be provided on the CLASSPATH!
      *   Otherwise the loading mechanism breaks!
      * 
-     * @param rf Render Pipeline file.
+     * @param loader Renderer class loader.
      * @param cfg Window configuration.
      * @param d Driver code.
      * @return The instantiated pipeline, or none if no pipeline.
      */
-    private static RenderPipeline instantiatePipeline(File rf, WindowConfig cfg, Driver d) {
+    private static RenderPipeline instantiatePipeline(URLClassLoader loader, WindowConfig cfg, Driver d) {
         try {
-            rpClassLoader = new URLClassLoader(
-                new URL[] {rf.toURI().toURL()},
-                VXRA.class.getClassLoader()
-            );
-
             // Attempt to load the pipeline class. Requires a class name of
             // "<renderer>RP_<backend>_Backend"
-            Class<?> cls = rpClassLoader.loadClass("RPInfo");
+            Class<?> cls = loader.loadClass("RPInfo");
             Field frp = cls.getField("PIPELINE_CLASS");
             Class<?> rpClass = (Class<?>)frp.get(null);
 
@@ -195,17 +254,14 @@ public class VXRA {
             Constructor<?> c = rpClass.getConstructor(WindowConfig.class, Driver.class);
             return (RenderPipeline)c.newInstance(cfg, d);
         }
-        catch (MalformedURLException ie) {
-            ie.printStackTrace();
-        }
         catch (IllegalAccessException ie) {}
         catch (NoSuchMethodException ie) {
             ie.printStackTrace();
-            Warnings.warn("vxra", "Renderer could not be instantiated! (" + rf.getName() + ")");
+            Warnings.warn("vxra", "Renderer could not be instantiated! (" + loader.getName() + ")");
         }
         catch (InvocationTargetException ie) {
             ie.getCause().printStackTrace();
-            Warnings.warn("vxra", "Could not start renderer " + rf.getName());
+            Warnings.warn("vxra", "Could not start renderer " + loader.getName());
         }
         catch (NoSuchFieldException ie) {
             Warnings.warn("vxra", "Cannot get access to main renderer class!");
@@ -240,11 +296,12 @@ public class VXRA {
     /**
      * De-initialize the render pipeline.
      */
-    // TODO: Current VXRA version does not support renderer .deinit functions.
     public static void deInitPipeline() {
         // Deinit the render pipeline.
-        // rp.deinit();
-        // rp = null;
+        if (rp != null) {
+            rp.deinit();
+            rp = null;
+        }
 
         // Free the currently loaded resources.
         if (rpClassLoader != null) {

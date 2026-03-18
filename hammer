@@ -1,6 +1,6 @@
 # Generate a redistributable binary.
 dist {
-    ARGS = "-Xlint:unchecked -Xlint:deprecation"  # Compiler flags.
+    ARGS = "-Xlint:unchecked -Xlint:deprecation -Xlint:all"  # Compiler flags.
     CLASSPATH = "."  # Provided classpath
     MAINFILE = "Main.java"  # Main file for javac code generation.
     ENTRYPOINT = "Main"  # Code entrypoint
@@ -32,7 +32,7 @@ dist {
 build_lib {
     ARGS = "-Xlint:unchecked -Xlint:deprecation"  # Compiler flags.
     CLASSPATH = "."  # Provided classpath
-    MAINFILE = "Main.java"  # Main file for javac code generation.
+    MAINFILE = "./velocity/VelocityMain.java"  # Main file for javac code generation.
     ENTRYPOINT = "Main"  # Code entrypoint
     BINARY = "velocity.jar"  # Deployment binary.
 
@@ -40,6 +40,7 @@ build_lib {
     %useoutdir
 
     %purge ".class"  # Erase all the stale class files.
+    %javac "-cp" $(CLASSPATH) $(ARGS) $(MAINFILE) # Speed up build time massively by building immediate dependencies first.
     %javac_lib "-cp" $(CLASSPATH) $(ARGS) $(MAINFILE)
     %purge ".java"  # Clean out the source files.
 

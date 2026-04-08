@@ -1,0 +1,35 @@
+package com.rsc_games.velocity.sprite;
+
+import com.rsc_games.velocity.sprite.Camera;
+import com.rsc_games.velocity.util.Point;
+import com.rsc_games.velocity.util.Transform;
+
+/**
+ * The base camera implementation of Velocity. Essential for rendering.
+ */
+public class Camera extends Sprite {
+    /**
+     * Current window resolution. One of the most important lines of code in
+     * the entirety of Velocity (and importance being determined by usage).
+     */
+    // TODO: Inflexible and not containerized.
+    public static Point res = new Point(1, 1);
+
+    /**
+     * Create a standard camera.
+     * 
+     * @param pos Camera starting position.
+     */
+    public Camera(Point pos) {
+        super(new Transform(pos, 0f, Point.one, 0), "Main Camera");
+        this.transform.updateRect(new Point(Camera.res.x, Camera.res.y));
+    }
+
+    /**
+     * Update the local camera resolution when the screen resolution changes.
+     */
+    protected void onTick() {
+        // BUGFIX (Velocity v0.1.0.0): Workaround for bad camera scaling.
+        this.transform.updateRect(new Point(Camera.res.x, Camera.res.y));
+    }
+}

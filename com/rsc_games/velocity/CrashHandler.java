@@ -1,0 +1,70 @@
+package com.rsc_games.velocity;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+
+import com.rsc_games.velocity.VXRA;
+import com.rsc_games.velocity.VelocityMain;
+import com.rsc_games.velocity.util.Logger;
+import com.rsc_games.velocity.util.TextFile;
+
+/**
+ * Internal Velocity crash handler. Writes all diagnostic data to
+ * disk in the event of a crash.
+ */
+class CrashHandler {
+    /**
+     * Print the crash dump info of a provided exception on disk.
+     * 
+     * @param ie The thrown exception.
+     * @param message An associated error message.
+     */
+    public static void writeCrashInfo(Throwable ie, String message) {
+        try {
+            // TODO: Add funny crash message
+            TextFile f = new TextFile("./velocity_crash_info.txt", "w");
+            String velocityVersionCode = VelocityMain.VELOCITY_VER + "-" + VelocityMain.VELOCITY_EXT;
+
+            f.write("VELOCITY " + velocityVersionCode + " CRASH LOG " + LocalDateTime.now() + "\n");
+            f.write("Running VXRA version " + VXRA.VXRA_VER + "; using renderer " + VXRA.rp.getRendererName() + "\n\n");
+            f.write("A fatal exception has been detected in this Velocity Application.\n");
+            f.write("Exception message: " + message + "\n");
+            f.write("Exception Details:\n");
+
+            writeStackTrace(ie, f);
+
+            f.write("\n\nEnd of stack trace.\n");
+            f.write("Please contact the application developer and provide them this file.\n");
+            f.write("If this is not an application issue, please head to "
+                    + "https://github.com/RSC-Games/Velocity and file this error as a new issue "
+                    + "report, or if one exists, add this to that issue.\n");
+
+            f.close();
+        }
+        catch (IOException e) {
+            Logger.error("velocity.crash_handler", "Unable to create crash log!");
+            e.printStackTrace();
+            System.exit(-512);
+        }
+    }
+
+    /**
+     * Print an exception backtrace to the Velocity dump file.
+     * 
+     * @param exc The exception to read.
+     * @param outFile The file to write the data to.
+     */
+    private static void writeStackTrace(Throwable exc, TextFile outFile) throws IOException {
+        outFile.write("Exception in thread " + Thread.currentThread().getName() + " " + exc.getClass().getName()
+                      + ": " + exc.getMessage() + "\n");
+
+        for (StackTraceElement e : exc.getStackTrace()) {
+            outFile.write("\tat " + e.toString() + "\n");
+        }
+
+        if (exc.getCause() != null) {
+            outFile.write("\nCaused by:\n\n");
+            writeStackTrace(exc.getCause(), outFile);
+        }
+    }
+}

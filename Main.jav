@@ -5,8 +5,8 @@
 
 //import appcode.AppConfig;
 //import appcode.SceneDefs;
-import velocity.GlobalAppConfig;
-import velocity.VelocityMain;
+import com.rsc_games.velocity.GlobalAppConfig;
+import com.rsc_games.velocity.VelocityMain;
 
 public class Main {
     public static void main(String[] args) {

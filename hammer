@@ -1,33 +1,3 @@
-# Generate a redistributable binary.
-dist {
-    ARGS = "-Xlint:unchecked -Xlint:deprecation -Xlint:all"  # Compiler flags.
-    CLASSPATH = "."  # Provided classpath
-    MAINFILE = "Main.java"  # Main file for javac code generation.
-    ENTRYPOINT = "Main"  # Code entrypoint
-    BINARY = "velocity.jar"  # Deployment binary.
-
-    # Enable debugging extensions if necessary.
-    if ($(DEBUG)) {
-        ARGS := " -g"
-    }
-
-    # jBuilder must be asked to explicitly copy the build dir. Once done, it will automatically execute all ops on the new dir.
-    %useoutdir
-
-    %purge ".class"  # Erase all the stale class files.
-    %javac "-cp" $(CLASSPATH) $(ARGS) $(MAINFILE)
-    %purge ".java"  # Clean out the source files.
-
-    # Run a provided unit with cmd or a jar
-    # @jar unit args  # Provided external unit
-    # @chdir  # Cmd
-
-    # Do linking stuff. Builds the jarfile by default.
-    %link $(BINARY) $(ENTRYPOINT)
-    %purge ".class"  # Clean up the dir path.
-    # %keepreq  # Keep dist code only.
-    %linkldr "NO_WRITE_PIPE" # Copies the Java launcher into the directory and rename the current binary bin_resources
-}
 # Generate a linkable library instead of a binary.
 build_lib {
     ARGS = "-Xlint:unchecked -Xlint:deprecation"  # Compiler flags.
@@ -35,6 +5,14 @@ build_lib {
     MAINFILE = "./velocity/VelocityMain.java"  # Main file for javac code generation.
     ENTRYPOINT = "Main"  # Code entrypoint
     BINARY = "velocity.jar"  # Deployment binary.
+
+    # Install the LWJGL sources too.
+    if ($(PLATFORM) == "win") {
+        CLASSPATH = ".;lib/velocity.jar;lib/ogl/joml-1.10.5.jar;lib/ogl/lwjgl-glfw.jar;lib/ogl/lwjgl-opengl.jar;lib/ogl/lwjgl.jar"
+    }
+    if ($(PLATFORM) == "linux") {
+        CLASSPATH = ".:lib/velocity.jar:lib/ogl/joml-1.10.5.jar:lib/ogl/lwjgl-glfw.jar:lib/ogl/lwjgl-opengl.jar:lib/ogl/lwjgl.jar"
+    }
 
     # jBuilder must be asked to explicitly copy the build dir. Once done, it will automatically execute all ops on the new dir.
     %useoutdir

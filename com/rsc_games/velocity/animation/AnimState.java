@@ -7,7 +7,7 @@ import com.rsc_games.velocity.animation.parser.ops.FramesPerUpdate;
 import com.rsc_games.velocity.animation.parser.ops.OneShot;
 import com.rsc_games.velocity.animation.parser.ops.UseTex;
 import com.rsc_games.velocity.renderer.RendererImage;
-import com.rsc_games.velocity.system.Images;
+import com.rsc_games.velocity.system.ImageLoader;
 import com.rsc_games.velocity.util.Logger;
 
 /**
@@ -121,7 +121,7 @@ class AnimState {
         ArrayList<RendererImage> imgArr = new ArrayList<RendererImage>();
 
         for (String path : paths) {
-            imgArr.add(Images.loadImage(path));
+            imgArr.add(ImageLoader.loadImage(path));
         }
 
         return imgArr;

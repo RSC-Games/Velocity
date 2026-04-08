@@ -5,7 +5,6 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import com.rsc_games.velocity.InputSystem;
-import com.rsc_games.velocity.VXRA;
 import com.rsc_games.velocity.renderer.window.Window;
 import com.rsc_games.velocity.util.Point;
 
@@ -185,7 +184,7 @@ public class InputSystem {
      * @return Mouse location in the window.
      */
     public static Point getMousePos() {
-        Window window = VXRA.rp.getWindow();
+        Window window = PipelineManager.getPipeline().getWindow();
         return window.getPointerLocation();
     }
 

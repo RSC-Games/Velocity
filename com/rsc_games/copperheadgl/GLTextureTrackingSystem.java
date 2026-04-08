@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.rsc_games.velocity.config.GlobalAppConfig;
+import com.rsc_games.velocity.renderer.RendererImage;
 import com.rsc_games.velocity.util.Logger;
 
 class GLTextureTrackingSystem {
@@ -42,6 +43,26 @@ class GLTextureTrackingSystem {
             textureGC();
 
         return img;
+    }
+
+    /**
+     * Determine if a provided image path has already been interned into the texture system.
+     * 
+     * @param path The texture path in question.
+     * @return Whether the texture is present or not.
+     */
+    public boolean isTextureLoaded(String path) {
+        return loadedImages.get(path) != null;
+    }
+
+    /**
+     * Look up a texture by its path on disk and get a handle to it.
+     * 
+     * @param path Path to the texture on disk.
+     * @return An image handle.
+     */
+    public GLRendererImage lookupTextureByPath(String path) {
+        return loadedImages.get(path).getNewHandle();
     }
 
     /**

@@ -1,12 +1,12 @@
-package com.rsc_games.velocity.renderer.erp;
+package com.rsc_games.velocity.unused.erp;
 
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 import com.rsc_games.velocity.Scene;
+import com.rsc_games.velocity.renderer.LightingEngine;
 import com.rsc_games.velocity.renderer.RenderPipeline;
 
-import com.rsc_games.velocity.Driver;
 import com.rsc_games.velocity.config.GlobalAppConfig;
 import com.rsc_games.velocity.renderer.RendererFeatures;
 import com.rsc_games.velocity.renderer.RendererImage;
@@ -56,8 +56,8 @@ public class EmbeddedRenderPipeline extends RenderPipeline {
      * @param windowCfg window system parameters.
      * @param m Driver class (passed by VXRA).
      */
-    public EmbeddedRenderPipeline(WindowConfig windowCfg, Driver m) {
-        super(m, null);
+    public EmbeddedRenderPipeline(WindowConfig windowCfg) {
+        super((LightingEngine)null);
 
         // Open the window frame.
         this.window = new ERPWindow(windowCfg, this);

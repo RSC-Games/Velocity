@@ -2,7 +2,7 @@ package com.rsc_games.velocity.renderer;
 
 import java.util.HashMap;
 
-import com.rsc_games.velocity.renderer.InternalLightSource;
+import com.rsc_games.velocity.lighting.InternalLightSource;
 import com.rsc_games.velocity.util.Point;
 
 import java.awt.image.BufferedImage;

@@ -12,7 +12,6 @@ import java.io.IOException;
 import com.rsc_games.velocity.renderer.RenderPipeline;
 import com.rsc_games.velocity.util.MemTracerUtil;
 
-import com.rsc_games.velocity.VelocityMain;
 import com.rsc_games.velocity.config.GlobalAppConfig;
 import com.rsc_games.velocity.config.GlobalSceneDefs;
 import com.rsc_games.velocity.util.Logger;
@@ -23,6 +22,7 @@ import com.rsc_games.velocity.util.Popup;
  * Core body of Velocity. Everything that Velocity does originates here.
  * 
  * Updates (Velocity v0.7.0.0)
+ *  - (4/8/2026) Removed driver; renamed Images to ImageLoader; cleaned up rendering API
  *  - (4/8/2026) Changed the sprite API (must override onTick/onInit rather than tick/init)
  *  - (4/8/2026) Dropped VXRA from the main engine. Extension renderers are no longer supported.
  *  - (4/8/2026) Moved Velocity into a new package and integrated CopperheadGL into the main engine.
@@ -140,7 +140,7 @@ import com.rsc_games.velocity.util.Popup;
  *  - New warning to error flags for suppressing and increasing severity.
  *  - Major code refactoring.
  */
-public class VelocityMain implements Driver {
+public class VelocityMain {
     /**
      * Current Velocity version. Uses the semantic versioning system
      * VERSION.MAJOR.MINOR.PATCH.
@@ -149,19 +149,18 @@ public class VelocityMain implements Driver {
 
     /**
      * Extensions to the Velocity version.
-     * "pa" stands for prealpha release. (PROMOTED, NO LONGER USED).
+     * "dev" stands for development release.
      * "a" stands for alpha release.
      * "b" stands for beta release.
-     * "dev" stands for Development Release.
      * "rc<X>" stands for Release Candidate (X)
-     * "p" stands for Production Release.
+     * "p" stands for production release.
      */
     public static final String VELOCITY_EXT = "dev";
 
     /**
      * For internal use only. Quick access handle to the render thread.
      */
-    private RendererDispatcher rThreadCtl;
+    //private RendererDispatcher rThreadCtl;
 
     /**
      * Initialize and run Velocity.
@@ -202,7 +201,7 @@ public class VelocityMain implements Driver {
         // Start engine tick and rendering.
         Logger.log("main", "Velocity up. Entering player loop.");
         DrawTimer t = new DrawTimer(17, new EngineEventHandler(main));
-        main.rThreadCtl.startRenderLoop();
+        //main.rThreadCtl.startRenderLoop();
 
         // Prevent a full window close and process termination on error, and inform
         // the user. In the event of a fatal error, force the window out of fullscreen.
@@ -213,7 +212,8 @@ public class VelocityMain implements Driver {
         }
         // A scene could not be loaded for some reason.
         catch (InvalidSceneException ie) {
-            VXRA.rp.getWindow().exitFullScreen();
+            PipelineManager.getPipeline().getWindow().exitFullScreen();
+
             Logger.error("main", "Exception in thread main " + 
                                "velocity.InvalidSceneException: " + ie.getMessage());
             CrashHandler.writeCrashInfo(ie, "The provided scene could not be loaded.");
@@ -222,7 +222,8 @@ public class VelocityMain implements Driver {
         }
         // Game crashed for some reason. Tell the user/dev.
         catch (Exception ie) {
-            VXRA.rp.getWindow().exitFullScreen();
+            PipelineManager.getPipeline().getWindow().exitFullScreen();
+
             Logger.error("main", "Exception in thread main ");
             ie.printStackTrace();
             CrashHandler.writeCrashInfo(ie, "A generic crash has occurred.");
@@ -232,7 +233,8 @@ public class VelocityMain implements Driver {
         // Some generic JVM error. Generally when the VSCode streaming compiler fails. 
         // Tell the user/dev.
         catch (Error ie) {
-            VXRA.rp.getWindow().exitFullScreen();
+            PipelineManager.getPipeline().getWindow().exitFullScreen();
+
             Logger.error("main", "Exception in thread main ");
             ie.printStackTrace();
             CrashHandler.writeCrashInfo(ie, "JVM Error");
@@ -259,8 +261,9 @@ public class VelocityMain implements Driver {
         windowConfig.setOption(WindowOption.HINT_RESIZABLE, GlobalAppConfig.bcfg.WINDOW_RESIZABLE);
         // The window is hardcoded to disable always on top.
 
-        // Ask VXRA to find us the LumaViper renderer implementation.
-        this.rThreadCtl = VXRA.createRenderer(this, windowConfig);
+        // Load CopperheadGL
+        /*this.rThreadCtl = */
+        RenderPipeline rp = PipelineManager.newPipeline(windowConfig);
 
         // Enable scene allocation memory tracing.
         new MemTracerUtil();  // Stored internally in the class.
@@ -273,10 +276,10 @@ public class VelocityMain implements Driver {
         Logger.log("main", "Starting render pipeline.");
         
         // Init the pipeline.
-        rThreadCtl.initPipeline();
+        rp.init();
 
         // List renderer featureset (for debugging purposes)
-        logRendererFeatureSet();
+        logRendererFeatureSet(rp);
     }
 
     /**
@@ -286,14 +289,14 @@ public class VelocityMain implements Driver {
         /**
          * Engine core. Contains tick logic.
          */
-        Driver main;
+        VelocityMain main;
 
         /**
          * Create the engine event handler that handles ticking.
          * 
          * @param main The engine driver.
          */
-        public EngineEventHandler(Driver main) {
+        public EngineEventHandler(VelocityMain main) {
             this.main = main;
         }
 
@@ -303,6 +306,7 @@ public class VelocityMain implements Driver {
         @Override
         public void onTimerTick() {
             main.gameLoop();
+            InputSystem.inputSystemBackend.clearKeyBuffers();
         }
     }
 
@@ -319,18 +323,18 @@ public class VelocityMain implements Driver {
         Scene.currentScene.tick();
 
         // Wait for the render thread to be ready to render the next frame.
-        rThreadCtl.syncWithRenderThread();
+        PipelineManager.render();
+        //rThreadCtl.syncWithRenderThread();
     }
 
     /**
      * Assists in debugging and reporting the current renderer. Prints the available
      * featureset of the supplied renderer.
      */
-    private void logRendererFeatureSet() {
-        RenderPipeline rp = VXRA.rp;
+    private void logRendererFeatureSet(RenderPipeline rp) {
         RendererFeatures featureSet = rp.getFeatureSet();
 
-        Logger.log("main", "VXRA returned renderer (" + rp.getRendererName() + ")");
+        Logger.log("main", "Active Velocity renderer (" + rp.getRendererName() + ")");
         Logger.log("main", "Got core feature set: ");
         Logger.log("main", "\t FEAT_required: " + isAvail(featureSet.FEAT_required));
         Logger.log("main", "\t FEAT_doubleBuffered: " + isAvail(featureSet.FEAT_doubleBuffered));

@@ -2,7 +2,7 @@
 build_lib {
     ARGS = "-Xlint:unchecked -Xlint:deprecation"  # Compiler flags.
     CLASSPATH = "."  # Provided classpath
-    MAINFILE = "./velocity/VelocityMain.java"  # Main file for javac code generation.
+    MAINFILE = "./com/rsc_games/velocity/VelocityMain.java"  # Main file for javac code generation.
     ENTRYPOINT = "Main"  # Code entrypoint
     BINARY = "velocity.jar"  # Deployment binary.
 

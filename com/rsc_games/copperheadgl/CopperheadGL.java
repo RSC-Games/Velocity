@@ -8,9 +8,7 @@ import org.lwjgl.opengl.GL11;
 import com.rsc_games.velocity.Scene;
 import com.rsc_games.velocity.renderer.RenderPipeline;
 
-import com.rsc_games.velocity.Driver;
 import com.rsc_games.velocity.config.GlobalAppConfig;
-import com.rsc_games.velocity.renderer.FrameBuffer;
 import com.rsc_games.velocity.renderer.RendererFeatures;
 import com.rsc_games.velocity.renderer.RendererImage;
 import com.rsc_games.velocity.renderer.window.Window;
@@ -38,15 +36,15 @@ public class CopperheadGL extends RenderPipeline {
     boolean shouldBeFullscreen = false;
 
     // TODO: Load the required JAR files here.
-    public CopperheadGL(WindowConfig cfg, Driver m) {
-        super(m, new GLLightingEngine());
+    public CopperheadGL(WindowConfig cfg) {
+        super(new GLLightingEngine());
 
         ((GLLightingEngine)this.le).setiRP(this);
 
         //System.setProperty("org.lwjgl.util.Debug", "true");
         //System.setProperty("org.lwjgl.util.DebugLoader", "true");
         this.shouldBeFullscreen = cfg.getOption(WindowOption.HINT_FULLSCREEN);
-        this.window = new GLWindow(cfg, this, m);
+        this.window = new GLWindow(cfg, this);
 
         // LVOGL's full renderer feature set has not been implemented.
         this.featureSet = new RendererFeatures(
@@ -75,7 +73,7 @@ public class CopperheadGL extends RenderPipeline {
         // Initialize the GPU renderer context.
         Point wres = this.window.getResolution();
         iRendererContext = new GLRendererContext(wres.x, wres.y, this);
-        frameEventHandler = new GLEventHandler(window, m);
+        frameEventHandler = new GLEventHandler(window);
         this.iRendererContext.init();
         this.window.setWindowEventHandler(frameEventHandler);
 
@@ -142,17 +140,6 @@ public class CopperheadGL extends RenderPipeline {
     }
 
     /**
-     * Return the version of VXRA this renderer was designed to work with.
-     * 
-     * @return The target VXRA version.
-     * @since Velocity v0.6.4.0, VXRA v0.6.1a
-     */
-    @Override
-    public String getVXRATargetVersion() {
-        return "0.6.1a";
-    }
-
-    /**
      * Returns the current window registered for painting. Allows getting dimension information
      * and other crucial data.
      * 
@@ -163,37 +150,48 @@ public class CopperheadGL extends RenderPipeline {
     }
 
     /**
-     * Create a new framebuffer for use in the renderer. Mostly used internally but occasionally
-     * used in other parts of Velocity.
+     * Internal function. Queries the renderer cache for the texture associated with
+     * the provided file path. Ideally used to reduce disk I/O time.
      * 
-     * @return New zeroed framebuffer.
+     * @param path Texture path.
+     * @return Whether the provided texture has already been loaded.
      */
-    public FrameBuffer newFrameBuffer() {
-        throw new UnsupportedOperationException("Illegal operation; cannot create a new fb!");
+    @Override
+    public boolean isTextureCached(String path) {
+        return this.iRendererContext.isTextureLoaded(path);
     }
 
     /**
-     * Create a new framebuffer of variable size for use in the renderer. Mostly used 
-     * internally but occasionally used in other parts of Velocity.
+     * Give the texture manager an image to load.
      * 
-     * @param x Framebuffer width
-     * @param y Framebuffer height
-     * @return New zeroed framebuffer.
+     * @param image The image bytes to intern if necessary.
+     * @param path The image loading path.
+     * @return Whether the image was successfully loaded.
      */
-    public FrameBuffer newFrameBuffer(int x, int y) {
-        throw new UnsupportedOperationException("Illegal operation; cannot create a new fb!");
+    @Override
+    public boolean registerTexture(BufferedImage image, String path) {
+        return this.iRendererContext.loadImage(image, path) != null;
     }
 
     /**
-     * Internal function. Takes a provided image that has been loaded from disk and
-     * does something user defined, then returns a reference RendererImage.
+     * Get the texture handle from the provided image path. This function should only
+     * fetch from the render cache.
      * 
-     * @param img Loaded image bytes
-     * @param path The requested path of the image.
-     * @return Reference to the image (on GPU or CPU memory)
+     * @param path The image path.
+     * @return The image handle.
      */
-    public RendererImage INTERNAL_loadImage(BufferedImage img, String path) {
-        return iRendererContext.loadImage(img, path);
+    @Override
+    public RendererImage getTextureHandleFromPath(String path) {
+        return this.iRendererContext.lookupTexture(path);
+    }
+
+    /**
+     * Deinitialize the pipeline. Free all resources, release hardware, etc.
+     */
+    @Override
+    public void deinit() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deinit'");
     }
 
     /**

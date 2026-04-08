@@ -9,7 +9,7 @@ import com.rsc_games.velocity.util.Transform;
 import com.rsc_games.velocity.renderer.DrawInfo;
 import com.rsc_games.velocity.renderer.FrameBuffer;
 import com.rsc_games.velocity.renderer.RendererImage;
-import com.rsc_games.velocity.system.Images;
+import com.rsc_games.velocity.system.ImageLoader;
 import com.rsc_games.velocity.util.Point;
 
 /**
@@ -43,7 +43,7 @@ public abstract class UIButton extends UIImage {
      */
     public UIButton(Transform transform, String name, String image, String hoverImage) {
         super(transform, name, image);
-        this.hoverImage = Images.loadImage(hoverImage);
+        this.hoverImage = ImageLoader.loadImage(hoverImage);
         this.offset = this.transform.getPosition();
     }
 

@@ -133,7 +133,7 @@ public class GlobalAppConfig {
     public GlobalAppConfig() {
         // Window config.
         this.APP_NAME = "Velocity Application";  // Standard application name.
-        this.ICON_PATH = "./velocity/resources/rsc_games.ico";  // Path to the RSC Games logo.
+        this.ICON_PATH = "./com/rsc_games/velocity/resources/rsc_games.ico";  // Path to the RSC Games logo.
         this.APP_RES_DEFAULT = new Point(640, 480);  // Default application resolution.
         this.USE_VIRTUAL_RESOLUTION = false;  // Virtual resolution is disabled by default for compatibility.
         this.APP_VIRTUAL_RES = new Point(640, 480);  // Mirrors the default resolution.

@@ -5,9 +5,9 @@ import java.awt.Transparency;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-import com.rsc_games.velocity.VXRA;
-
+import com.rsc_games.velocity.PipelineManager;
 import com.rsc_games.velocity.config.GlobalAppConfig;
+import com.rsc_games.velocity.renderer.RenderPipeline;
 import com.rsc_games.velocity.renderer.RendererImage;
 import com.rsc_games.velocity.util.Warnings;
 
@@ -15,7 +15,7 @@ import com.rsc_games.velocity.util.Warnings;
  * Velocity's image handling class. Handles all image wrapping and loading
  * from either the local filesystem or the provided JARfile.
  */
-public class Images {
+public class ImageLoader {
     /**
      * Velocity's standard issue loading mechanic. Load an image from disk at
      * the provided path, send it to the renderer, and provide a wrapped handle
@@ -43,20 +43,22 @@ public class Images {
      * @return A handle to that image.
      */
     public static RendererImage loadImage(ResourceLoader ldr, String path) {
+        RenderPipeline rp = PipelineManager.getPipeline();
+
         // Determine if the requested image is already cached or if it needs to be loaded.
-        if (!VXRA.rp.isTextureCached(path)) {
+        if (!rp.isTextureCached(path)) {
             BufferedImage img = loadRawImage(ldr, path);
 
-            if (!VXRA.rp.registerTexture(img, path)) {
+            if (!rp.registerTexture(img, path)) {
                 if (GlobalAppConfig.bcfg.MISSING_IMAGE_FATAL)
                     throw new RuntimeException("Failed to load image at path " + path);
     
                 Warnings.warn("velocity.system.Images", "Failed to load provided image (" + path + ")");
-                return VXRA.rp.getTextureHandleFromPath("__XX_VELOCITY_DEFAULT_TEXTURE__");
+                return rp.getTextureHandleFromPath("__XX_VELOCITY_DEFAULT_TEXTURE__");
             }
         }
 
-        return VXRA.rp.getTextureHandleFromPath(path);
+        return rp.getTextureHandleFromPath(path);
     }
 
     /**

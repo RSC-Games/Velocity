@@ -1,4 +1,4 @@
-package com.rsc_games.velocity.renderer;
+package com.rsc_games.velocity.lighting;
 
 import java.awt.Color;
 

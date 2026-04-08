@@ -1,9 +1,9 @@
-package com.rsc_games.velocity.renderer.erp;
+package com.rsc_games.velocity.unused.erp;
 
 import java.awt.image.BufferedImage;
 
 import com.rsc_games.velocity.renderer.RendererImage;
-import com.rsc_games.velocity.renderer.erp.ERPRendererImage;
+import com.rsc_games.velocity.unused.erp.ERPRendererImage;
 
 /**
  * A flexible and fast way to have many references to one image stored in memory.

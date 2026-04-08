@@ -19,8 +19,6 @@ import java.awt.event.MouseEvent;
 import java.util.HashMap;
 
 import com.rsc_games.velocity.InputSystem;
-
-import com.rsc_games.velocity.Driver;
 import com.rsc_games.velocity.config.GlobalAppConfig;
 
 class GLEventHandler {
@@ -31,7 +29,6 @@ class GLEventHandler {
     }
 
     private GLWindow window;
-    private Driver main;
     private InputSystem inputSystem;
 
     private static void fillMouseData() {
@@ -43,8 +40,7 @@ class GLEventHandler {
         GLFW_MOUSE_TO_AWT.put(GLFW_MOUSE_BUTTON_6, 6);
     }
 
-    public GLEventHandler(GLWindow win, Driver main) {
-        this.main = main;
+    public GLEventHandler(GLWindow win) {
         this.window = win;
 
         // Set important event handler callbacks.
@@ -107,13 +103,5 @@ class GLEventHandler {
 
         if (GlobalAppConfig.bcfg.EN_RENDERER_LOGS)
             System.out.printf("[lvogl]: Resized window to %d, %d\n", w, h);
-    }
-
-    /**
-     * Internal tick handler.
-     */
-    public void onTimerTick() {
-        main.gameLoop();
-        inputSystem.clearKeyBuffers();
     }
 }

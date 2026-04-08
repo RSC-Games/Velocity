@@ -3,7 +3,7 @@ package com.rsc_games.copperheadgl;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
+//import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.glBlendFunc;
@@ -211,16 +211,35 @@ class GLRendererContext {
     } 
 
     /**
+     * Determine if the image in question has already been loaded (so disk
+     * IO time isn't wasted loading an image that has already been loaded).
+     * 
+     * @param path Texture path.
+     * @return Whether the image at the given path has already been loaded.
+     */
+    public boolean isTextureLoaded(String path) {
+        return this.batchRenderer.textureSystem.isTextureLoaded(path);
+    }
+
+    /**
      * Internally load an image, intern it, then upload it to the GPU.
      * 
      * @param img The loaded image.
      * @param path The image path.
      * @return The loaded image.
      */
-    // TODO: Switch to a path-based loading approach instead of loading the entire
-    // image.
     public RendererImage loadImage(BufferedImage img, String path) {
         return this.batchRenderer.loadTexture(img, path);
+    }
+
+    /**
+     * Look up an existing texture (probably sharing the texture).
+     * 
+     * @param path The file path of the texture.
+     * @return The texture reference.
+     */
+    public GLRendererImage lookupTexture(String path) {
+        return this.batchRenderer.textureSystem.lookupTextureByPath(path);
     }
 
     /**

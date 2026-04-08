@@ -7,8 +7,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 
-//import com.rsc_games.velocity.Scene;
-import com.rsc_games.velocity.renderer.InternalLightSource;
 import com.rsc_games.velocity.renderer.LightingEngine;
 import com.rsc_games.velocity.sprite.Camera;
 import com.rsc_games.velocity.util.Point;
@@ -18,6 +16,7 @@ import com.rsc_games.copperheadgl.luma.GLPointLight;
 import com.rsc_games.copperheadgl.luma.GLSunLight;
 import com.rsc_games.velocity.Rect;
 import com.rsc_games.velocity.Scene;
+import com.rsc_games.velocity.lighting.InternalLightSource;
 
 // TODO: Rewrite and clean up.
 public class GLLightingEngine extends LightingEngine {

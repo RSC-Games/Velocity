@@ -3,7 +3,6 @@ package com.rsc_games.velocity.renderer;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import com.rsc_games.velocity.Driver;
 import com.rsc_games.velocity.renderer.window.Window;
 import com.rsc_games.velocity.renderer.window.WindowConfig;
 import com.rsc_games.velocity.shader.Shader;
@@ -42,20 +41,14 @@ public abstract class RenderPipeline {
     protected ArrayList<Shader> fullScreenShaders = new ArrayList<Shader>();
 
     /**
-     * Renderer call hook for the repaint handler. Mostly managed internally.
-     */
-    protected Driver m;
-
-    /**
      * Internal creation of the renderer. Must always be called by an extension
      * renderer's constructor.
      * 
      * @param m Takes a driver class (always {@code Main}) for frame events.
      * @param le Basic or advanced lighting engine bundled with the renderer.
      */
-    public RenderPipeline(Driver m, LightingEngine le) {
+    public RenderPipeline(LightingEngine le) {
         this.le = le;
-        this.m = m;
     }
 
     /**
@@ -64,9 +57,8 @@ public abstract class RenderPipeline {
      * {@code DrawTimer}. Always must be implemented by a subclass renderer.
      * 
      * @param windowCfg Window configuration parameters.
-     * @param m Driver class (which is always {@code Main}).
      */
-    public RenderPipeline(WindowConfig windowCfg, Driver m) { le = null; }
+    public RenderPipeline(WindowConfig windowCfg) { le = null; }
 
     /**
      * Initializes this render pipeline. Instead of doing most init in the constructor,
@@ -89,9 +81,9 @@ public abstract class RenderPipeline {
 
     /**
      * Runs in the render thread while the render thread is idle. Guaranteed
-     * to be called at least once per loop.
+     * to be called at least once per loop. (Not added due to multithread issues)
      */
-    public abstract void renderIdle();
+    //public abstract void renderIdle();
 
 
 
@@ -102,14 +94,6 @@ public abstract class RenderPipeline {
      * @return Renderer name
      */
     public abstract String getRendererName();
-
-    /**
-     * Get the VXRA version the extension renderer was designed to target.
-     * This prevents obscure crashes from renderer function mismatches.
-     * 
-     * @return Extension renderer VXRA version string.
-     */
-    public abstract String getVXRATargetVersion();
 
     /**
      * Returns the renderer feature set. Useful for identifying compatibility issues and performance

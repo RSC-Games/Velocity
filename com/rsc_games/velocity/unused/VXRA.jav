@@ -1,4 +1,4 @@
-package com.rsc_games.velocity;
+package com.rsc_games.velocity.unused;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -10,11 +10,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
-import com.rsc_games.velocity.VXRA;
 import com.rsc_games.velocity.config.GlobalAppConfig;
 import com.rsc_games.velocity.renderer.RenderPipeline;
 import com.rsc_games.velocity.renderer.erp.EmbeddedRenderPipeline;
 import com.rsc_games.velocity.renderer.window.WindowConfig;
+import com.rsc_games.velocity.unused.RenderThread;
+import com.rsc_games.velocity.unused.RendererDispatcher;
 import com.rsc_games.velocity.util.Logger;
 import com.rsc_games.velocity.util.Popup;
 import com.rsc_games.velocity.util.Warnings;

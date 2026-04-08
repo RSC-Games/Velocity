@@ -2,7 +2,6 @@ package com.rsc_games.velocity.lighting;
 
 import java.awt.Color;
 
-import com.rsc_games.velocity.renderer.InternalLightSource;
 import com.rsc_games.velocity.util.Point;
 
 /**

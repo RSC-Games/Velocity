@@ -54,6 +54,7 @@ public abstract class Sprite {
     public Sprite(Transform transform, String name) {
         this.transform = transform;
         this.name = name;
+        this.currentState = State.PREINIT;
 
         if (GlobalAppConfig.bcfg.LOG_MEMORY)
             MemTracerUtil.trackSprite(this);
@@ -73,7 +74,7 @@ public abstract class Sprite {
      * @return If the sprite has reached that state.
      */
     public boolean hasReachedState(State state) {
-        return this.currentState.compareTo(state) <= 0;
+        return this.currentState.compareTo(state) >= 0;
     }
 
     

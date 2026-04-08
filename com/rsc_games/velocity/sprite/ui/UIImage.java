@@ -3,7 +3,7 @@ package com.rsc_games.velocity.sprite.ui;
 import com.rsc_games.velocity.renderer.DrawInfo;
 import com.rsc_games.velocity.renderer.FrameBuffer;
 import com.rsc_games.velocity.renderer.RendererImage;
-import com.rsc_games.velocity.system.Images;
+import com.rsc_games.velocity.system.ImageLoader;
 import com.rsc_games.velocity.util.Point;
 import com.rsc_games.velocity.util.Transform;
 
@@ -26,7 +26,7 @@ public abstract class UIImage extends UIRenderable {
      */
     public UIImage(Transform transform, String name, String imagename) {
         super(transform, name);
-        this.img = Images.loadImage(imagename);
+        this.img = ImageLoader.loadImage(imagename);
         this.transform.updateRect(new Point(img.getWidth(), img.getHeight()));
     }
 

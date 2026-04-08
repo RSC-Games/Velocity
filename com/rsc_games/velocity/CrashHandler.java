@@ -3,8 +3,6 @@ package com.rsc_games.velocity;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
-import com.rsc_games.velocity.VXRA;
-import com.rsc_games.velocity.VelocityMain;
 import com.rsc_games.velocity.util.Logger;
 import com.rsc_games.velocity.util.TextFile;
 
@@ -26,7 +24,7 @@ class CrashHandler {
             String velocityVersionCode = VelocityMain.VELOCITY_VER + "-" + VelocityMain.VELOCITY_EXT;
 
             f.write("VELOCITY " + velocityVersionCode + " CRASH LOG " + LocalDateTime.now() + "\n");
-            f.write("Running VXRA version " + VXRA.VXRA_VER + "; using renderer " + VXRA.rp.getRendererName() + "\n\n");
+            f.write("Active Velocity renderer " + PipelineManager.getPipeline().getRendererName() + "\n\n");
             f.write("A fatal exception has been detected in this Velocity Application.\n");
             f.write("Exception message: " + message + "\n");
             f.write("Exception Details:\n");

@@ -1,6 +1,6 @@
 package com.rsc_games.velocity.sprite.ui.internal;
 
-import com.rsc_games.velocity.system.Images;
+import com.rsc_games.velocity.system.ImageLoader;
 
 import com.rsc_games.velocity.Rect;
 import com.rsc_games.velocity.Scene;
@@ -47,7 +47,7 @@ public class UnstableRendererWarning extends UIImage {
      */
     public UnstableRendererWarning(String name, String imgpath) {
         super(new Transform(new Rect(new Point(-250, 115), Point.zero), 0f, Point.one, 100), name, 
-            Images.loadImage(SystemResourceLoader.getSystemResourceLoader(), imgpath));
+            ImageLoader.loadImage(SystemResourceLoader.getSystemResourceLoader(), imgpath));
     }
 
     /**

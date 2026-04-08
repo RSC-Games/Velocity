@@ -117,16 +117,16 @@ public class Scene {
         }
         
         // Force GPU texture heap to be cleaned out.
-        VXRA.rp.forceGCRun();
+        PipelineManager.getPipeline().forceGCRun();
     
         // Start the last scene in the queue on this pass.
         currentScene.init();
         sceneQueue.clear();
 
         // Inject the unstable renderer warning if the pop-up warning is suppressed.
-        if (!VXRA.rp.getFeatureSet().FEAT_required && GlobalAppConfig.bcfg.SUPPRESS_UNSTABLE_RENDERER_WARNING)
+        if (!PipelineManager.getPipeline().getFeatureSet().FEAT_required && GlobalAppConfig.bcfg.SUPPRESS_UNSTABLE_RENDERER_WARNING)
             currentScene.addSprite(new UnstableRendererWarning("Unstable Renderer Warning", 
-                                                       "./velocity/resources/bad_renderer.png"));
+                                                       "./com/rsc_games/velocity/resources/bad_renderer.png"));
 
         // Scene loading memory diagnostics.
         if (GlobalAppConfig.bcfg.LOG_MEMORY) {

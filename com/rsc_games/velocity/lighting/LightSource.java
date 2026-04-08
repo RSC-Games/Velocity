@@ -1,6 +1,6 @@
 package com.rsc_games.velocity.lighting;
 
-import com.rsc_games.velocity.VXRA;
+import com.rsc_games.velocity.PipelineManager;
 
 import com.rsc_games.velocity.renderer.LightingEngine;
 import com.rsc_games.velocity.util.Logger;
@@ -28,7 +28,7 @@ public abstract class LightSource {
      * Base constructor. Not really used by any code.
      */
     public LightSource() {
-        this.le = VXRA.rp.le;
+        this.le = PipelineManager.getPipeline().le;
         this.lightid = 0L;
     }
 
@@ -54,7 +54,7 @@ public abstract class LightSource {
      * @return The presence of a lighting engine.
      */
     protected boolean lePresent() {
-        return VXRA.rp.getFeatureSet().FEAT_lighting;
+        return PipelineManager.getPipeline().getFeatureSet().FEAT_lighting;
     }
 
     /**

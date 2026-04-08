@@ -1,4 +1,4 @@
-package com.rsc_games.velocity.renderer.erp;
+package com.rsc_games.velocity.unused.erp;
 
 import java.awt.image.BufferedImage;
 import java.awt.BasicStroke;
@@ -13,7 +13,7 @@ import com.rsc_games.velocity.Rect;
 import com.rsc_games.velocity.renderer.DrawInfo;
 import com.rsc_games.velocity.renderer.FrameBuffer;
 import com.rsc_games.velocity.renderer.RendererImage;
-import com.rsc_games.velocity.renderer.erp.ERPFrameBuffer;
+import com.rsc_games.velocity.unused.erp.ERPFrameBuffer;
 import com.rsc_games.velocity.util.Point;
 
 /**

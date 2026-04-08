@@ -3,9 +3,8 @@ package com.rsc_games.copperheadgl;
 import com.rsc_games.velocity.util.Logger;
 import com.rsc_games.velocity.util.Point;
 import com.rsc_games.velocity.util.Vector2;
-import com.rsc_games.velocity.Driver;
 import com.rsc_games.velocity.config.GlobalAppConfig;
-import com.rsc_games.velocity.system.Images;
+import com.rsc_games.velocity.system.ImageLoader;
 import com.rsc_games.velocity.renderer.window.Window;
 import com.rsc_games.velocity.renderer.window.WindowConfig;
 import com.rsc_games.velocity.renderer.window.WindowOption;
@@ -46,7 +45,7 @@ public class GLWindow implements Window {
      * Create a GLFW frame.
      */
     //@SuppressWarnings("deprecation")
-    public GLWindow(WindowConfig cfg, CopperheadGL rp, Driver m) {
+    public GLWindow(WindowConfig cfg, CopperheadGL rp) {
         System.out.println("[copper]: Found LWJGL version " + Version.getVersion());
 
         // Start initialization.
@@ -96,7 +95,7 @@ public class GLWindow implements Window {
         this.copperhead = rp;
         glfwShowWindow(window);
 
-        BufferedImage image = Images.convert(Images.loadRawImage(cfg.getIconPath()), true);
+        BufferedImage image = ImageLoader.convert(ImageLoader.loadRawImage(cfg.getIconPath()), true);
         PixelArray imgWrap = new PixelArray(image); 
 
         // Set the window icon
@@ -115,8 +114,7 @@ public class GLWindow implements Window {
             images.put(glImg);
             images.position(0);
             glfwSetWindowIcon(window, images);
-        }
-        
+        }  
 
         // Finish initializing the window.
         glfwMakeContextCurrent(window);
